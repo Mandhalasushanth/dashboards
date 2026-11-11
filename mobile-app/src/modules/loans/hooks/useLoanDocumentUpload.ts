@@ -17,7 +17,7 @@ const TOO_LARGE_PREFIX = "File size exceeds";
 
 /**
  * Upload behaviour for the loan documents screen. File picking, permissions and the
- * bottom sheet are the shared TaxEdge implementation; this hook only maps a picked
+ * bottom sheet are the shared Finsolz implementation; this hook only maps a picked
  * file to a loan document requirement and keeps customer-friendly per-document errors.
  */
 export function useLoanDocumentUpload(requirements: LoanDocumentRequirement[]) {

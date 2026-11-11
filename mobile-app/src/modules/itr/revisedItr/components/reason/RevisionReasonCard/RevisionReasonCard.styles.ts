@@ -1,8 +1,9 @@
 import { StyleSheet, Platform } from "react-native";
+import { BrandColors, Typography } from "@/shared/theme";
 
 export const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 14,
     borderWidth: 1.5,
     flexDirection: "row",
@@ -22,11 +23,11 @@ export const styles = StyleSheet.create({
     }),
   },
   cardSelected: {
-    borderColor: "#F97316",
+    borderColor: BrandColors.PRIMARY_ORANGE,
     backgroundColor: "#FFFBF7",
   },
   cardUnselected: {
-    borderColor: "#E5E7EB",
+    borderColor: "#E2E8F0",
     backgroundColor: "#FFFFFF",
   },
   iconBox: {
@@ -48,15 +49,15 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
   title: {
-    fontSize: 14.5,
-    fontWeight: "700",
-    color: "#0B1F3A",
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.bold,
+    color: "#0F172A",
   },
   subtitle: {
-    fontSize: 11.5,
+    fontSize: Typography.fontSize.xs,
     color: "#64748B",
     marginTop: 2.5,
-    lineHeight: 15.5,
+    lineHeight: 16,
   },
   radioOuter: {
     width: 22,
@@ -67,7 +68,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   radioOuterSelected: {
-    borderColor: "#F97316",
+    borderColor: BrandColors.PRIMARY_ORANGE,
   },
   radioOuterUnselected: {
     borderColor: "#CBD5E1",
@@ -76,6 +77,6 @@ export const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#F97316",
+    backgroundColor: BrandColors.PRIMARY_ORANGE,
   },
 });

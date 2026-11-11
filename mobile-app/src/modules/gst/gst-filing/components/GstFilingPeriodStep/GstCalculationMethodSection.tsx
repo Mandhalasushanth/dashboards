@@ -6,6 +6,7 @@ import {
   formatIndianNumberInput,
   toRawNumericString,
 } from "@/shared/formatters/currencyFormatter";
+import { removeEmoji } from "@/modules/gst/utils/gstEmojiFilter";
 import { styles } from "@/modules/gst/gst-filing/components/GstFilingPeriodStep/GstFilingPeriodStep.styles";
 
 interface GstCalculationMethodSectionProps {
@@ -62,7 +63,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
         />
         <View style={styles.methodContent}>
           <Text style={styles.methodTitle}>
-            Let TaxEdge CA calculate from documents
+            Let Finsolz CA calculate from documents
           </Text>
           <Text style={styles.methodSubtitle}>
             Upload your invoices & GSTR-2B; our CA computes sales, purchases & ITC
@@ -98,7 +99,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
         <View style={styles.estimatesContainer}>
           <View style={styles.estimateInputRow}>
             <Text style={styles.estimateLabel}>
-              Estimated Taxable Sales (₹)
+              Estimated Taxable Sales (₹) <Text style={styles.star}>*</Text>
             </Text>
             <TextInput
               style={[styles.estimateInput, errors.taxableSales && styles.inputError]}
@@ -110,7 +111,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
               onBlur={() => onBlurField?.("taxableSales")}
               onChangeText={(val) =>
                 onChange({
-                  taxableSales: toRawNumericString(val),
+                  taxableSales: toRawNumericString(removeEmoji(val)),
                   calculationMethod: "manual_estimates",
                 })
               }
@@ -122,7 +123,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
 
           <View style={styles.estimateInputRow}>
             <Text style={styles.estimateLabel}>
-              Estimated Taxable Purchases (₹)
+              Estimated Taxable Purchases (₹) <Text style={styles.star}>*</Text>
             </Text>
             <TextInput
               style={[styles.estimateInput, errors.taxablePurchases && styles.inputError]}
@@ -134,7 +135,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
               onBlur={() => onBlurField?.("taxablePurchases")}
               onChangeText={(val) =>
                 onChange({
-                  taxablePurchases: toRawNumericString(val),
+                  taxablePurchases: toRawNumericString(removeEmoji(val)),
                   calculationMethod: "manual_estimates",
                 })
               }
@@ -146,7 +147,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
 
           <View style={styles.estimateInputRow}>
             <Text style={styles.estimateLabel}>
-              Estimated Eligible ITC (₹)
+              Estimated Eligible ITC (₹) <Text style={styles.star}>*</Text>
             </Text>
             <TextInput
               style={[styles.estimateInput, errors.eligibleItc && styles.inputError]}
@@ -158,7 +159,7 @@ export const GstCalculationMethodSection: React.FC<GstCalculationMethodSectionPr
               onBlur={() => onBlurField?.("eligibleItc")}
               onChangeText={(val) =>
                 onChange({
-                  eligibleItc: toRawNumericString(val),
+                  eligibleItc: toRawNumericString(removeEmoji(val)),
                   calculationMethod: "manual_estimates",
                 })
               }

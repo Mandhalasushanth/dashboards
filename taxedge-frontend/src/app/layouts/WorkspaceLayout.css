@@ -1,0 +1,72 @@
+.tx-workspace {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--tx-background);
+}
+
+.tx-workspace--with-sidebar {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.tx-workspace__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+ * position: relative makes this scroll area the containing block for absolutely positioned descendants
+ * (e.g. .tx-sr-only labels). Without it they are placed against the document, stretch it past the
+ * window and leave a gap under the sidebar.
+ */
+.tx-workspace__content {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--tx-content-max-width);
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 18px) clamp(10px, 1.5vw, 18px);
+  overflow-y: auto;
+  /* No visible scrollbar: the page still scrolls with the wheel, trackpad or touch. */
+  scrollbar-width: none;
+}
+
+.tx-workspace__content::-webkit-scrollbar {
+  display: none;
+}
+
+.tx-workspace__loading {
+  display: flex;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--tx-primary-orange);
+}
+
+.tx-workspace__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  animation: tx-backdrop-in 0.2s ease-out;
+}
+
+@keyframes tx-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

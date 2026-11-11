@@ -1,0 +1,160 @@
+.tx-case-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .tx-case-kpis--even {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* A short last row (e.g. 7 cards) stretches its final card instead of leaving a hole. */
+  .tx-case-kpis--even > :last-child:nth-child(4n + 3) { grid-column: span 2; }
+  .tx-case-kpis--even > :last-child:nth-child(4n + 2) { grid-column: span 3; }
+}
+
+.tx-case-kpi {
+  --kpi-accent: var(--tx-primary-blue);
+  --kpi-tint: var(--tx-light-blue);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--tx-border);
+  border-top: 3px solid var(--kpi-accent);
+  border-radius: var(--tx-radius-md);
+  /* A light wash of the card's colour, fading to white, as on the Reports page. */
+  background: linear-gradient(180deg, var(--kpi-tint) 0%, var(--tx-surface) 75%);
+  box-shadow: var(--tx-shadow-sm);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--tx-transition-fast), box-shadow var(--tx-transition-fast), transform var(--tx-transition-fast);
+}
+
+.tx-case-kpi--tone-orange { --kpi-accent: var(--tx-primary-orange); --kpi-tint: var(--tx-light-orange); }
+.tx-case-kpi--tone-success { --kpi-accent: var(--tx-success); --kpi-tint: var(--tx-success-light); }
+.tx-case-kpi--tone-danger { --kpi-accent: var(--tx-error); --kpi-tint: var(--tx-error-light); }
+
+.tx-case-kpi:hover {
+  border-color: var(--tx-primary-blue);
+  box-shadow: var(--tx-shadow-md);
+  transform: translateY(-1px);
+}
+
+.tx-case-kpi:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-case-kpi--active {
+  border-color: var(--tx-primary-blue);
+  background: var(--tx-unread-surface);
+  box-shadow: 0 0 0 1px var(--tx-primary-blue);
+}
+
+.tx-case-kpi--static,
+.tx-case-kpi--static:hover {
+  cursor: default;
+  transform: none;
+  border-color: var(--tx-border);
+  border-top-color: var(--kpi-accent);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-case-kpi__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-light-blue);
+  color: var(--tx-primary-blue);
+}
+
+.tx-case-kpi__icon--success {
+  background: var(--tx-success-light);
+  color: var(--tx-success);
+}
+
+.tx-case-kpi__icon--danger {
+  background: var(--tx-error-light);
+  color: var(--tx-error);
+}
+
+.tx-case-kpi__icon--orange {
+  background: var(--tx-light-orange);
+  color: var(--tx-primary-orange);
+}
+
+.tx-case-kpi__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tx-case-kpi__label {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--tx-secondary-text);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.tx-case-kpi__value {
+  margin-top: 2px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .tx-case-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .tx-case-kpi {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .tx-case-kpi__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .tx-case-kpi__value {
+    font-size: 18px;
+  }
+}
+
+/* Polish: calmer cards, bigger numbers, icon tile in the card's own colour. */
+.tx-case-kpis { gap: 16px; }
+.tx-case-kpi {
+  gap: 14px;
+  padding: 18px 18px;
+  border-radius: var(--tx-radius-lg);
+}
+.tx-case-kpi__icon { width: 46px; height: 46px; border-radius: var(--tx-radius-lg); background: var(--tx-surface); box-shadow: var(--tx-shadow-sm); }
+.tx-case-kpi__icon--success { background: var(--tx-surface); }
+.tx-case-kpi__icon--danger { background: var(--tx-surface); }
+.tx-case-kpi__icon--orange { background: var(--tx-surface); }
+.tx-case-kpi__label { font-size: 12.5px; letter-spacing: 0.01em; }
+.tx-case-kpi__value { margin-top: 4px; font-size: 30px; line-height: 1; letter-spacing: -0.02em; }
+.tx-case-kpi:hover { transform: translateY(-2px); }
+@media (max-width: 480px) {
+  .tx-case-kpis { gap: 10px; }
+  .tx-case-kpi { padding: 12px; }
+  .tx-case-kpi__icon { width: 36px; height: 36px; }
+  .tx-case-kpi__value { font-size: 22px; }
+}

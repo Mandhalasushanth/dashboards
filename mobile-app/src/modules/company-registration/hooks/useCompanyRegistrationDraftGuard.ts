@@ -28,7 +28,7 @@ export function useCompanyRegistrationDraftGuard() {
       }
       const clean = getActiveCustomerMobile();
       try {
-        const raw = await AsyncStorage.getItem(`@taxedge_draft_${clean}_company-registration`);
+        const raw = await AsyncStorage.getItem(`@finsolz_draft_${clean}_company-registration`);
         if (raw) {
           const parsed = JSON.parse(raw) as { formData?: Record<string, unknown> };
           if (parsed.formData) {

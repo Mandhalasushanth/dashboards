@@ -1,0 +1,86 @@
+/* Finsolz official color theme — mirrors the existing dashboard suite variables. */
+:root {
+  /* Core palette */
+  --tx-primary-navy: #083B75;
+  --tx-primary-blue: #0B5ED7;
+  --tx-primary-orange: #F97316;
+  --tx-background: #F7F9FC;
+  --tx-surface: #FFFFFF;
+  --tx-primary-text: #172033;
+  --tx-secondary-text: #64748B;
+  --tx-muted-text: #94A3B8;
+  --tx-border: #E2E8F0;
+  --tx-subtle-border: #F1F5F9;
+
+  /* Semantic */
+  --tx-success: #16A34A;
+  --tx-success-light: #E6F5F0;
+  --tx-error: #DC2626;
+  --tx-error-light: #FDEBEB;
+  --tx-warning: #F59E0B;
+  --tx-warning-light: #FEF3C7;
+  /* Readable amber for warning text on light surfaces. */
+  --tx-warning-strong: #B45309;
+  --tx-success-strong: #15803D;
+  --tx-success-border: #BBF7D0;
+  --tx-error-strong: #B91C1C;
+  --tx-error-border: #FECACA;
+  --tx-info-border: #BFDBFE;
+  --tx-info-surface-strong: #DBEAFE;
+  --tx-highlight: #FEF08A;
+  --tx-accent-purple: #7E22CE;
+  --tx-accent-purple-light: #F3E8FF;
+
+  /* Special */
+  --tx-navy-dark: #052750;
+  --tx-deep-navy: #06152D;
+  --tx-splash-navy: #0F1D36;
+  --tx-feature-orange: #FF7A00;
+  --tx-light-blue: #EAF1FE;
+  --tx-light-orange: #FEF0E6;
+  --tx-light-navy: #E6EDF6;
+  --tx-unread-surface: #F5F8FF;
+
+  /* Gradients */
+  --tx-header-gradient: linear-gradient(135deg, #061933 0%, #083B75 50%, #0C4A94 100%);
+  --tx-primary-gradient: linear-gradient(135deg, #083B75 0%, #0B5ED7 100%);
+  --tx-orange-gradient: linear-gradient(135deg, #F97316 0%, #FF7A00 100%);
+
+  /* Secure-access (dark) surface tokens */
+  --tx-on-dark-text: #FFFFFF;
+  --tx-on-dark-secondary: rgba(255, 255, 255, 0.72);
+  --tx-on-dark-muted: rgba(255, 255, 255, 0.5);
+  --tx-on-dark-field: rgba(6, 21, 45, 0.72);
+  --tx-on-dark-field-border: rgba(148, 163, 184, 0.28);
+  --tx-on-dark-panel: rgba(15, 29, 54, 0.78);
+  --tx-on-dark-error: #FCA5A5;
+  --tx-on-dark-error-bg: rgba(220, 38, 38, 0.16);
+  --tx-on-dark-warning: #FCD34D;
+  --tx-on-dark-warning-bg: rgba(245, 158, 11, 0.16);
+  --tx-on-dark-info: #93C5FD;
+  --tx-on-dark-info-bg: rgba(11, 94, 215, 0.18);
+
+  /* Typography */
+  --tx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --tx-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Shape, depth, motion */
+  --tx-radius-sm: 4px;
+  --tx-radius-md: 8px;
+  --tx-radius-lg: 12px;
+  --tx-radius-xl: 16px;
+  --tx-radius-full: 9999px;
+  --tx-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --tx-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --tx-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --tx-shadow-dark: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
+  --tx-focus-ring: 0 0 0 3px rgba(11, 94, 215, 0.35);
+  --tx-focus-ring-orange: 0 0 0 3px rgba(249, 115, 22, 0.35);
+  --tx-transition-fast: 0.15s ease;
+  --tx-transition-normal: 0.25s ease;
+
+  /* Layout */
+  --tx-topbar-height: 72px;
+  --tx-content-max-width: 1600px;
+  --tx-gutter: clamp(16px, 4vw, 32px);
+}

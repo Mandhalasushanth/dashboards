@@ -5,7 +5,7 @@ import { uploadAmendmentWithFile, formatFile } from "./gstAmendmentTransport";
 /** Legal Name amendment endpoints. */
 export const legalNameAmendmentApi = {
   getExistingLegalName: (gstId: string) => {
-    return apiClient.get<ExistingLegalNameDto>(`/api/v1/gst/amendments/legal-name/${gstId}/existing`);
+    return apiClient.get<ExistingLegalNameDto>(`/api/v1/gst/amendment/legal-name/${gstId}/existing`);
   },
   submitLegalNameAmendment: (
     gstId: string,
@@ -26,7 +26,7 @@ export const legalNameAmendmentApi = {
     });
   },
   getLegalNameAmendmentById: (id: number | string) => {
-    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendments/legal-name/record/${id}`);
+    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendment/legal-name/record/${id}`);
   },
   updateLegalNameAmendment: (
     id: number | string,
@@ -58,7 +58,7 @@ export const legalNameAmendmentApi = {
     if (id !== undefined && id !== null) params.append("id", String(id));
     if (pushToken) params.append("pushToken", pushToken);
     const query = params.toString();
-    const url = `/api/v1/gst/amendments/legal-name/submit${query ? `?${query}` : ""}`;
+    const url = `/api/v1/gst/amendment/legal-name/submit${query ? `?${query}` : ""}`;
     return apiClient.post<string>(url);
   },
 };

@@ -1,0 +1,74 @@
+/* Outer container holding the top toolbar and the two-pane workspace */
+.tx-communication-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  gap: 12px;
+}
+
+/* Two panes filling the remaining height: left people list, right chat thread */
+.tx-communication {
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-communication__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(40px, 8vw, 72px) 20px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  color: var(--tx-secondary-text);
+  text-align: center;
+}
+
+.tx-communication__state .tx-spinner {
+  color: var(--tx-primary-orange);
+}
+
+/* Tablet and mobile: toggle between the contact list and the open chat */
+@media (max-width: 900px) {
+  .tx-communication-page {
+    height: 100%;
+    gap: 10px;
+  }
+
+  .tx-communication {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tx-communication .tx-contacts {
+    border-right: none;
+  }
+
+  .tx-communication--chat-open .tx-contacts,
+  .tx-communication:not(.tx-communication--chat-open) .tx-conversation {
+    display: none;
+  }
+}
+
+.tx-communication__alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-warning-light);
+  color: var(--tx-warning-strong);
+  font-size: 0.86rem;
+}

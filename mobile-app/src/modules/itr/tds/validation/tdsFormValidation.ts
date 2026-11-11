@@ -1,6 +1,6 @@
 import { TdsFormData, TdsFormErrors, TdsFormFieldKey } from "../types/tdsForm.types";
-
-const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+import { describePanError } from "@/shared/validators/indianTaxValidators";
+import { isValidName } from "@/shared/validators/nameValidator";
 const TAN_REGEX = /^[A-Z]{4}[0-9]{5}[A-Z]{1}$/;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 const ACCOUNT_REGEX = /^\d{9,18}$/;
@@ -17,11 +17,12 @@ const validateSingleField = (
   const value = (data[key] || "").trim();
 
   switch (key) {
-    case "panNumber":
+    case "panNumber": {
       if (!value) return "PAN Number is required";
-      if (value.length !== 10) return "PAN must be exactly 10 characters";
-      if (!PAN_REGEX.test(value)) return "Invalid PAN format (e.g. ABCDE1234F)";
+      const panErr = describePanError(value);
+      if (panErr) return panErr;
       return undefined;
+    }
 
     case "assessmentYear":
       if (!value) return "Please select an Assessment Year";
@@ -47,7 +48,9 @@ const validateSingleField = (
 
     case "deductorName":
       if (!value) return "Employer / Deductor Name is required";
-      if (value.length < 2) return "Please enter a valid company or bank name";
+      if (!isValidName(value, 2, 100)) {
+        return "Employer / Deductor Name must contain English letters and single spaces only";
+      }
       return undefined;
 
     case "deductorTan":
@@ -68,7 +71,9 @@ const validateSingleField = (
 
     case "bankName":
       if (!value) return "Bank name is required";
-      if (value.length < 2) return "Enter a valid bank name (e.g. HDFC Bank)";
+      if (!isValidName(value, 2, 100)) {
+        return "Bank name must contain English letters and single spaces only";
+      }
       return undefined;
 
     case "accountNumber":

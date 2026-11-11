@@ -29,7 +29,7 @@ public class RefreshTokenService {
     private final SecureRandom secureRandom = new SecureRandom();
 
     
-    private static final int REFRESH_TOKEN_EXPIRY_DAYS = 30;
+    public static final int REFRESH_TOKEN_EXPIRY_DAYS = 30;
 
     
     @Transactional
@@ -141,14 +141,14 @@ public class RefreshTokenService {
 
 
     
-    private String generateRawToken() {
+    public String generateRawToken() {
         byte[] randomBytes = new byte[64];
         secureRandom.nextBytes(randomBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
    
-    private String hashToken(String token) {
+    public String hashToken(String token) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));

@@ -85,7 +85,7 @@ export const createSessionActions = (
           customerId: custId || currentU?.customerId || "",
           name: name || currentU?.name || "",
           mobileNumber: d.mobileNumber || d.mobile || cleanMobile,
-          email: d.email || currentU?.email || `${cleanMobile}@taxedge.in`,
+          email: d.email || currentU?.email || `${cleanMobile}@finsolz.in`,
           customerType: d.customerType || currentU?.customerType || "Individual",
           dob: d.dob || currentU?.dob || "",
           gender: d.gender || currentU?.gender || "",

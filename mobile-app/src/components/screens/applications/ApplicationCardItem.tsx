@@ -139,6 +139,25 @@ interface ApplicationCardItemProps {
   onPress: (item: Application) => void;
 }
 
+function formatSectionTitle(raw?: string): string {
+  if (!raw) return "";
+  const map: Record<string, string> = {
+    SIGNATORY: "Authorised Signatories",
+    CONTACT: "Contact Details",
+    BANK_ACCOUNT: "Bank Accounts",
+    LEGAL_NAME: "Legal Business Name",
+    PRINCIPAL_PLACE: "Principal Place of Business",
+    ADDITIONAL_PLACE: "Additional Place of Business",
+    RECONCILIATION_SUPPORT: "Reconciliation Support",
+  };
+  const key = raw.trim().toUpperCase();
+  if (map[key]) return map[key];
+  return raw
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function ApplicationCardItem({
   item,
   isDark,
@@ -150,16 +169,17 @@ export function ApplicationCardItem({
   const badge = getStatusBadgeStyle(item.status);
   const isDraft = item.status === "Draft" || Boolean(item.formData?.isDraft);
 
+  const formattedSection = formatSectionTitle(item.formData?.section);
+  const formattedCompliance = formatSectionTitle(item.formData?.requestType);
+
   const displayName =
     item.serviceId === "gst-cancellation"
       ? "GST Cancellation (REG-16)"
-      : item.serviceId === "gst-amendment" && item.formData?.section
-        ? `GST Amendment — ${item.formData.section}`
-        : item.serviceId === "gst-compliance" &&
-            item.formData?.requestType &&
-            !item.serviceName?.includes(item.formData.requestType)
-          ? `GST Compliance — ${item.formData.requestType}`
-          : item.serviceName || "TaxEdge Service";
+      : item.serviceId === "gst-amendment" && formattedSection
+        ? `GST Amendment — ${formattedSection}`
+        : item.serviceId === "gst-compliance" && formattedCompliance
+          ? `GST Compliance — ${formattedCompliance}`
+          : item.serviceName || "Finsolz Service";
 
   const rawDate =
     item.formData?.submissionDate ||

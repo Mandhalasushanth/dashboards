@@ -32,6 +32,21 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  boxesWrapper: {
+    position: "relative",
+    width: "100%",
+  },
+  overlayInput: {
+    ...StyleSheet.absoluteFill,
+    opacity: 0.01,
+    color: "transparent",
+    backgroundColor: "transparent",
+    zIndex: 10,
+    ...Platform.select({
+      web: { outlineStyle: "none" } as any,
+      default: {},
+    }),
+  },
   otpTouchable: {
     width: "100%",
   },
@@ -114,10 +129,10 @@ export const getThemedStyles = (isDark: boolean = false) => ({
     const borderColor = hasError
       ? "#DC2626"
       : isCurrent
-      ? BrandColors.PRIMARY_ORANGE
-      : isFilled
-      ? BrandColors.PRIMARY_BLUE_DARK
-      : "#E2E8F0";
+        ? BrandColors.PRIMARY_ORANGE
+        : isFilled
+          ? BrandColors.PRIMARY_BLUE_DARK
+          : "#E2E8F0";
 
     return {
       borderColor,

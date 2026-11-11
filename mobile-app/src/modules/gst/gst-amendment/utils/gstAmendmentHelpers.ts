@@ -1,5 +1,44 @@
 import { AmendmentFormData, RegisteredDetails } from "../types/gstAmendmentTypes";
 
+/**
+ * Checks whether a candidate string is a valid business name.
+ * Rejects empty strings, whitespace-only, and placeholder dashes.
+ */
+export function isValidBusinessName(value?: string | null): boolean {
+  if (!value) return false;
+  const trimmed = value.trim();
+  return trimmed !== "" && trimmed !== "-";
+}
+
+/**
+ * Resolves the effective business name for a GST amendment application.
+ * - Legal Business Name amendment: uses formData.newLegalBusinessName if valid.
+ * - Other amendment types: preserves registeredDetails.legalBusinessName.
+ * - Falls back safely to Registered Business if no valid name exists (never GSTIN, never "-").
+ */
+export function resolveEffectiveBusinessName(
+  selectedSectionId: string,
+  formData?: Partial<AmendmentFormData> | null,
+  registeredDetails?: Partial<RegisteredDetails> | null
+): string {
+  const isLegalNameAmendment = selectedSectionId === "legal-name";
+
+  if (isLegalNameAmendment && isValidBusinessName(formData?.newLegalBusinessName)) {
+    return (formData?.newLegalBusinessName || "").trim();
+  }
+
+  if (isValidBusinessName(registeredDetails?.legalBusinessName)) {
+    return (registeredDetails?.legalBusinessName || "").trim();
+  }
+
+  // If not legal-name amendment or registered details was not populated yet, check newLegalBusinessName
+  if (isValidBusinessName(formData?.newLegalBusinessName)) {
+    return (formData?.newLegalBusinessName || "").trim();
+  }
+
+  return "Registered Business";
+}
+
 export function resolveTargetGstId(
   gstin: string,
   customer: any,

@@ -189,7 +189,7 @@ export function useProfileManager() {
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to log out of TaxEdge?", [
+    Alert.alert("Logout", "Are you sure you want to log out of Finsolz?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Logout",

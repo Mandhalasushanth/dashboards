@@ -327,7 +327,7 @@ export function getServiceTimeline(serviceId: string): ApplicationTimelineStep[]
     return [
       { title: "Amendment Submitted", description: "Amendment request submitted with supporting documents", status: "completed", date: "Today" },
       { title: "Document Collection", description: "Verification of amended proofs and business details", status: "current" },
-      { title: "Verification", description: "TaxEdge CA and Assessing Officer review", status: "pending" },
+      { title: "Verification", description: "Finsolz CA and Assessing Officer review", status: "pending" },
       { title: "Completed", description: "Updated registration certificate issued", status: "pending" },
     ];
   }

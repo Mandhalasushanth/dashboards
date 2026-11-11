@@ -7,7 +7,7 @@ import path from "node:path";
 import { GstValidators } from "../../modules/gst/utils/gstValidators";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Indian PIN Code Validation Unit Tests
+// Finsolz GST Registration — Indian PIN Code Validation Unit Tests
 // - Accept exactly 6 numeric digits.
 // - First digit must be 1–9; reject PIN codes beginning with 0.
 // - Reject letters, spaces, emojis, and special characters.

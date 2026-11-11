@@ -2,6 +2,8 @@ package com.taxedge.gst.amendment.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.Year;
+import java.util.Base64;
 import java.util.Optional;
 
 import com.taxedge.customer.entity.Customer;
@@ -40,6 +42,25 @@ public class LegalNameAmendmentServiceImpl implements LegalNameAmendmentService 
     private final FcmNotificationService fcmNotificationService;
     private final EmailService emailService;
 
+    private synchronized String generateAmendmentId() {
+        int currentYear = Year.now().getValue();
+        String prefix = "LNA" + currentYear;
+        Optional<String> maxIdOpt = amendmentRepository.findMaxIdByPrefix(prefix);
+
+        int nextSequence = 1;
+        if (maxIdOpt.isPresent() && maxIdOpt.get() != null) {
+            String maxId = maxIdOpt.get().trim();
+            try {
+                String seqPart = maxId.substring(prefix.length());
+                nextSequence = Integer.parseInt(seqPart) + 1;
+            } catch (Exception e) {
+                log.warn("Failed to parse sequence from max ID [{}], defaulting to 1", maxId);
+            }
+        }
+
+        return String.format("%s%04d", prefix, nextSequence);
+    }
+
     private Customer resolveAndVerifyCustomer(String customerId, String gstId) {
         String resolvedCustId = null;
 
@@ -63,16 +84,12 @@ public class LegalNameAmendmentServiceImpl implements LegalNameAmendmentService 
         }
 
         if (resolvedCustId == null || resolvedCustId.trim().isEmpty()) {
-            log.error("Unable to resolve customer identity for amendment. gstId: {}", gstId);
             throw new ResourceNotFoundException("Customer ID is required to submit amendment");
         }
 
         final String finalCustId = resolvedCustId;
         return customerRepository.findById(finalCustId)
-                .orElseThrow(() -> {
-                    log.error("Customer not found with id: {}", finalCustId);
-                    return new ResourceNotFoundException("Customer not found with id: " + finalCustId);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + finalCustId));
     }
 
     private void validateDocumentFile(MultipartFile file, String contextInfo) {
@@ -140,6 +157,7 @@ public class LegalNameAmendmentServiceImpl implements LegalNameAmendmentService 
         inputDto.setImageData(fileBytes);
 
         LegalNameAmendmentEntity amendment = amendmentMapper.toEntity(inputDto);
+        amendment.setId(generateAmendmentId());
         amendment.setCustomer(customer);
 
         amendment = amendmentRepository.save(amendment);
@@ -149,9 +167,9 @@ public class LegalNameAmendmentServiceImpl implements LegalNameAmendmentService 
     }
 
     @Override
-    public LegalNameAmendmentViewDto getAmendmentById(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Amendment ID must not be null");
+    public LegalNameAmendmentViewDto getAmendmentById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Amendment ID must not be null or empty");
         }
         LegalNameAmendmentEntity entity = amendmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No legal name amendment found with id: " + id));
@@ -161,9 +179,9 @@ public class LegalNameAmendmentServiceImpl implements LegalNameAmendmentService 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public LegalNameAmendmentViewDto updateLegalNameAmendment(Long id, String newLegalName, MultipartFile file) throws IOException {
-        if (id == null) {
-            throw new IllegalArgumentException("Amendment ID must not be null");
+    public LegalNameAmendmentViewDto updateLegalNameAmendment(String id, String newLegalName, MultipartFile file) throws IOException {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Amendment ID must not be null or empty");
         }
         LegalNameAmendmentEntity entity = amendmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No legal name amendment found with id: " + id));
@@ -185,11 +203,11 @@ public class LegalNameAmendmentServiceImpl implements LegalNameAmendmentService 
 
     @Override
     @Transactional
-    public String submitAmendment(Long id, String gstId, String pushToken) {
+    public String submitAmendment(String id, String gstId, String pushToken) {
         LegalNameAmendmentEntity amendment;
 
-        if (id != null) {
-            amendment = amendmentRepository.findById(id)
+        if (id != null && !id.trim().isEmpty()) {
+            amendment = amendmentRepository.findById(id.trim())
                     .orElseThrow(() -> new ResourceNotFoundException("Legal name amendment not found with id: " + id));
         } else if (gstId != null && !gstId.isBlank()) {
             String trimmedGst = gstId.trim();

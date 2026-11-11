@@ -9,78 +9,39 @@ export const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
   },
 
-  /* Blue Hero Header matching Home */
-  heroHeader: {
-    paddingHorizontal: Spacing.base,
-    paddingBottom: Spacing.md,
-    backgroundColor: "#083B75",
+  /* Navy Header matching My Applications */
+  navyHeader: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    position: "relative",
+    overflow: "hidden",
   },
-  topHeaderRow: {
+  headerTopRow: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 16,
   },
-  brandContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+  headerTitleWrap: {
+    flex: 1,
+    paddingRight: 12,
   },
-  logoBox: {
-    width: 36,
-    height: 36,
-    borderRadius: BorderRadius.sm,
-    backgroundColor: BrandColors.WHITE,
-    justifyContent: "center",
-    alignItems: "center",
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -0.4,
   },
-  logo: {
-    width: 26,
-    height: 26,
+  headerSubtitle: {
+    fontSize: 13,
+    fontWeight: "400",
+    color: "rgba(255, 255, 255, 0.75)",
+    marginTop: 4,
   },
-  brandText: {
-    color: BrandColors.WHITE,
-    fontSize: Typography.fontSize.sm + 1,
-    fontWeight: Typography.fontWeight.extraBold,
-    letterSpacing: 1,
-  },
-  brandSubText: {
-    color: "#B9CBE4",
-    fontSize: 9,
-    fontWeight: Typography.fontWeight.semiBold,
-    letterSpacing: 0.8,
-  },
-  screenTitle: {
-    color: BrandColors.WHITE,
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.bold,
-  },
-  headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255,255,255,0.14)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badge: {
-    position: "absolute",
-    top: 2,
-    right: 2,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
-  },
-  badgeText: {
-    color: BrandColors.WHITE,
-    fontSize: 10,
-    fontWeight: Typography.fontWeight.bold,
+  overviewCardWrapper: {
+    width: "100%",
   },
 
   /* Content Scroll */
@@ -89,36 +50,18 @@ export const styles = StyleSheet.create({
     paddingTop: Spacing.base,
   },
 
-  /* Page Title & Subtitle */
-  pageHeading: {
-    marginBottom: Spacing.base,
-  },
-  mainTitle: {
-    fontSize: 22,
-    fontWeight: Typography.fontWeight.extraBold,
-    color: "#0B2545",
-    letterSpacing: -0.3,
-  },
-  subTitle: {
-    fontSize: Typography.fontSize.sm,
-    color: "#64748B",
-    marginTop: 4,
-    lineHeight: 20,
-  },
-
   /* Overview Card */
   overviewCard: {
     backgroundColor: BrandColors.WHITE,
-    borderRadius: BorderRadius.lg,
+    borderRadius: 16,
     padding: Spacing.base,
     borderWidth: BorderWidth.thin,
     borderColor: "#E2E8F0",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-    marginBottom: Spacing.base,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 4,
   },
   overviewHeaderRow: {
     flexDirection: "row",
@@ -162,6 +105,9 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: Typography.fontWeight.extraBold,
     color: "#0B2545",
+  },
+  statValuePending: {
+    color: "#EA580C",
   },
 
   /* No Payments Yet Card (Image 1 reference) */
@@ -220,6 +166,9 @@ export const styles = StyleSheet.create({
   },
 
   /* Pending Application Payment Cards */
+  pendingContainer: {
+    marginBottom: Spacing.lg,
+  },
   pendingSectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -416,4 +365,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "#F1F5F9",
     marginLeft: 64,
   },
+});
+
+export const getPaymentHeaderThemedStyle = (topInset: number) => ({
+  paddingTop: topInset + 10,
 });

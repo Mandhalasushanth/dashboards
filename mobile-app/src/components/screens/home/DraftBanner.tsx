@@ -14,6 +14,9 @@ import { useTheme } from "@/hooks/use-theme";
 import {
   styles,
   getDraftCardThemedStyle,
+  getDraftTagThemedStyle,
+  getDraftFooterThemedStyle,
+  getThemedTextColorStyle,
 } from "@/styles/app/(main)/home.styles";
 
 interface DraftBannerProps {
@@ -51,6 +54,8 @@ export function DraftBanner({
   colors,
   onPress,
 }: DraftBannerProps) {
+  const borderTopColor = isDark ? String(colors.border) : lightBorder;
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -59,29 +64,31 @@ export function DraftBanner({
         styles.draftBannerCard,
         getDraftCardThemedStyle(isDark, colors, accentColor, lightBg, lightBorder),
       ]}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}: ${subtitle}`}
     >
       <View style={styles.draftTopRow}>
-        <View style={[styles.draftTag, { backgroundColor: accentColor }]}>
+        <View style={[styles.draftTag, getDraftTagThemedStyle(accentColor)]}>
           <Ionicons name="time" size={13} color="#FFFFFF" />
           <Text style={styles.draftTagText}>{tagLabel}</Text>
         </View>
-        <Text style={[styles.draftSavedTime, { color: colors.textSecondary }]}>
+        <Text style={[styles.draftSavedTime, getThemedTextColorStyle(String(colors.textSecondary))]}>
           {updatedAt ? `Saved ${updatedAt}` : "Saved as Draft"}
         </Text>
       </View>
 
-      <Text style={[styles.draftTitle, { color: colors.text }]}>{title}</Text>
-      <Text style={[styles.draftSubtitle, { color: colors.textSecondary }]}>
+      <Text style={[styles.draftTitle, getThemedTextColorStyle(String(colors.text))]}>{title}</Text>
+      <Text style={[styles.draftSubtitle, getThemedTextColorStyle(String(colors.textSecondary))]}>
         Step {stepIndex + 1} of {totalSteps} • {subtitle}
       </Text>
 
       <View
         style={[
           styles.draftFooter,
-          { borderTopColor: isDark ? colors.border : lightBorder },
+          getDraftFooterThemedStyle(borderTopColor),
         ]}
       >
-        <Text style={[styles.draftResumeText, { color: accentColor }]}>
+        <Text style={[styles.draftResumeText, getThemedTextColorStyle(accentColor)]}>
           {resumeLabel}
         </Text>
         <Ionicons name="arrow-forward-circle" size={20} color={accentColor} />
@@ -89,3 +96,5 @@ export function DraftBanner({
     </TouchableOpacity>
   );
 }
+
+export default DraftBanner;

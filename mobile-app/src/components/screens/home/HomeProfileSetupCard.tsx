@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
-import { styles } from "./HomeProfileSetupCard.styles";
+import { styles, getProgressFillThemedStyle } from "./HomeProfileSetupCard.styles";
 
 interface HomeProfileSetupCardProps {
   onComplete: () => void;
@@ -14,7 +14,13 @@ export const HomeProfileSetupCard: React.FC<HomeProfileSetupCardProps> = ({
   completionPercentage = 60,
 }) => {
   return (
-    <View style={styles.cardContainer}>
+    <TouchableOpacity
+      style={styles.cardContainer}
+      onPress={onComplete}
+      activeOpacity={0.88}
+      accessibilityRole="button"
+      accessibilityLabel="Complete Profile"
+    >
       <View style={styles.avatarCircle}>
         <Ionicons name="person" size={22} color={BrandColors.PRIMARY_ORANGE} />
       </View>
@@ -26,22 +32,21 @@ export const HomeProfileSetupCard: React.FC<HomeProfileSetupCardProps> = ({
         </Text>
         <View style={styles.progressRow}>
           <View style={styles.progressTrack}>
-            <View style={styles.progressFill} />
+            <View
+              style={[
+                styles.progressFill,
+                getProgressFillThemedStyle(completionPercentage),
+              ]}
+            />
           </View>
           <Text style={styles.progressPercent}>{`${completionPercentage}%`}</Text>
         </View>
       </View>
 
-      <TouchableOpacity
-        style={styles.completeBtn}
-        onPress={onComplete}
-        activeOpacity={0.85}
-        accessibilityRole="button"
-        accessibilityLabel="Complete Profile"
-      >
+      <View style={styles.completeBtn}>
         <Text style={styles.completeBtnText}>Complete Profile</Text>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

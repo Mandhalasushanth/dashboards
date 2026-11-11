@@ -35,6 +35,18 @@ sandbox:
   api-secret: ${SANDBOX_API_SECRET}
   api-version: ${SANDBOX_API_VERSION:1.0}
 
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID:}
+  api-key: ${TWILIO_API_KEY:}
+  api-secret: ${TWILIO_API_SECRET:}
+  verify-service-sid: ${TWILIO_VERIFY_SERVICE_SID:}
+
+otp:
+  test-mode:
+    enabled: ${OTP_TEST_MODE_ENABLED:false}
+    numbers: ${OTP_TEST_NUMBERS:}
+    default-code: ${OTP_DEFAULT_CODE:123456}
+
 
 server:
   port: ${SERVER_PORT:8086}
@@ -46,6 +58,10 @@ server:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:3600000}
+
+chat:
+  encryption:
+    secret: ${CHAT_ENCRYPTION_SECRET:${JWT_SECRET}}
 
 
 taxedge:

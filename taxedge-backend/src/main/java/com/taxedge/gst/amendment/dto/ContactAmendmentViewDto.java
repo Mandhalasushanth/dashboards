@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ContactAmendmentViewDto {
-    private Long id;
+    private String id;
     private String newMobileNumber;
     private String newEmail;
     private byte[] imageData;

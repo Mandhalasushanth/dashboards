@@ -1,15 +1,19 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { COMPARISON_TABLE_ROWS } from "../../../mock/revisedItrData";
+import { ComputationComparisonRow } from "../../../types/revisedItr.types";
 import { styles } from "./ComputationComparisonTable.styles";
 
-export const ComputationComparisonTable: React.FC = () => {
+interface ComputationComparisonTableProps {
+  rows: ComputationComparisonRow[];
+}
+
+export const ComputationComparisonTable: React.FC<ComputationComparisonTableProps> = ({ rows }) => {
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Tax Summary</Text>
 
-      {COMPARISON_TABLE_ROWS.map((row, idx) => {
-        const isLast = idx === COMPARISON_TABLE_ROWS.length - 1;
+      {rows.map((row, idx) => {
+        const isLast = idx === rows.length - 1;
 
         return (
           <View

@@ -35,7 +35,7 @@ export type ItrJourneyStage =
   | "COMPLETED";
 
 export type DataSourceOrigin =
-  | "TAXEDGE_PROFILE"
+  | "FINSOLZ_PROFILE"
   | "FORM_16"
   | "AIS_TIS"
   | "FORM_26AS"
@@ -68,6 +68,7 @@ export interface ItrPersonalInfo {
 export interface ItrSelectableBank {
   id: string;
   bankName: string;
+  branchName?: string;
   accountNumber: string;
   maskedAccountNumber: string;
   ifscCode: string;
@@ -78,6 +79,7 @@ export interface ItrSelectableBank {
 
 export interface ItrBankDetails {
   bankName: string;
+  branchName?: string;
   accountNumber: string;
   confirmAccountNumber: string;
   ifscCode: string;

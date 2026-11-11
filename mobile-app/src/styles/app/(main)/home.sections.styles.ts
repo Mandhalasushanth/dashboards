@@ -1,14 +1,10 @@
 import { Platform } from "react-native";
 import type { ThemeTokens } from "@/shared/constants/theme";
 import {
-  BrandColors,
   BorderRadius,
   Spacing,
   Typography,
 } from "@/shared/theme";
-import {
-  CARD_WIDTH,
-} from "./home.header.styles";
 
 export const homeSectionStyles = {
   /* Generic card */
@@ -25,8 +21,14 @@ export const homeSectionStyles = {
     fontWeight: Typography.fontWeight.extraBold,
   },
   viewAllText: {
-    fontSize: Typography.fontSize.sm + 1,
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 13.5,
+    fontWeight: "700" as const,
+    color: "#1455B8",
+  },
+  viewAllRow: {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    gap: 4,
   },
 
   /* Modern 3D Services Layout */
@@ -39,12 +41,19 @@ export const homeSectionStyles = {
     justifyContent: "space-between" as const,
     gap: 12,
   },
+  serviceCardGradient: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   serviceCard2Col: {
     flex: 1,
-    minHeight: 138,
-    borderRadius: 18,
+    minHeight: 144,
+    borderRadius: 22,
     borderWidth: 1.2,
-    padding: 12,
+    padding: 13,
     justifyContent: "space-between" as const,
     position: "relative" as const,
     overflow: "hidden" as const,
@@ -52,7 +61,7 @@ export const homeSectionStyles = {
       ios: {
         shadowColor: "#0F172A",
         shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.06,
+        shadowOpacity: 0.05,
         shadowRadius: 8,
       },
       android: {
@@ -63,7 +72,7 @@ export const homeSectionStyles = {
   serviceCardFullWidth: {
     width: "100%" as const,
     minHeight: 114,
-    borderRadius: 18,
+    borderRadius: 22,
     borderWidth: 1.2,
     padding: 14,
     flexDirection: "row" as const,
@@ -75,7 +84,7 @@ export const homeSectionStyles = {
       ios: {
         shadowColor: "#0F172A",
         shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.06,
+        shadowOpacity: 0.05,
         shadowRadius: 8,
       },
       android: {
@@ -102,146 +111,45 @@ export const homeSectionStyles = {
   serviceDesc: {
     fontSize: 11,
     fontWeight: "500" as const,
-    lineHeight: 14.5,
+    lineHeight: 15,
     marginBottom: 10,
   },
   serviceArrowBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
     alignItems: "center" as const,
     justifyContent: "center" as const,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.06)",
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1.5 },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
-        shadowRadius: 3,
+        shadowRadius: 4,
       },
       android: {
-        elevation: 1.5,
+        elevation: 2,
       },
     }),
   },
   serviceIllustration2Col: {
     position: "absolute" as const,
-    right: 0,
-    bottom: 2,
-    width: 78,
-    height: 78,
+    right: 2,
+    bottom: 4,
+    width: 76,
+    height: 76,
     zIndex: 1,
   },
   serviceIllustrationFull: {
     position: "absolute" as const,
     right: 6,
     bottom: 2,
-    width: 120,
-    height: 88,
+    width: 110,
+    height: 80,
     zIndex: 1,
-  },
-  dotsRow: {
-    flexDirection: "row" as const,
-    justifyContent: "center" as const,
-    alignItems: "center" as const,
-    gap: 6,
-    marginTop: 14,
-  },
-  pageDot: {
-    borderRadius: 4,
-  },
-
-  /* List rows */
-  emptyText: {
-    fontSize: Typography.fontSize.sm + 1,
-    fontWeight: Typography.fontWeight.medium,
-    textAlign: "center" as const,
-    paddingVertical: Spacing.md,
-  },
-
-  /* Stats grid */
-  statsGrid: {
-    flexDirection: "row" as const,
-    flexWrap: "wrap" as const,
-    gap: 12,
-  },
-  statsCard: {
-    width: (CARD_WIDTH - 12) / 2,
-    borderRadius: BorderRadius.base,
-    borderWidth: 1,
-    padding: 14,
-  },
-  statsTop: {
-    flexDirection: "row" as const,
-    alignItems: "flex-start" as const,
-    justifyContent: "space-between" as const,
-    gap: 8,
-  },
-  statsLabel: {
-    flex: 1,
-    fontSize: Typography.fontSize.sm + 0.5,
-    fontWeight: Typography.fontWeight.semiBold,
-    lineHeight: 16,
-  },
-  statsIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 9,
-    justifyContent: "center" as const,
-    alignItems: "center" as const,
-  },
-  statsNumber: {
-    fontSize: Typography.fontSize.xxl,
-    fontWeight: Typography.fontWeight.extraBold,
-    marginTop: Spacing.md,
-  },
-
-  /* Recent application cards */
-  appCard: {
-    borderRadius: BorderRadius.base,
-    borderWidth: 1,
-    padding: Spacing.base,
-  },
-  appCardTop: {
-    flexDirection: "row" as const,
-    alignItems: "center" as const,
-    justifyContent: "space-between" as const,
-    gap: 10,
-  },
-  appId: {
-    fontSize: Typography.fontSize.sm + 0.5,
-    fontWeight: Typography.fontWeight.bold,
-    letterSpacing: 0.3,
-  },
-  statusPill: {
-    paddingHorizontal: 10,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center" as const,
-  },
-  statusPillText: {
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.bold,
-  },
-  appName: {
-    fontSize: Typography.fontSize.lg + 1,
-    fontWeight: Typography.fontWeight.extraBold,
-    marginTop: 10,
-  },
-  appCardBottom: {
-    flexDirection: "row" as const,
-    alignItems: "center" as const,
-    justifyContent: "space-between" as const,
-    marginTop: 14,
-  },
-  appDate: {
-    fontSize: Typography.fontSize.sm + 0.5,
-    fontWeight: Typography.fontWeight.medium,
-  },
-  linkRow: {
-    flexDirection: "row" as const,
-    alignItems: "center" as const,
-    gap: 2,
   },
 
   /* Section headers */
@@ -249,11 +157,13 @@ export const homeSectionStyles = {
     flexDirection: "row" as const,
     alignItems: "center" as const,
     justifyContent: "space-between" as const,
-    marginTop: 4,
+    marginBottom: 10,
+    marginTop: 6,
   },
   sectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.extraBold,
+    fontSize: 19,
+    fontWeight: "800" as const,
+    letterSpacing: -0.3,
   },
 
   /* Need help */
@@ -262,9 +172,9 @@ export const homeSectionStyles = {
     alignItems: "center" as const,
     gap: 14,
     backgroundColor: "#0B5B41",
-    borderRadius: 18,
+    borderRadius: 20,
     padding: Spacing.base,
-    marginTop: 4,
+    marginTop: 6,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -290,7 +200,7 @@ export const homeSectionStyles = {
     flex: 1,
   },
   helpTitle: {
-    color: BrandColors.WHITE,
+    color: "#FFFFFF",
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.extraBold,
   },
@@ -298,55 +208,57 @@ export const homeSectionStyles = {
     color: "#C7E5D8",
     fontSize: Typography.fontSize.sm + 0.5,
     fontWeight: Typography.fontWeight.medium,
-    marginTop: 3,
   },
   helpBtn: {
-    paddingHorizontal: 18,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-    justifyContent: "center" as const,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 14,
   },
   helpBtnText: {
-    color: BrandColors.WHITE,
-    fontSize: Typography.fontSize.sm + 1.5,
+    color: "#0B5B41",
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.extraBold,
   },
+
+  /* Draft Card */
   draftBannerCard: {
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: BorderRadius.base,
     borderWidth: 1.5,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.12,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    padding: Spacing.base,
+    marginTop: 4,
+    position: "relative" as const,
+    overflow: "hidden" as const,
+  },
+  draftCard: {
+    borderRadius: BorderRadius.base,
+    borderWidth: 1.5,
+    padding: Spacing.base,
+    marginTop: 4,
+    position: "relative" as const,
+    overflow: "hidden" as const,
   },
   draftTopRow: {
     flexDirection: "row" as const,
-    justifyContent: "space-between" as const,
     alignItems: "center" as const,
-    marginBottom: 8,
+    justifyContent: "space-between" as const,
+    marginBottom: 6,
   },
-  draftTag: {
+  draftHeaderRow: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
-    gap: 6,
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: 8,
+    justifyContent: "space-between" as const,
+    marginBottom: 6,
+  },
+  draftTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
   draftTagText: {
-    fontSize: 11,
-    fontWeight: "700" as const,
+    fontSize: 10,
+    fontWeight: "800" as const,
+    letterSpacing: 0.5,
     color: "#FFFFFF",
   },
   draftSavedTime: {
@@ -376,6 +288,14 @@ export const homeSectionStyles = {
 
 export type { ThemeTokens };
 
+export const getServiceCardBorderThemedStyle = (
+  isDark: boolean,
+  colors: ThemeTokens,
+  borderColor: string
+) => ({
+  borderColor: isDark ? String(colors.border) : borderColor,
+});
+
 export const getServiceCardThemedStyle = (
   isDark: boolean,
   colors: ThemeTokens,
@@ -387,11 +307,11 @@ export const getServiceCardThemedStyle = (
 });
 
 export const getServiceLabelThemedStyle = (isDark: boolean, colors: ThemeTokens) => ({
-  color: isDark ? String(colors.text) : "#0F172A",
+  color: isDark ? String(colors.text) : "#101C46",
 });
 
 export const getServiceDescThemedStyle = (isDark: boolean, colors: ThemeTokens) => ({
-  color: isDark ? String(colors.textSecondary) : "#64748B",
+  color: isDark ? String(colors.textSecondary) : "#68758D",
 });
 
 export const getServiceArrowBtnThemedStyle = (isDark: boolean, colors: ThemeTokens) => ({
@@ -420,4 +340,28 @@ export const getHeroHeaderStyle = (colors: ThemeTokens, topInset: number) => ({
 export const getThemedCardStyle = (colors: ThemeTokens) => ({
   backgroundColor: String(colors.backgroundElement),
   borderColor: String(colors.border),
+});
+
+export const getHomeContainerThemedStyle = (backgroundColor: string) => ({
+  backgroundColor,
+});
+
+export const getScrollContentThemedStyle = (paddingBottom: number) => ({
+  paddingBottom,
+});
+
+export const getSectionTitleThemedStyle = (color: string) => ({
+  color,
+});
+
+export const getDraftTagThemedStyle = (backgroundColor: string) => ({
+  backgroundColor,
+});
+
+export const getDraftFooterThemedStyle = (borderTopColor: string) => ({
+  borderTopColor,
+});
+
+export const getThemedTextColorStyle = (color: string) => ({
+  color,
 });

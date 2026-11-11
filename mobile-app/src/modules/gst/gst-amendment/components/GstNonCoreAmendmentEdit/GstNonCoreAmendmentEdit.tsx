@@ -27,7 +27,7 @@ import { GstAmendmentProofs } from "../GstAmendmentProofs";
 
 interface GstNonCoreAmendmentEditProps {
   selectedSection: AmendmentSectionConfig;
-  registeredDetails: RegisteredDetails;
+  registeredDetails?: RegisteredDetails;
   formData: AmendmentFormData;
   errors: Record<string, string>;
   supportingDoc: SupportingDoc | null;
@@ -50,7 +50,6 @@ interface GstNonCoreAmendmentEditProps {
 
 export const GstNonCoreAmendmentEdit: React.FC<GstNonCoreAmendmentEditProps> = ({
   selectedSection,
-  registeredDetails,
   formData,
   errors,
   supportingDoc,
@@ -73,8 +72,6 @@ export const GstNonCoreAmendmentEdit: React.FC<GstNonCoreAmendmentEditProps> = (
   const sectionId = selectedSection.id;
   const acceptedProofConfig = NON_CORE_ACCEPTED_PROOFS[sectionId];
   const maxDob = useMemo(() => new Date(), []);
-  const panLen = (formData.newSignatoryPan || "").length;
-  const panKeyboardType = panLen >= 5 && panLen <= 8 ? "number-pad" : "default";
 
   return (
     <View style={styles.root}>
@@ -107,66 +104,6 @@ export const GstNonCoreAmendmentEdit: React.FC<GstNonCoreAmendmentEditProps> = (
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.editContainer}>
-          {/* Current Registered Info */}
-          <View style={styles.currentRegisteredCard}>
-            <View style={styles.cardHeaderRow}>
-              <View style={styles.cardIconBox}>
-                <Ionicons name="business" size={18} color={BrandColors.PRIMARY_ORANGE} />
-              </View>
-              <View style={styles.cardTitleWrap}>
-                <Text style={styles.currentRegisteredHeader}>Currently Registered on Portal</Text>
-                <Text style={styles.currentRegisteredSubtitle}>Read-only baseline from GST profile</Text>
-              </View>
-            </View>
-
-            {sectionId === "bank-accounts" && (
-              <>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Bank Name</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.bankName}</Text>
-                </View>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Account Number</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.bankAccountNumber}</Text>
-                </View>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>IFSC Code</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.ifscCode}</Text>
-                </View>
-              </>
-            )}
-
-            {sectionId === "authorised-signatories" && (
-              <>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Signatory Name</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.signatoryName}</Text>
-                </View>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Designation</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.signatoryDesignation}</Text>
-                </View>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Contact</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.signatoryMobile}</Text>
-                </View>
-              </>
-            )}
-
-            {sectionId === "contact-details" && (
-              <>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Registered Mobile</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.contactMobile}</Text>
-                </View>
-                <View style={styles.currentFieldRow}>
-                  <Text style={styles.currentFieldLabel}>Registered Email</Text>
-                  <Text style={styles.currentFieldValue}>{registeredDetails.contactEmail}</Text>
-                </View>
-              </>
-            )}
-          </View>
-
           {/* Form Fields Section */}
           <View style={styles.amendedDetailsCard}>
             <View style={styles.cardHeaderRow}>
@@ -180,129 +117,129 @@ export const GstNonCoreAmendmentEdit: React.FC<GstNonCoreAmendmentEditProps> = (
             </View>
 
             {sectionId === "bank-accounts" && (
-            <>
-              <InputField
-                label="New Bank Name"
-                value={formData.newBankName}
-                onChangeText={(val) => onUpdateField("newBankName", val)}
-                placeholder="Enter bank name"
-                error={errors.newBankName}
-              />
-              <InputField
-                label="New Bank Account Number"
-                value={formData.newBankAccountNumber}
-                onChangeText={(val) => onUpdateField("newBankAccountNumber", val.replace(/[^0-9]/g, "").slice(0, 18))}
-                placeholder="Enter bank account number"
-                keyboardType="number-pad"
-                error={errors.newBankAccountNumber}
-              />
-              <InputField
-                label="Confirm Bank Account Number"
-                value={formData.confirmBankAccountNumber}
-                onChangeText={(val) => onUpdateField("confirmBankAccountNumber", val.replace(/[^0-9]/g, "").slice(0, 18))}
-                placeholder="Re-enter bank account number"
-                keyboardType="number-pad"
-                error={errors.confirmBankAccountNumber}
-              />
-              <InputField
-                label="IFSC Code"
-                value={formData.newIfscCode}
-                onChangeText={(val) => onUpdateField("newIfscCode", val.toUpperCase())}
-                placeholder="Enter IFSC code"
-                autoCapitalize="characters"
-                maxLength={11}
-                error={errors.newIfscCode}
-              />
-              <DropdownField
-                label="Account Type"
-                value={formData.newAccountType}
-                placeholder="Select Account Type"
-                error={errors.newAccountType}
-                onPress={() =>
-                  onOpenPicker("Select Account Type", BANK_ACCOUNT_TYPES, formData.newAccountType, (val) => {
-                    onUpdateField("newAccountType", val);
-                    onClearError("newAccountType");
-                  })
-                }
-              />
-            </>
-          )}
+              <>
+                <InputField
+                  label="New Bank Name"
+                  value={formData.newBankName}
+                  onChangeText={(val) => onUpdateField("newBankName", val)}
+                  placeholder="Enter bank name"
+                  error={errors.newBankName}
+                />
+                <InputField
+                  label="New Bank Account Number"
+                  value={formData.newBankAccountNumber}
+                  onChangeText={(val) => onUpdateField("newBankAccountNumber", val.replace(/[^0-9]/g, "").slice(0, 18))}
+                  placeholder="Enter bank account number"
+                  keyboardType="number-pad"
+                  error={errors.newBankAccountNumber}
+                />
+                <InputField
+                  label="Confirm Bank Account Number"
+                  value={formData.confirmBankAccountNumber}
+                  onChangeText={(val) => onUpdateField("confirmBankAccountNumber", val.replace(/[^0-9]/g, "").slice(0, 18))}
+                  placeholder="Re-enter bank account number"
+                  keyboardType="number-pad"
+                  error={errors.confirmBankAccountNumber}
+                />
+                <InputField
+                  label="IFSC Code"
+                  value={formData.newIfscCode}
+                  onChangeText={(val) => onUpdateField("newIfscCode", val.toUpperCase())}
+                  placeholder="Enter IFSC code"
+                  autoCapitalize="characters"
+                  maxLength={11}
+                  error={errors.newIfscCode}
+                />
+                <DropdownField
+                  label="Account Type"
+                  value={formData.newAccountType}
+                  placeholder="Select Account Type"
+                  error={errors.newAccountType}
+                  onPress={() =>
+                    onOpenPicker("Select Account Type", BANK_ACCOUNT_TYPES, formData.newAccountType, (val) => {
+                      onUpdateField("newAccountType", val);
+                      onClearError("newAccountType");
+                    })
+                  }
+                />
+              </>
+            )}
 
-          {sectionId === "authorised-signatories" && (
-            <>
-              <InputField
-                label="Full Name of Signatory"
-                value={formData.newSignatoryName}
-                onChangeText={(val) => onUpdateField("newSignatoryName", val)}
-                placeholder="Enter full name"
-                error={errors.newSignatoryName}
-              />
-              <InputField
-                label="PAN Number"
-                value={formData.newSignatoryPan}
-                onChangeText={(val) => onUpdateField("newSignatoryPan", val.toUpperCase())}
-                placeholder="Enter PAN number"
-                autoCapitalize="characters"
-                maxLength={10}
-                keyboardType={panKeyboardType}
-                error={errors.newSignatoryPan}
-              />
-              <DateField
-                label="Date of Birth (as on PAN)"
-                value={formData.newSignatoryDob}
-                onChangeText={(val) => onUpdateField("newSignatoryDob", val)}
-                placeholder="Select date of birth"
-                error={errors.newSignatoryDob}
-                maximumDate={maxDob}
-              />
-              <InputField
-                label="Designation / Status"
-                value={formData.newSignatoryDesignation}
-                onChangeText={(val) => onUpdateField("newSignatoryDesignation", val.replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 3))}
-                placeholder="MR / MS / DR"
-                autoCapitalize="characters"
-                maxLength={3}
-                error={errors.newSignatoryDesignation}
-              />
-              <PhoneField
-                label="Mobile Number"
-                value={formData.newSignatoryMobile}
-                onChangeText={(val) => onUpdateField("newSignatoryMobile", val.replace(/[^0-9]/g, "").slice(0, 10))}
-                placeholder="Enter mobile number"
-                error={errors.newSignatoryMobile}
-              />
-              <InputField
-                label="Email Address"
-                value={formData.newSignatoryEmail}
-                onChangeText={(val) => onUpdateField("newSignatoryEmail", val.toLowerCase())}
-                placeholder="Enter email address"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={errors.newSignatoryEmail}
-              />
-            </>
-          )}
+            {sectionId === "authorised-signatories" && (
+              <>
+                <InputField
+                  label="Full Name of Signatory"
+                  value={formData.newSignatoryName}
+                  onChangeText={(val) => onUpdateField("newSignatoryName", val)}
+                  placeholder="Enter full name"
+                  error={errors.newSignatoryName}
+                />
+                <InputField
+                  label="PAN Number"
+                  value={formData.newSignatoryPan}
+                  onChangeText={(val) => onUpdateField("newSignatoryPan", val.toUpperCase())}
+                  placeholder="Enter PAN number"
+                  autoCapitalize="characters"
+                  maxLength={10}
+                  keyboardType="default"
+                  error={errors.newSignatoryPan}
+                />
+                <DateField
+                  label="Date of Birth (as on PAN)"
+                  value={formData.newSignatoryDob}
+                  onChangeText={(val) => onUpdateField("newSignatoryDob", val)}
+                  placeholder="Select date of birth"
+                  error={errors.newSignatoryDob}
+                  maximumDate={maxDob}
+                />
+                <InputField
+                  label="Designation / Status"
+                  value={formData.newSignatoryDesignation}
+                  onChangeText={(val) => onUpdateField("newSignatoryDesignation", val.replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 3))}
+                  placeholder="MR / MS / DR"
+                  autoCapitalize="characters"
+                  maxLength={3}
+                  error={errors.newSignatoryDesignation}
+                />
+                <PhoneField
+                  label="Mobile Number"
+                  value={formData.newSignatoryMobile}
+                  onChangeText={(val) => onUpdateField("newSignatoryMobile", val.replace(/[^0-9]/g, "").slice(0, 10))}
+                  placeholder="Enter mobile number"
+                  error={errors.newSignatoryMobile}
+                />
+                <InputField
+                  label="Email Address"
+                  value={formData.newSignatoryEmail}
+                  onChangeText={(val) => onUpdateField("newSignatoryEmail", val.toLowerCase())}
+                  placeholder="Enter email address"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  error={errors.newSignatoryEmail}
+                />
+              </>
+            )}
 
-          {sectionId === "contact-details" && (
-            <>
-              <PhoneField
-                label="New Primary Contact Mobile"
-                value={formData.newContactMobile}
-                onChangeText={(val) => onUpdateField("newContactMobile", val.replace(/[^0-9]/g, "").slice(0, 10))}
-                placeholder="Enter mobile number"
-                error={errors.newContactMobile}
-              />
-              <InputField
-                label="New Primary Contact Email"
-                value={formData.newContactEmail}
-                onChangeText={(val) => onUpdateField("newContactEmail", val.toLowerCase())}
-                placeholder="Enter email address"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={errors.newContactEmail}
-              />
-            </>
-          )}
+            {sectionId === "contact-details" && (
+              <>
+                <PhoneField
+                  label="New Primary Contact Mobile"
+                  value={formData.newContactMobile}
+                  onChangeText={(val) => onUpdateField("newContactMobile", val.replace(/[^0-9]/g, "").slice(0, 10))}
+                  placeholder="Enter mobile number"
+                  error={errors.newContactMobile}
+                />
+                <InputField
+                  label="New Primary Contact Email"
+                  value={formData.newContactEmail}
+                  onChangeText={(val) => onUpdateField("newContactEmail", val.toLowerCase())}
+                  placeholder="Enter email address"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  error={errors.newContactEmail}
+                />
+              </>
+            )}
           </View>
 
           {/* Supporting Proof Upload */}
@@ -338,3 +275,4 @@ export const GstNonCoreAmendmentEdit: React.FC<GstNonCoreAmendmentEditProps> = (
     </View>
   );
 };
+

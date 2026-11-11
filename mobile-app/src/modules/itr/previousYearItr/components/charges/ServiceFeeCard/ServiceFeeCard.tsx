@@ -16,7 +16,7 @@ export const ServiceFeeCard: React.FC<ServiceFeeCardProps> = ({ serviceFee }) =>
         <View style={styles.iconCircle}>
           <Ionicons name="cash-outline" size={20} color="#EA580C" />
         </View>
-        <Text style={styles.headerTitle}>TaxEdge service fee</Text>
+        <Text style={styles.headerTitle}>Finsolz service fee</Text>
       </View>
 
       {/* Rows */}
@@ -41,7 +41,7 @@ export const ServiceFeeCard: React.FC<ServiceFeeCardProps> = ({ serviceFee }) =>
 
       {/* Total Row */}
       <View style={styles.totalRow}>
-        <Text style={styles.totalLabel}>Payable to TaxEdge</Text>
+        <Text style={styles.totalLabel}>Payable to Finsolz</Text>
         <Text style={styles.totalValue}>
           ₹{serviceFee.totalServiceFee.toLocaleString("en-IN")}
         </Text>

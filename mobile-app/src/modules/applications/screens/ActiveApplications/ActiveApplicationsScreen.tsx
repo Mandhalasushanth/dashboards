@@ -20,11 +20,22 @@ import { useResponsive } from "@/hooks/use-responsive";
 import { useApplicationStore } from "@/store/applicationStore";
 import { SCREEN_BOTTOM_PADDING } from "@/shared/components/ScreenLayout";
 import type { Application } from "@/types/domain";
-import { styles } from "./ActiveApplicationsScreen.styles";
+import {
+  styles,
+  getActiveApplicationsContainerThemedStyle,
+  getNavyHeaderThemedStyle,
+  getCategoryPillThemedStyle,
+  getCategoryPillTextThemedStyle,
+  getScrollContentThemedStyle,
+  getThemedTextColorStyle,
+  getErrorContainerThemedStyle,
+  getErrorTitleThemedStyle,
+} from "./ActiveApplicationsScreen.styles";
 import { ApplicationCardItem } from "@/components/screens/applications/ApplicationCardItem";
 import { OverviewCard, type StatusFilterType, type OverviewItem } from "@/components/screens/applications/OverviewCard";
 import { CategoryFilterModal, CATEGORY_FILTER_OPTIONS } from "@/components/screens/applications/CategoryFilterModal";
 import { ApplicationsEmptyState } from "@/components/screens/applications/ApplicationsEmptyState";
+import { HeaderGradientBackground } from "@/shared/components/HeaderGradientBackground/HeaderGradientBackground";
 import { useAuthStore } from "@/modules/authentication/store/authStore";
 import { isProfileComplete } from "@/shared/guards/serviceAccess";
 import {
@@ -201,23 +212,17 @@ export function ActiveApplicationsScreen() {
   }, [emptyState.resetType]);
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? colors.background : "#F8FAFC" }]}>
+    <View style={[styles.container, getActiveApplicationsContainerThemedStyle(isDark, colors.background)]}>
       <FocusAwareStatusBar barStyle="light-content" backgroundColor="#0A2346" />
 
       {/* ── Navy Header with KPI Overview Card ── */}
-      <View style={[styles.navyHeader, { paddingTop: insets.top + 10 }]}>
+      <View style={[styles.navyHeader, getNavyHeaderThemedStyle(insets.top)]}>
+        <HeaderGradientBackground />
         <View style={styles.headerTopRow}>
           <View style={styles.headerTitleWrap}>
             <Text style={styles.headerTitle}>My Applications</Text>
             <Text style={styles.headerSubtitle}>Track all your service applications</Text>
           </View>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => router.push("/notifications")}
-            style={styles.bellButton}
-          >
-            <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
         </View>
 
         {/* ── 4-Column Overview KPI Card (Inside Navy Header) ── */}
@@ -275,17 +280,14 @@ export function ActiveApplicationsScreen() {
                 style={[
                   styles.categoryPill,
                   isActive && styles.activeCategoryPill,
-                  isDark && {
-                    backgroundColor: isActive ? "#EA580C" : colors.backgroundElement,
-                    borderColor: isActive ? "#EA580C" : colors.border,
-                  },
+                  isDark && getCategoryPillThemedStyle(isActive, colors.backgroundElement, colors.border),
                 ]}
               >
                 <Text
                   style={[
                     styles.categoryPillText,
                     isActive && styles.activeCategoryPillText,
-                    isDark && !isActive && { color: colors.textSecondary },
+                    getCategoryPillTextThemedStyle(isDark, isActive, colors.textSecondary),
                   ]}
                 >
                   {opt.label}
@@ -300,7 +302,10 @@ export function ActiveApplicationsScreen() {
       <FlatList
         data={filteredApplications}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: SCREEN_BOTTOM_PADDING }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          getScrollContentThemedStyle(SCREEN_BOTTOM_PADDING),
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -314,17 +319,17 @@ export function ActiveApplicationsScreen() {
           (!hasLoadedOnce || isLoading) && applications.length === 0 ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#FF5722" />
-              <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+              <Text style={[styles.loadingText, getThemedTextColorStyle(colors.textSecondary)]}>
                 Loading applications...
               </Text>
             </View>
           ) : isProfileCompleted && Boolean(error) && applications.length === 0 ? (
-            <View style={[styles.errorContainer, { backgroundColor: cardBg, borderColor: isDark ? colors.border : "#FEE2E2" }]}>
+            <View style={[styles.errorContainer, getErrorContainerThemedStyle(cardBg, isDark, colors.border)]}>
               <Ionicons name="alert-circle-outline" size={44} color="#EA580C" />
-              <Text style={[styles.errorTitle, { color: isDark ? colors.text : "#0F172A" }]}>
+              <Text style={[styles.errorTitle, getErrorTitleThemedStyle(isDark, colors.text)]}>
                 Failed to load applications
               </Text>
-              <Text style={[styles.errorText, { color: colors.textSecondary }]}>{error}</Text>
+              <Text style={[styles.errorText, getThemedTextColorStyle(colors.textSecondary)]}>{error}</Text>
               <TouchableOpacity activeOpacity={0.8} onPress={fetchApplications} style={styles.retryButton}>
                 <Text style={styles.retryButtonText}>Retry</Text>
               </TouchableOpacity>

@@ -9,14 +9,14 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareFormLayout";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { SecondaryButton } from "@/shared/components/Button/SecondaryButton";
 import { styles } from "@/styles/app/(main)/profile.styles";
 import type { PersonalFormState } from "./useProfileManager";
 import { isPlaceholderCustomerName } from "@/modules/authentication/store/authStore.helpers";
+import { ProfileModalHeader, formatProfileCode, formatProfileDate } from "./ProfileModalHeader";
 
 const isMockEmail = (email?: string | null): boolean => {
   if (!email || email.trim() === "") return true;
-  return /^\d{10}@taxedge\.in$/i.test(email.trim()) || email.toLowerCase().endsWith("@taxedge.in");
+  return /^\d{10}@finsolz\.in$/i.test(email.trim()) || email.toLowerCase().endsWith("@finsolz.in");
 };
 
 interface PersonalDetailsModalProps {
@@ -115,10 +115,10 @@ export function PersonalDetailsModal({
     ["Full Name", cleanName],
     ["Mobile", personalDetails?.mobileNumber || customer?.mobile || "N/A"],
     ["Email", cleanEmail],
-    ["Date of Birth", personalDetails?.dob || customer?.dob || "Not provided"],
+    ["Date of Birth", formatProfileDate(personalDetails?.dob || customer?.dob)],
     [
       "Customer Type",
-      personalDetails?.customerType || customer?.customerType || "Individual",
+      formatProfileCode(personalDetails?.customerType || customer?.customerType) || "Individual",
     ],
     ["Address", displayAddress],
   ];
@@ -137,9 +137,14 @@ export function PersonalDetailsModal({
             { backgroundColor: colors.backgroundElement },
           ]}
         >
-          <Text style={[styles.modalTitle, { color: colors.text }]}>
-            Personal Information
-          </Text>
+          <ProfileModalHeader
+            title={isEditingPersonal ? "Edit Personal Details" : "Personal Details"}
+            icon="person-outline"
+            iconColor={colors.orange}
+            iconBg="#FEF0E6"
+            onClose={onClose}
+            colors={colors}
+          />
 
           {fetchingPersonal ? (
             <View style={styles.fetchingContainer}>
@@ -220,11 +225,6 @@ export function PersonalDetailsModal({
               </View>
 
               <View style={styles.personalActions}>
-                <SecondaryButton
-                  title="Close"
-                  onPress={onClose}
-                  style={styles.modalActionBtn}
-                />
                 <TouchableOpacity
                   style={[
                     styles.completeActionBtn,
@@ -331,8 +331,11 @@ export function PersonalDetailsModal({
                 </View>
               ) : (
                 <View style={styles.modalBody}>
-                  {readOnlyItems.map(([label, value]) => (
-                    <View key={label} style={styles.infoRow}>
+                  {readOnlyItems.map(([label, value], index) => (
+                    <View
+                      key={label}
+                      style={[styles.infoRow, index === readOnlyItems.length - 1 && styles.infoRowLast]}
+                    >
                       <Text
                         style={[
                           styles.infoKey,
@@ -353,11 +356,6 @@ export function PersonalDetailsModal({
 
           {isProfileComplete && !isEditingPersonal ? (
             <View style={styles.personalActions}>
-              <SecondaryButton
-                title="Close"
-                onPress={onClose}
-                style={styles.modalActionBtn}
-              />
               <TouchableOpacity
                 style={[
                   styles.completeActionBtn,

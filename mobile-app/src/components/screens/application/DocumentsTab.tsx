@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { styles } from "@/styles/app/application/[id].styles";
 import type { Application, ApplicationDocument } from "@/types/domain";
 import { GstViewDocumentModal } from "@/modules/gst/components/GstDocumentCard/GstViewDocumentModal";
 import { extractAllApplicationDocuments } from "@/store/applicationDraftMappers";
 import { formatDisplayDate } from "./applicationDetailsUtils";
+import { applicationService } from "@/modules/applications/services/applicationService";
 
 interface DocumentsTabProps {
   app?: Application;
@@ -31,6 +32,7 @@ export function DocumentsTab({
   appliedDate,
 }: DocumentsTabProps) {
   const [previewDoc, setPreviewDoc] = useState<PreviewDocState | null>(null);
+  const [loadingDocIndex, setLoadingDocIndex] = useState<number | null>(null);
 
   // Extract all associated documents across any application type
   const allDocs = extractAllApplicationDocuments(
@@ -42,6 +44,44 @@ export function DocumentsTab({
   const uploadedDocs = allDocs.filter(
     (doc) => doc.status === "Uploaded" || Boolean(doc.fileUri),
   );
+
+  const effectiveFormData = (app?.formData || formData || {}) as Record<string, any>;
+  const effectiveServiceId = app?.serviceId || (isGstAmendment ? "gst-amendment" : undefined);
+
+  const handleDocumentPreview = async (
+    doc: ApplicationDocument,
+    fileName?: string,
+    fileSize?: string,
+    fileType?: string,
+    idx?: number
+  ) => {
+    let finalUri = doc.fileUri;
+
+    // If fileUri is not already available locally, fetch from backend via existing route
+    if (!finalUri && typeof idx === "number") {
+      setLoadingDocIndex(idx);
+      try {
+        const fetchedUri = await applicationService.fetchDocumentDataUri(
+          effectiveServiceId,
+          effectiveFormData,
+          doc.name
+        );
+        if (fetchedUri) {
+          finalUri = fetchedUri;
+        }
+      } finally {
+        setLoadingDocIndex(null);
+      }
+    }
+
+    setPreviewDoc({
+      title: doc.name || "Document Preview",
+      fileUri: finalUri,
+      fileName,
+      fileSize,
+      fileTypeLabel: fileType,
+    });
+  };
 
   const hasNoDocs = uploadedDocs.length === 0;
   const displayDate =
@@ -127,19 +167,17 @@ export function DocumentsTab({
                   <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={() =>
-                      setPreviewDoc({
-                        title: doc.name || "Document Preview",
-                        fileUri: doc.fileUri,
-                        fileName,
-                        fileSize,
-                        fileTypeLabel: fileType,
-                      })
+                      handleDocumentPreview(doc, fileName, fileSize, fileType, idx)
                     }
                     style={styles.docEyeButton}
                     accessibilityRole="button"
                     accessibilityLabel={`Preview ${doc.name}`}
                   >
-                    <Ionicons name="eye-outline" size={20} color="#64748B" />
+                    {loadingDocIndex === idx ? (
+                      <ActivityIndicator size="small" color="#FF5722" />
+                    ) : (
+                      <Ionicons name="eye-outline" size={20} color="#64748B" />
+                    )}
                   </TouchableOpacity>
                 </View>
               );

@@ -13,14 +13,10 @@ public interface AdditionalPlaceAmendmentService {
     AdditionalPlaceAmendmentViewDto submitAdditionalPlace(String gstId, String customerId, String address, String city, String pinCode,
                                                          NatureOfPremises natureOfPremises, MultipartFile file) throws IOException;
 
-    AdditionalPlaceAmendmentViewDto getAmendmentById(Long id);
+    AdditionalPlaceAmendmentViewDto getAmendmentById(String id);
 
-    AdditionalPlaceAmendmentViewDto updateAdditionalPlace(Long id, String address, String city, String pinCode,
+    AdditionalPlaceAmendmentViewDto updateAdditionalPlace(String id, String address, String city, String pinCode,
                                                          NatureOfPremises natureOfPremises, MultipartFile file) throws IOException;
 
-    String submitAmendment(Long id, String gstId, String pushToken);
-
-    default String submitAmendment(String gstId, String pushToken) {
-        return submitAmendment(null, gstId, pushToken);
-    }
+    String submitAmendment(String id, String gstId, String pushToken);
 }

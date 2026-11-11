@@ -39,6 +39,7 @@ export interface RevisedDocumentItem {
   fileUri?: string;
   fileName?: string;
   fileSize?: string;
+  mimeType?: string;
   status: "not_uploaded" | "uploaded";
 }
 

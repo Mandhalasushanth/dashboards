@@ -1,0 +1,105 @@
+.tx-push-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.tx-push-preview__phone {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  min-height: 320px;
+  padding: 36px 14px 20px;
+  border: 8px solid var(--tx-deep-navy);
+  border-radius: 36px;
+  background: var(--tx-header-gradient);
+  box-shadow: var(--tx-shadow-lg);
+}
+
+.tx-push-preview__notch {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 90px;
+  height: 18px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-deep-navy);
+  transform: translateX(-50%);
+}
+
+.tx-push-preview__time {
+  margin: 4px 0 20px;
+  font-size: 40px;
+  font-weight: 300;
+  color: var(--tx-on-dark-text);
+  text-align: center;
+}
+
+.tx-push-preview__card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: var(--tx-radius-xl);
+  background-color: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--tx-shadow-md);
+}
+
+.tx-push-preview__app {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.tx-push-preview__logo {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--tx-radius-sm);
+  object-fit: contain;
+}
+
+.tx-push-preview__now {
+  margin-left: auto;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.tx-push-preview__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tx-primary-text);
+  overflow-wrap: anywhere;
+}
+
+.tx-push-preview__title .tx-icon {
+  flex-shrink: 0;
+  color: var(--tx-primary-orange);
+}
+
+.tx-push-preview__message {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--tx-primary-text);
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.tx-push-preview__caption {
+  font-size: 12px;
+  color: var(--tx-secondary-text);
+}

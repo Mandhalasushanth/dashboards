@@ -1,6 +1,5 @@
-import { StyleSheet, Platform, ViewStyle, TextStyle } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import { SCREEN_BOTTOM_PADDING } from "../../../../shared/components/ScreenLayout/ScreenLayout";
-import type { ThemeMode } from "../../../../design-system/theme/themeStore";
 import type { ThemeColors } from "../../../../constants/theme";
 
 export const styles = StyleSheet.create({
@@ -27,62 +26,6 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-  },
-  themeHeaderRow: {
-    marginBottom: 14,
-  },
-  segmentedContainer: {
-    flexDirection: "row",
-    borderRadius: 14,
-    padding: 4,
-    borderWidth: 1,
-    gap: 6,
-  },
-  segmentOption: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 10,
-    position: "relative",
-  },
-  segmentOptionActive: {
-    borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.12,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
-  },
-  segmentContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  segmentText: {
-    fontSize: 14,
-  },
-  activeDot: {
-    position: "absolute",
-    right: 12,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  themeInfoFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(148, 163, 184, 0.2)",
   },
   themeInfoText: {
     fontSize: 12,
@@ -134,41 +77,6 @@ export const styles = StyleSheet.create({
 export const getCardThemedStyle = (colors: ThemeColors): ViewStyle => ({
   backgroundColor: colors.backgroundElement,
   borderColor: colors.border,
-});
-
-export const getSegmentContainerStyle = (theme: ThemeMode, colors: ThemeColors): ViewStyle => ({
-  backgroundColor: theme === "dark" ? "#0F172A" : "#F1F5F9",
-  borderColor: colors.border,
-});
-
-export const getSegmentOptionActiveStyle = (mode: ThemeMode, isSelected: boolean): ViewStyle | null => {
-  if (!isSelected) return null;
-  if (mode === "light") {
-    return {
-      backgroundColor: "#FFFFFF",
-      borderColor: "#E2E8F0",
-      shadowColor: "#083B75",
-    };
-  }
-  return {
-    backgroundColor: "#1E293B",
-    borderColor: "#334155",
-    shadowColor: "#000000",
-  };
-};
-
-export const getSegmentTextStyle = (mode: ThemeMode, currentTheme: ThemeMode, colors: ThemeColors): TextStyle => ({
-  color:
-    currentTheme === mode
-      ? mode === "light"
-        ? "#083B75"
-        : "#F8FAFC"
-      : colors.textSecondary,
-  fontWeight: currentTheme === mode ? "700" : "500",
-});
-
-export const getActiveDotStyle = (mode: ThemeMode): ViewStyle => ({
-  backgroundColor: mode === "light" ? "#FF7A00" : "#38BDF8",
 });
 
 export const getLinkRowThemedStyle = (border: string): ViewStyle => ({

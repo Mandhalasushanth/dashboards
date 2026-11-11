@@ -1,0 +1,66 @@
+.tx-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  color: var(--tx-on-dark-text);
+}
+
+.tx-brand__logo {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  /* The Finsolz mark is drawn on a transparent background, so it needs no frame. */
+  object-fit: contain;
+}
+
+.tx-brand__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.tx-brand__wordmark {
+  /* Same lettering as the logo: "Fin" in the logo's blue, "solz" in its orange, both as gradients. */
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #4fb3ff 0%, #1e7bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tx-brand__accent {
+  background: linear-gradient(180deg, #ffb020 0%, var(--tx-primary-orange) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tx-brand__tagline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  /* Title case like the logo's own tagline, sized so "Simplifying Your Fin Journey" fits the sidebar. */
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--tx-on-dark-secondary);
+}
+
+/* The short orange rule before the tagline, as in the logo. */
+.tx-brand__tagline::before {
+  content: '';
+  flex: 0 0 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--tx-primary-orange);
+}

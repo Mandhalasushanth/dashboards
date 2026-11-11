@@ -356,7 +356,7 @@ export const CompanyRegistrationScreen: React.FC = () => {
         onSettings={() =>
           Alert.alert(
             "Company Incorporation Assistance",
-            "Need help with your incorporation application? Contact support@taxedge.in or your assigned compliance officer."
+            "Need help with your incorporation application? Contact support@finsolz.in or your assigned compliance officer."
           )
         }
       />

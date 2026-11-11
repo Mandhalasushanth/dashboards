@@ -223,7 +223,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           customerId: "",
           mobileNumber: cleanMobile,
           name: "",
-          email: `${cleanMobile}@taxedge.in`,
+          email: `${cleanMobile}@finsolz.in`,
           customerType: "Individual",
           registrationCompleted: false,
         };

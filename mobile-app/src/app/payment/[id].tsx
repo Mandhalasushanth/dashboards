@@ -66,7 +66,7 @@ export default function PaymentScreen() {
   const fee = Math.round(total / (1 + GST_RATE));
   const gst = total - fee;
   const businessName =
-    app.formData.businessName ?? customer?.name ?? "TaxEdge Client";
+    app.formData.businessName ?? customer?.name ?? "Finsolz Client";
 
   const alreadyPaid = app.paymentStatus === "Paid";
 

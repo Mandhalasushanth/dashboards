@@ -26,7 +26,7 @@ export const FeeSummaryCard: React.FC<FeeSummaryCardProps> = ({ feeData }) => {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>TaxEdge Service Fee</Text>
+          <Text style={styles.rowLabel}>Finsolz Service Fee</Text>
           <Text style={styles.rowValue}>
             {formatCurrency(feeData.serviceFeeAmount)}
           </Text>

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BankAccountAmendmentViewDto {
-    private Long id;
+    private String id;
     private String newBankName;
     private String newBankAccountNumber;
     private String newIfscCode;

@@ -2,6 +2,7 @@ package com.taxedge.gst.amendment.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,25 @@ public class AdditionalPlaceAmendmentServiceImpl implements AdditionalPlaceAmend
     private final AdditionalPlaceAmendmentMapper amendmentMapper;
     private final FcmNotificationService fcmNotificationService;
     private final EmailService emailService;
+
+    private synchronized String generateAmendmentId() {
+        int currentYear = Year.now().getValue();
+        String prefix = "APA" + currentYear;
+        Optional<String> maxIdOpt = additionalPlaceRepository.findMaxIdByPrefix(prefix);
+
+        int nextSequence = 1;
+        if (maxIdOpt.isPresent() && maxIdOpt.get() != null) {
+            String maxId = maxIdOpt.get().trim();
+            try {
+                String seqPart = maxId.substring(prefix.length());
+                nextSequence = Integer.parseInt(seqPart) + 1;
+            } catch (Exception e) {
+                log.warn("Failed to parse sequence from max ID [{}], defaulting to 1", maxId);
+            }
+        }
+
+        return String.format("%s%04d", prefix, nextSequence);
+    }
 
     private Customer resolveAndVerifyCustomer(String customerId, String gstId) {
         String resolvedCustId = null;
@@ -103,6 +123,7 @@ public class AdditionalPlaceAmendmentServiceImpl implements AdditionalPlaceAmend
         inputDto.setImageData(fileBytes);
 
         AdditionalPlaceAmendmentEntity entity = amendmentMapper.toEntity(inputDto);
+        entity.setId(generateAmendmentId());
         entity.setCustomer(customer);
 
         entity = additionalPlaceRepository.save(entity);
@@ -111,9 +132,9 @@ public class AdditionalPlaceAmendmentServiceImpl implements AdditionalPlaceAmend
     }
 
     @Override
-    public AdditionalPlaceAmendmentViewDto getAmendmentById(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Amendment ID must not be null");
+    public AdditionalPlaceAmendmentViewDto getAmendmentById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Amendment ID must not be null or empty");
         }
         AdditionalPlaceAmendmentEntity entity = additionalPlaceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No additional place amendment found with id: " + id));
@@ -123,10 +144,10 @@ public class AdditionalPlaceAmendmentServiceImpl implements AdditionalPlaceAmend
 
     @Override
     @Transactional
-    public AdditionalPlaceAmendmentViewDto updateAdditionalPlace(Long id, String address, String city, String pinCode,
+    public AdditionalPlaceAmendmentViewDto updateAdditionalPlace(String id, String address, String city, String pinCode,
                                                                  NatureOfPremises natureOfPremises, MultipartFile file) throws IOException {
-        if (id == null) {
-            throw new IllegalArgumentException("Amendment ID must not be null");
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Amendment ID must not be null or empty");
         }
         AdditionalPlaceAmendmentEntity entity = additionalPlaceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No additional place amendment found with id: " + id));
@@ -146,11 +167,11 @@ public class AdditionalPlaceAmendmentServiceImpl implements AdditionalPlaceAmend
 
     @Override
     @Transactional
-    public String submitAmendment(Long id, String gstId, String pushToken) {
+    public String submitAmendment(String id, String gstId, String pushToken) {
         AdditionalPlaceAmendmentEntity amendment;
 
-        if (id != null) {
-            amendment = additionalPlaceRepository.findById(id)
+        if (id != null && !id.trim().isEmpty()) {
+            amendment = additionalPlaceRepository.findById(id.trim())
                     .orElseThrow(() -> new ResourceNotFoundException("Additional place amendment not found with id: " + id));
         } else if (gstId != null && !gstId.isBlank()) {
             String trimmedGst = gstId.trim();

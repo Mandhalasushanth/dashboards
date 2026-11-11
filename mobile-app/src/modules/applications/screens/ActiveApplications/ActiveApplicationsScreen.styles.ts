@@ -5,11 +5,12 @@ export const styles = StyleSheet.create({
 
   /* Navy Header */
   navyHeader: {
-    backgroundColor: "#0A2346",
     paddingHorizontal: 16,
     paddingBottom: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+    position: "relative",
+    overflow: "hidden",
   },
   headerTopRow: {
     flexDirection: "row",
@@ -189,4 +190,53 @@ export const styles = StyleSheet.create({
   /* CategoryTab / Document Icon */
   docIconWrap: { alignItems: "center", justifyContent: "center" },
   docIconTag: { position: "absolute", bottom: 4.5, fontWeight: "900", letterSpacing: -0.2 },
+});
+
+export const getActiveApplicationsContainerThemedStyle = (
+  isDark: boolean,
+  backgroundColor: string
+) => ({
+  backgroundColor: isDark ? backgroundColor : "#F8FAFC",
+});
+
+export const getNavyHeaderThemedStyle = (topInset: number) => ({
+  paddingTop: topInset + 10,
+});
+
+export const getCategoryPillThemedStyle = (
+  isActive: boolean,
+  cardBg: string,
+  borderColor: string
+) => ({
+  backgroundColor: isActive ? "#EA580C" : cardBg,
+  borderColor: isActive ? "#EA580C" : borderColor,
+});
+
+export const getCategoryPillTextThemedStyle = (
+  isDark: boolean,
+  isActive: boolean,
+  textColor: string
+) => ({
+  color: isDark && !isActive ? textColor : undefined,
+});
+
+export const getScrollContentThemedStyle = (paddingBottom: number) => ({
+  paddingBottom,
+});
+
+export const getThemedTextColorStyle = (color: string) => ({
+  color,
+});
+
+export const getErrorContainerThemedStyle = (
+  cardBg: string,
+  isDark: boolean,
+  borderColor: string
+) => ({
+  backgroundColor: cardBg,
+  borderColor: isDark ? borderColor : "#FEE2E2",
+});
+
+export const getErrorTitleThemedStyle = (isDark: boolean, textColor: string) => ({
+  color: isDark ? textColor : "#0F172A",
 });

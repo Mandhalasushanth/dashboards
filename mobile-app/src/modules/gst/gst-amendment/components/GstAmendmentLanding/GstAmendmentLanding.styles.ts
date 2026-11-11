@@ -97,6 +97,11 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
+  gstinLabelLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   gstinLabel: {
     fontSize: 13.5,
     fontWeight: "600",

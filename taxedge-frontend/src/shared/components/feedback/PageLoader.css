@@ -1,0 +1,16 @@
+.tx-page-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.tx-page-loader__spinner {
+  color: var(--tx-primary-orange);
+}
+
+.tx-page-loader__message {
+  font-size: 15px;
+  color: var(--tx-on-dark-secondary);
+}

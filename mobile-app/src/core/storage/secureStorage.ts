@@ -4,7 +4,7 @@ import { logger } from "@/core/logging/logger";
 import { getErrorMessage } from "@/core/error-handling/errorMessage";
 
 class SecureStorageService {
-  private prefix = "taxedge_secure_";
+  private prefix = "finsolz_secure_";
   private memoryFallback: Map<string, string> = new Map();
 
   async getItem(key: string): Promise<string | null> {

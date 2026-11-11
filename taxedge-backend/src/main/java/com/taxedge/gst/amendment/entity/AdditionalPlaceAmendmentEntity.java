@@ -1,6 +1,7 @@
 package com.taxedge.gst.amendment.entity;
 
 import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 import com.taxedge.gst.registration.enums.NatureOfPremises;
 import com.taxedge.gst.registration.enums.RegisterationStatus;
 import jakarta.persistence.*;
@@ -19,12 +20,16 @@ import java.time.LocalDateTime;
 public class AdditionalPlaceAmendmentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", length = 30, nullable = false, unique = true)
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cust_id", nullable = false)
     private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_agent_id")
+    private AgentLogin assignedAgent;
 
     @Column(name = "gst_number")
     private String gstNumber;
@@ -61,7 +66,9 @@ public class AdditionalPlaceAmendmentEntity {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
         this.updatedAt = LocalDateTime.now();
     }
 

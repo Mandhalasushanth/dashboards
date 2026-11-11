@@ -57,7 +57,7 @@ export const GstReconciliationCard: React.FC<GstReconciliationCardProps> = ({
       </View>
 
       <Text style={styles.description}>
-        TaxEdge imported business turnover from your filed GST returns. GST reporting and income tax computation can differ due to credit notes or advances.
+        Finsolz imported business turnover from your filed GST returns. GST reporting and income tax computation can differ due to credit notes or advances.
       </Text>
 
       {/* Comparison Table */}

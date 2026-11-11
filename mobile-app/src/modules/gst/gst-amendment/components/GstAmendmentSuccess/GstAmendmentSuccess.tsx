@@ -1,20 +1,14 @@
 import React from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { View, Text, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
+import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { BrandColors } from "@/shared/theme";
-import {
-  styles,
-  getSuccessHeroStyle,
-  getSuccessActionsWrapStyle,
-} from "./GstAmendmentSuccess.styles";
+import { GstApplicationStatusStep } from "@/modules/gst/gst-status/components/GstApplicationStatusStep/GstApplicationStatusStep";
 import { SubmissionResult } from "../../types/gstAmendmentTypes";
-import { formatAmendmentSubmissionDate } from "../../utils/gstAmendmentHelpers";
+import { formatAmendmentSubmissionDate, isValidBusinessName } from "../../utils/gstAmendmentHelpers";
+import { formatSubmissionDate } from "@/shared/formatters/dateFormatter";
+import { useApplicationStore } from "@/store/applicationStore";
+import { styles } from "./GstAmendmentSuccess.styles";
 
 interface GstAmendmentSuccessProps {
   submissionResult: SubmissionResult;
@@ -31,84 +25,91 @@ export const GstAmendmentSuccess: React.FC<GstAmendmentSuccessProps> = ({
   onGoHome,
   onOpenApplications,
 }) => {
+  const router = useRouter();
+
+  const handleGoHome = () => {
+    if (onGoHome) onGoHome();
+    else router.replace("/(main)/home");
+  };
+
+  const handleGoApplications = () => {
+    if (onOpenApplications) onOpenApplications();
+    else if (onTrack) onTrack();
+    else router.replace("/(main)/applications");
+  };
+
+  const handleContactSupport = () => {
+    router.push("/chat/support");
+  };
+
+  const appId = submissionResult.arn || submissionResult.appId || "Not available";
+  const formattedDate = formatAmendmentSubmissionDate(submissionResult.date) || formatSubmissionDate(submissionResult.date) || "Today";
+
+  // Lookup application details from store if present to get user's business name
+  const existingApp = useApplicationStore
+    .getState()
+    .applications.find((a) => a.id === appId || a.formData?.arn === appId || a.id === submissionResult.appId);
+
+  const candidateName = [
+    submissionResult.businessName,
+    existingApp?.formData?.businessName,
+    existingApp?.formData?.applicantName,
+  ].find(isValidBusinessName);
+
+  const businessName = candidateName ? candidateName.trim() : "Registered Business";
+
   return (
     <View style={styles.successContainer}>
-      <StatusBar barStyle="light-content" backgroundColor={BrandColors.PRIMARY_BLUE} />
+      <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Scrollable Content */}
+      {/* Screen Header matching GST Filing Application Status */}
+      <View
+        style={{
+          paddingTop: Math.max(insets.top, 12) + 6,
+          paddingHorizontal: 16,
+          paddingBottom: 12,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: "#FFFFFF",
+        }}
+      >
+        <View style={{ width: 38 }} />
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "700",
+            color: BrandColors.TEXT_PRIMARY,
+          }}
+        >
+          Application Status
+        </Text>
+        <View style={{ width: 38 }} />
+      </View>
+
       <ScrollView
         style={styles.modalScrollView}
-        contentContainerStyle={styles.modalScrollContent}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 8,
+          paddingBottom: Math.max(insets.bottom, 16) + 24,
+        }}
         showsVerticalScrollIndicator={false}
-        bounces={false}
       >
-        {/* Hero Banner with curved bottom */}
-        <View style={[styles.successHero, getSuccessHeroStyle(insets.top)]}>
-          <View style={styles.successHeroIconBox}>
-            <View style={styles.successHeroCheckCircle}>
-              <Ionicons name="checkmark" size={32} color="#FFFFFF" />
-            </View>
-          </View>
-          <Text style={styles.successHeroTitle}>Amendment Submitted</Text>
-        </View>
-
-        {/* Details Card */}
-        <View style={styles.successCard}>
-          <View style={styles.successRow}>
-            <Text style={styles.successRowKey}>Application Type</Text>
-            <Text style={styles.successRowVal}>GST Amendment</Text>
-          </View>
-          <View style={styles.successDivider} />
-
-          <View style={styles.successRow}>
-            <Text style={styles.successRowKey}>Field Amended</Text>
-            <Text style={styles.successRowVal}>{submissionResult.sectionTitle}</Text>
-          </View>
-          <View style={styles.successDivider} />
-
-          <View style={styles.successRow}>
-            <Text style={styles.successRowKey}>GSTIN</Text>
-            <Text style={styles.successRowVal}>{submissionResult.gstin}</Text>
-          </View>
-          <View style={styles.successDivider} />
-
-          <View style={styles.successRow}>
-            <Text style={styles.successRowKey}>ARN</Text>
-            <Text style={styles.successRowVal}>{submissionResult.arn}</Text>
-          </View>
-          <View style={styles.successDivider} />
-
-          <View style={styles.successRow}>
-            <Text style={styles.successRowKey}>Submission Date</Text>
-            <Text style={styles.successRowVal}>{formatAmendmentSubmissionDate(submissionResult.date)}</Text>
-          </View>
-          <View style={styles.successDivider} />
-
-          <View style={styles.successRow}>
-            <Text style={styles.successRowKey}>Estimated Completion</Text>
-            <Text style={styles.successRowVal}>{submissionResult.estCompletion}</Text>
-          </View>
-        </View>
-
-        {/* Action Buttons */}
-        <View style={[styles.successActionsWrap, getSuccessActionsWrapStyle(insets.bottom)]}>
-          <TouchableOpacity
-            style={styles.successTrackBtn}
-            activeOpacity={0.8}
-            onPress={onTrack}
-          >
-            <Text style={styles.successTrackBtnText}>Track Application Status</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.successHomeBtn}
-            activeOpacity={0.8}
-            onPress={onGoHome || onOpenApplications}
-          >
-            <Text style={styles.successHomeBtnText}>Go to Home</Text>
-          </TouchableOpacity>
-        </View>
+        <GstApplicationStatusStep
+          appId={appId}
+          businessName={businessName}
+          serviceName="GST Certificate Amendment"
+          appliedDate={formattedDate}
+          estCompletion={submissionResult.estCompletion || "1-2 Business Days"}
+          statusText="Under Verification"
+          onGoHome={handleGoHome}
+          onGoApplications={handleGoApplications}
+          onContactSupport={handleContactSupport}
+        />
       </ScrollView>
     </View>
   );
 };
+
+export default GstAmendmentSuccess;

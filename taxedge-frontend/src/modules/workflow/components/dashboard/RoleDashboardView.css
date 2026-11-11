@@ -1,0 +1,267 @@
+.tx-role-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.tx-role-dash__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.tx-role-dash__card,
+.tx-role-dash__recent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-role-dash__recent {
+  padding: 18px 18px 0;
+  overflow: hidden;
+}
+
+.tx-role-dash__recent .tx-case-table-card {
+  margin: 0 -18px;
+  border: none;
+  border-top: 1px solid var(--tx-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.tx-role-dash__recent > .tx-empty,
+.tx-role-dash__recent > .tx-alert,
+.tx-role-dash__recent > .tx-spinner {
+  margin-bottom: 18px;
+}
+
+.tx-role-dash__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tx-role-dash__card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-role-dash__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--tx-primary-blue);
+}
+
+.tx-role-dash__link:hover {
+  text-decoration: underline;
+}
+
+.tx-role-dash__services,
+.tx-role-dash__attention {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tx-role-dash__service {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--tx-radius-md);
+  color: var(--tx-primary-text);
+  transition: background-color var(--tx-transition-fast);
+}
+
+.tx-role-dash__service:hover,
+.tx-role-dash__attention-item:hover {
+  background: var(--tx-unread-surface);
+}
+
+.tx-role-dash__service:focus-visible,
+.tx-role-dash__attention-item:focus-visible,
+.tx-role-dash__link:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-role-dash__service-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--tx-primary-navy);
+}
+
+.tx-role-dash__service-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.tx-role-dash__service-count {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-role-dash__service-bar {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-subtle-border);
+  appearance: none;
+}
+
+.tx-role-dash__service-bar::-webkit-progress-bar {
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-subtle-border);
+}
+
+.tx-role-dash__service-bar::-webkit-progress-value {
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-primary-gradient);
+}
+
+.tx-role-dash__service-bar::-moz-progress-bar {
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-primary-blue);
+}
+
+.tx-role-dash__attention-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--tx-subtle-border);
+  border-radius: var(--tx-radius-md);
+  color: var(--tx-secondary-text);
+}
+
+.tx-role-dash__attention-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.tx-role-dash__attention-count {
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-subtle-border);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--tx-secondary-text);
+}
+
+.tx-role-dash__attention-item--alert {
+  border-color: var(--tx-light-orange);
+  color: var(--tx-primary-text);
+}
+
+.tx-role-dash__attention-item--alert .tx-icon {
+  color: var(--tx-primary-orange);
+}
+
+.tx-role-dash__attention-item--alert .tx-role-dash__attention-count {
+  background: var(--tx-primary-orange);
+  color: var(--tx-on-dark-text);
+}
+
+@media (max-width: 480px) {
+  .tx-role-dash {
+    gap: 14px;
+  }
+
+  .tx-role-dash__card {
+    padding: 14px;
+  }
+
+  .tx-role-dash__recent {
+    padding: 14px 14px 0;
+  }
+
+  .tx-role-dash__recent .tx-case-table-card {
+    margin: 0 -14px;
+  }
+}
+
+/* A light colour accent per panel, so the dashboard reads at a glance (same style as the Reports page). */
+.tx-role-dash__card,
+.tx-role-dash__recent {
+  border-top: 3px solid var(--tx-primary-blue);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-role-dash__card[aria-labelledby='tx-dash-attention'] {
+  border-top-color: var(--tx-primary-orange);
+  background: linear-gradient(180deg, var(--tx-light-orange) 0%, var(--tx-surface) 35%);
+}
+
+.tx-role-dash__card[aria-labelledby='tx-dash-services'] {
+  background: linear-gradient(180deg, var(--tx-light-blue) 0%, var(--tx-surface) 35%);
+}
+
+.tx-role-dash__card[aria-labelledby='tx-dash-workload'] {
+  border-top-color: var(--tx-success);
+  background: linear-gradient(180deg, var(--tx-success-light) 0%, var(--tx-surface) 35%);
+}
+
+.tx-role-dash__recent {
+  border-top-color: var(--tx-primary-navy);
+}
+
+/* Polish: roomier equal-height panels with a clearer header and softer rows. */
+.tx-role-dash { gap: 24px; }
+.tx-role-dash__grid { gap: 20px; align-items: stretch; }
+.tx-role-dash__card, .tx-role-dash__recent {
+  gap: 16px;
+  padding: 24px;
+  border-top-width: 1px;
+  border-radius: var(--tx-radius-xl);
+  box-shadow: 0 6px 20px -12px rgba(6, 21, 45, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+.tx-role-dash__card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--tx-primary-blue);
+}
+.tx-role-dash__card[aria-labelledby='tx-dash-attention']::before { background: var(--tx-primary-orange); }
+.tx-role-dash__card[aria-labelledby='tx-dash-workload']::before { background: var(--tx-success); }
+.tx-role-dash__card-title { font-size: 1.1rem; }
+.tx-role-dash__card-head { padding-bottom: 12px; border-bottom: 1px solid var(--tx-subtle-border); }
+.tx-role-dash__services, .tx-role-dash__attention { gap: 10px; }
+.tx-role-dash__service { padding: 10px 12px; gap: 8px; }
+.tx-role-dash__service-bar { height: 8px; }
+.tx-role-dash__attention-item {
+  min-height: 48px;
+  padding: 10px 14px;
+  background: var(--tx-surface);
+  border-radius: var(--tx-radius-lg);
+}
+.tx-role-dash__attention-item:hover { box-shadow: var(--tx-shadow-sm); }
+.tx-role-dash__attention-count { min-width: 32px; padding: 3px 10px; }
+@media (max-width: 480px) {
+  .tx-role-dash__card, .tx-role-dash__recent { padding: 16px; }
+}

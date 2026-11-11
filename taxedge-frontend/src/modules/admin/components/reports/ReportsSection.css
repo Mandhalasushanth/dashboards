@@ -1,0 +1,185 @@
+.tx-reports {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* One toolbar: which report, which year, and the downloads of every report. */
+.tx-reports__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--tx-border);
+  border-left: 4px solid var(--tx-primary-blue);
+  border-radius: var(--tx-radius-lg);
+  background: linear-gradient(90deg, var(--tx-light-blue) 0%, var(--tx-surface) 60%);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-reports__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tx-reports__field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tx-secondary-text);
+}
+
+.tx-reports__field select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-surface);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+  cursor: pointer;
+}
+
+.tx-reports__field select:focus-visible {
+  outline: none;
+  border-color: var(--tx-primary-blue);
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-reports__report {
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+
+.tx-reports__year select {
+  min-width: 140px;
+}
+
+.tx-reports__download-all {
+  display: flex;
+  margin-left: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tx-reports__download-label {
+  font-size: 13px;
+  color: var(--tx-secondary-text);
+}
+
+/* Key figures: compact, one row on desktop. */
+.tx-reports__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.tx-reports__kpi {
+  --kpi-accent: var(--tx-primary-blue);
+  --kpi-tint: var(--tx-light-blue);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--tx-border);
+  border-top: 3px solid var(--kpi-accent);
+  border-radius: var(--tx-radius-md);
+  background: linear-gradient(180deg, var(--kpi-tint) 0%, var(--tx-surface) 70%);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-reports__kpi--orange { --kpi-accent: var(--tx-primary-orange); --kpi-tint: var(--tx-light-orange); }
+.tx-reports__kpi--green { --kpi-accent: var(--tx-success); --kpi-tint: var(--tx-success-light); }
+.tx-reports__kpi--purple { --kpi-accent: #7c3aed; --kpi-tint: #f3eefe; }
+.tx-reports__kpi--red { --kpi-accent: var(--tx-error); --kpi-tint: #fdeeee; }
+
+.tx-reports__kpi-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-surface);
+  box-shadow: inset 0 0 0 1px var(--tx-border);
+  color: var(--kpi-accent);
+}
+
+.tx-reports__kpi-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tx-reports__kpi-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+}
+
+.tx-reports__kpi-value {
+  display: block;
+  margin-top: 2px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-reports__kpi-hint {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--tx-muted-text, var(--tx-secondary-text));
+}
+
+.tx-reports__body {
+  min-width: 0;
+}
+
+.tx-reports__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(40px, 8vw, 72px) 20px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  color: var(--tx-secondary-text);
+  text-align: center;
+}
+
+.tx-reports__state .tx-spinner {
+  color: var(--tx-primary-orange);
+}
+
+.tx-reports__generated {
+  font-size: 12px;
+  color: var(--tx-secondary-text);
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .tx-reports__report,
+  .tx-reports__year {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .tx-reports__download-all {
+    margin-left: 0;
+  }
+}

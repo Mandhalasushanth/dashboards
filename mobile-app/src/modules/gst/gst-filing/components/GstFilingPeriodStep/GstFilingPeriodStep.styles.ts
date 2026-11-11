@@ -58,6 +58,13 @@ export const styles = StyleSheet.create({
     marginBottom: 14,
   },
 
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+
   label: {
     fontSize: 13.5,
     fontWeight: "600",
@@ -67,6 +74,10 @@ export const styles = StyleSheet.create({
       ios: "System",
       android: "sans-serif-medium",
     }),
+  },
+
+  star: {
+    color: "#EF4444",
   },
 
   periodPillsRow: {

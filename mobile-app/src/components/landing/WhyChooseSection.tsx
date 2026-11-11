@@ -93,7 +93,7 @@ export function WhyChooseSection() {
       {/* Header Divider */}
       <View style={landingStyles.dividerRow}>
         <View style={landingStyles.dividerLine} />
-        <Text style={landingStyles.dividerText}>• WHY CHOOSE TAXEDGE? •</Text>
+        <Text style={landingStyles.dividerText}>• WHY CHOOSE FINSOLZ? •</Text>
         <View style={landingStyles.dividerLine} />
       </View>
 

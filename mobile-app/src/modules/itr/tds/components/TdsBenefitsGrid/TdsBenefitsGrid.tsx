@@ -7,7 +7,7 @@ import { styles } from "./TdsBenefitsGrid.styles";
 export const TdsBenefitsGrid: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Why choose TaxEdge?</Text>
+      <Text style={styles.sectionTitle}>Why choose Finsolz?</Text>
 
       <View style={styles.grid}>
         {TDS_BENEFITS.map((item) => (

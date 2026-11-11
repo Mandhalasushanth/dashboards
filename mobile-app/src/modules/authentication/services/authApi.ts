@@ -369,7 +369,7 @@ export const authApi = {
           customerId: response.custId,
           mobileNumber: response.mobileNumber,
           name: response.name,
-          email: `${response.mobileNumber}@taxedge.in`,
+          email: `${response.mobileNumber}@finsolz.in`,
         },
       };
     } catch (error) {

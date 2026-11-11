@@ -1,21 +1,38 @@
 /**
  * ServicesGrid
- * Redesigned Services section displaying modern 3D cards matching the
- * TaxEdge reference design (2-column layout + full-width bottom card).
+ * Redesigned Services section displaying 2-column alternating pastel 3D cards
+ * matching the Finsolz reference design (Incorporation, GST, ITR, Projects, Loans, Insurance).
  */
 
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/use-theme";
 import {
   styles,
-  getServiceCardThemedStyle,
+  getServiceCardBorderThemedStyle,
   getServiceLabelThemedStyle,
   getServiceDescThemedStyle,
   getServiceArrowBtnThemedStyle,
 } from "@/styles/app/(main)/home.styles";
 import type { DashboardServiceTile } from "@/types/home.types";
+
+const PEACH_GRADIENT_LIGHT = ["#FFFFFF", "#FFF7F0", "#FFEAD8"] as const;
+const PEACH_GRADIENT_DARK = ["#261E1A", "#33241A", "#3D2B1F"] as const;
+
+const BLUE_GRADIENT_LIGHT = ["#FFFFFF", "#F5F8FF", "#DEEDFE"] as const;
+const BLUE_GRADIENT_DARK = ["#1A2233", "#1E2A42", "#24324F"] as const;
+
+const PEACH_SERVICES = new Set(["incorporation", "projects", "loans"]);
+
+function getServiceGradient(id: string, isDark: boolean): readonly [string, string, string] {
+  const isPeach = PEACH_SERVICES.has(id);
+  if (isDark) {
+    return isPeach ? PEACH_GRADIENT_DARK : BLUE_GRADIENT_DARK;
+  }
+  return isPeach ? PEACH_GRADIENT_LIGHT : BLUE_GRADIENT_LIGHT;
+}
 
 interface ServiceCardProps {
   service: DashboardServiceTile;
@@ -34,21 +51,26 @@ export function ServiceCard({
 
   return (
     <TouchableOpacity
-      activeOpacity={0.82}
+      activeOpacity={0.85}
       onPress={() => onPress(service)}
       testID={`service-card-${service.id}`}
       accessibilityRole="button"
       accessibilityLabel={`${service.label}: ${service.description.replace(/\n/g, " ")}`}
       style={[
         isFull ? styles.serviceCardFullWidth : styles.serviceCard2Col,
-        getServiceCardThemedStyle(
+        getServiceCardBorderThemedStyle(
           isDark,
           colors,
-          service.bgColor,
           service.borderColor
         ),
       ]}
     >
+      <LinearGradient
+        colors={getServiceGradient(service.id, isDark)}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.serviceCardGradient}
+      />
       <View
         style={
           isFull
@@ -120,10 +142,15 @@ export function ServicesGrid({
   const twoColItems = services.filter((s) => !s.isFullWidth);
   const fullWidthItems = services.filter((s) => s.isFullWidth);
 
-  const rows: DashboardServiceTile[][] = [];
-  for (let i = 0; i < twoColItems.length; i += 2) {
-    rows.push(twoColItems.slice(i, i + 2));
-  }
+  // Pure functional chunking without imperative for/while loops (Rule 2)
+  const rows = twoColItems.reduce<DashboardServiceTile[][]>((acc, item, index) => {
+    if (index % 2 === 0) {
+      acc.push([item]);
+    } else {
+      acc[acc.length - 1].push(item);
+    }
+    return acc;
+  }, []);
 
   return (
     <View style={styles.servicesContainer}>

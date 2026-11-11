@@ -62,8 +62,9 @@ public class RevisedItrDocumentServiceImpl implements RevisedItrDocumentService 
 	@Transactional(readOnly = true)
 	public RevisedItrDocumentDto getDocuments(String documentId) {
 
-		RevisedItrDocument document = revisedItrDocumentRepository.findById(documentId).orElseThrow(
-				() -> new ResourceNotFoundException("Revised ITR documents not found with document ID: " + documentId));
+		RevisedItrDocument document = revisedItrDocumentRepository.findById(documentId)
+				.or(() -> revisedItrDocumentRepository.findByRevisedItrRevisedItrId(documentId).stream().findFirst())
+				.orElseThrow(() -> new ResourceNotFoundException("Revised ITR documents not found with ID: " + documentId));
 
 		return revisedItrDocumentMapper.toDto(document);
 	}
@@ -73,8 +74,9 @@ public class RevisedItrDocumentServiceImpl implements RevisedItrDocumentService 
 			MultipartFile form16Form16A, MultipartFile aisTisStatement, MultipartFile bankStatements,
 			MultipartFile investmentProofs) throws IOException {
 
-		RevisedItrDocument document = revisedItrDocumentRepository.findById(documentId).orElseThrow(
-				() -> new ResourceNotFoundException("Revised ITR documents not found with document ID: " + documentId));
+		RevisedItrDocument document = revisedItrDocumentRepository.findById(documentId)
+				.or(() -> revisedItrDocumentRepository.findByRevisedItrRevisedItrId(documentId).stream().findFirst())
+				.orElseThrow(() -> new ResourceNotFoundException("Revised ITR documents not found with ID: " + documentId));
 
 		validateAtLeastOneDocument(panCard, aadhaarCard, form16Form16A, aisTisStatement, bankStatements,
 				investmentProofs);
@@ -99,8 +101,9 @@ public class RevisedItrDocumentServiceImpl implements RevisedItrDocumentService 
 	@Override
 	public String deleteDocuments(String documentId) {
 
-		RevisedItrDocument document = revisedItrDocumentRepository.findById(documentId).orElseThrow(
-				() -> new ResourceNotFoundException("Revised ITR documents not found with document ID: " + documentId));
+		RevisedItrDocument document = revisedItrDocumentRepository.findById(documentId)
+				.or(() -> revisedItrDocumentRepository.findByRevisedItrRevisedItrId(documentId).stream().findFirst())
+				.orElseThrow(() -> new ResourceNotFoundException("Revised ITR documents not found with ID: " + documentId));
 
 		revisedItrDocumentRepository.delete(document);
 

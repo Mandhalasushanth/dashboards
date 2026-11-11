@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { TdsDocumentItem, DocumentUploadPayload } from "../../types/tdsDocuments.types";
@@ -35,6 +35,8 @@ import {
 
 export const TdsDocumentChecklistScreen: React.FC = () => {
   const router = useRouter();
+  const { isEditing: isEditingParam } = useLocalSearchParams<{ isEditing?: string }>();
+  const isEditingFromEstimate = isEditingParam === "true";
   const maxStepReached = useTdsProgressStore((s: any) => s.maxStepReached);
   const insets = useSafeAreaInsets();
   const [isSaving, setIsSaving] = useState(false);
@@ -86,9 +88,13 @@ export const TdsDocumentChecklistScreen: React.FC = () => {
   }, []);
 
   // Universal Draft Guard Hook for page exit
+  // BUG_B24_002: destructure openDraftModal (shows modal) and handleSaveAndExit separately —
+  // the back button must open the modal; the modal's Save button calls handleSaveAndExit
   const {
     showDraftModal,
-    handleSaveAndExit: openDraftModal,
+    openDraftModal,
+    markSubmitted,
+    handleSaveAndExit,
     handleDiscardAndExit: discardDraft,
     handleCancel: cancelExit,
   } = useUniversalDraftGuard({
@@ -114,6 +120,7 @@ export const TdsDocumentChecklistScreen: React.FC = () => {
     onDiscardDraft: async () => {
       await tdsDraftService.clearDraft();
     },
+    isSubmitted: () => useTdsProgressStore.getState().isSubmitted,
   });
 
   // Functional count of uploaded documents - zero loops
@@ -277,8 +284,13 @@ export const TdsDocumentChecklistScreen: React.FC = () => {
     });
     await tdsDraftService.saveDocumentsDraft(documents);
 
-    // Navigate to next screen: TDS Refund Estimate & Review Screen
-    router.push("/service/tds-estimate" as any);
+    // Navigate to next screen: return to estimate when editing, push when first-time
+    if (isEditingFromEstimate) {
+      markSubmitted();
+      router.back();
+    } else {
+      router.push("/service/tds-estimate" as any);
+    }
   };
 
   const handleBackPress = () => {
@@ -301,7 +313,7 @@ export const TdsDocumentChecklistScreen: React.FC = () => {
       <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Screen Header with back guard */}
-      <TdsDocumentHeader onBack={handleBackPress} />
+      <TdsDocumentHeader onBack={handleBackPress} hideBack={isEditingFromEstimate} />
 
       {/* Main Scrollable Content */}
       <ScrollView
@@ -389,7 +401,7 @@ export const TdsDocumentChecklistScreen: React.FC = () => {
         saveButtonText="Save as Draft & Exit"
         discardButtonText="Discard & Exit"
         cancelButtonText="Keep Editing"
-        onSaveAndExit={openDraftModal}
+        onSaveAndExit={handleSaveAndExit}
         onDiscardAndExit={discardDraft}
         onCancel={cancelExit}
       />

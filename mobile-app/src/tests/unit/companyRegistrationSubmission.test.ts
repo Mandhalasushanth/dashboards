@@ -33,8 +33,8 @@ Module.prototype.require = function (id: string, ...args: any[]) {
   }
   if (id === "expo-constants") {
     return {
-      default: { expoConfig: { hostUri: "192.168.88.6:8086" }, executionEnvironment: "bare" },
-      expoConfig: { hostUri: "192.168.88.6:8086" },
+      default: { expoConfig: { hostUri: "192.168.88.30:8086" }, executionEnvironment: "bare" },
+      expoConfig: { hostUri: "192.168.88.30:8086" },
       ExecutionEnvironment: { Bare: "bare", Standalone: "standalone", StoreClient: "storeClient" },
       __esModule: true,
     };

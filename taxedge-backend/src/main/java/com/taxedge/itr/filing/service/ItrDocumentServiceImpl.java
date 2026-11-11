@@ -72,8 +72,9 @@ public class ItrDocumentServiceImpl implements ItrDocumentService {
 	@Transactional(readOnly = true)
 	public DocumentDto getDocuments(String documentId) {
 
-		ItrDocument itrDocument = itrDocumentRepository.findById(documentId).orElseThrow(
-				() -> new ResourceNotFoundException("ITR documents not found with document ID: " + documentId));
+		ItrDocument itrDocument = itrDocumentRepository.findById(documentId)
+				.or(() -> itrDocumentRepository.findByItrFiling_ItrId(documentId))
+				.orElseThrow(() -> new ResourceNotFoundException("ITR documents not found with ID: " + documentId));
 
 		return itrDocumentMapper.toDto(itrDocument);
 	}
@@ -83,8 +84,9 @@ public class ItrDocumentServiceImpl implements ItrDocumentService {
 			MultipartFile aisTis, MultipartFile bankAccountStatement, MultipartFile salaryPayslips,
 			MultipartFile capitalGainsStatement, MultipartFile businessTurnover) throws IOException {
 
-		ItrDocument itrDocument = itrDocumentRepository.findById(documentId).orElseThrow(
-				() -> new ResourceNotFoundException("ITR documents not found with document ID: " + documentId));
+		ItrDocument itrDocument = itrDocumentRepository.findById(documentId)
+				.or(() -> itrDocumentRepository.findByItrFiling_ItrId(documentId))
+				.orElseThrow(() -> new ResourceNotFoundException("ITR documents not found with ID: " + documentId));
 
 		validateAtLeastOneDocument(form16PartAPartB, form26as, aisTis, bankAccountStatement, salaryPayslips,
 				capitalGainsStatement, businessTurnover);
@@ -111,8 +113,9 @@ public class ItrDocumentServiceImpl implements ItrDocumentService {
 	@Override
 	public String deleteDocuments(String documentId) {
 
-		ItrDocument itrDocument = itrDocumentRepository.findById(documentId).orElseThrow(
-				() -> new ResourceNotFoundException("ITR documents not found with document ID: " + documentId));
+		ItrDocument itrDocument = itrDocumentRepository.findById(documentId)
+				.or(() -> itrDocumentRepository.findByItrFiling_ItrId(documentId))
+				.orElseThrow(() -> new ResourceNotFoundException("ITR documents not found with ID: " + documentId));
 
 		itrDocumentRepository.delete(itrDocument);
 

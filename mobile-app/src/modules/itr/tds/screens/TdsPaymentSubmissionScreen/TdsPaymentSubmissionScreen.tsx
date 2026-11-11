@@ -22,6 +22,7 @@ import { formatCurrency } from "../../utils/tdsValidation";
 import { tdsFeeService } from "../../services/tdsFeeService";
 import { tdsApiService } from "../../services/tdsApiService";
 import { tdsDraftService } from "../../services/tdsDraftService";
+import { useTdsProgressStore } from "../../store/tdsProgressStore";
 import { FeeSummaryCard } from "../../components/payment/FeeSummaryCard";
 import { PaymentMethodCard } from "../../components/payment/PaymentMethodCard";
 import { styles } from "./TdsPaymentSubmissionScreen.styles";
@@ -152,12 +153,13 @@ export const TdsPaymentSubmissionScreen: React.FC = () => {
         const { useApplicationStore } = await import("@/store/applicationStore");
         useApplicationStore.getState().addApplication({
           id: targetAppId,
-          type: "TDS",
-          title: "TDS Refund",
+          serviceId: "tds-refund",
+          serviceName: "TDS Refund",
+          category: "ITR",
           status: "Submitted",
-          submittedDate: new Date().toISOString(),
-          amount: refundEstimate,
-        });
+          createdAt: new Date().toISOString(),
+          paymentAmount: refundEstimate,
+        } as any);
       } catch (storeErr) {
         console.warn("[TDS Submit] Application store update error:", storeErr);
       }
@@ -168,7 +170,7 @@ export const TdsPaymentSubmissionScreen: React.FC = () => {
         useNotificationStore.getState().addNotification(
           "TDS Refund Submitted",
           `Your TDS refund application (${targetAppId}) has been successfully submitted for CA review.`,
-          "tds"
+          "itr"
         );
       } catch (notifErr) {
         console.warn("[TDS Submit] Notification dispatch error:", notifErr);
@@ -176,6 +178,11 @@ export const TdsPaymentSubmissionScreen: React.FC = () => {
 
       // 5. Clear local draft upon confirmed payment & submission
       await tdsDraftService.clearDraft();
+      useTdsProgressStore.getState().setIsSubmitted(true);
+      try {
+        const { useApplicationStore } = await import("@/store/applicationStore");
+        useApplicationStore.getState().clearTdsDraft();
+      } catch { }
 
       // 6. Navigate to Screen 5 (Application Status)
       router.replace({

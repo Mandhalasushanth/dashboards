@@ -19,6 +19,7 @@ public interface RevisedItrMapper {
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "submittedAt", ignore = true)
+	@Mapping(target = "assignedAgent", ignore = true)
 	RevisedItr toEntity(RevisedItrDto dto);
 
 	@Mapping(target = "revisedItrId", ignore = true)
@@ -30,5 +31,6 @@ public interface RevisedItrMapper {
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "submittedAt", ignore = true)
+	@Mapping(target = "assignedAgent", ignore = true)
 	void updateEntity(RevisedItrDto dto, @MappingTarget RevisedItr revisedItr);
 }

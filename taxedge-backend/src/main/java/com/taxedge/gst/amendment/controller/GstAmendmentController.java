@@ -1,22 +1,28 @@
 package com.taxedge.gst.amendment.controller;
 
-import com.taxedge.gst.amendment.dto.*;
-import com.taxedge.gst.amendment.service.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.taxedge.gst.amendment.dto.*;
+import com.taxedge.gst.amendment.service.*;
+
+import lombok.RequiredArgsConstructor;
+
 @RestController
-@RequestMapping("/api/v1/gst/amendments")
+@RequestMapping("/api/v1/gst/amendment")
 @RequiredArgsConstructor
-@Slf4j
 public class GstAmendmentController {
 
     private final AdditionalPlaceAmendmentService additionalPlaceService;
@@ -35,24 +41,24 @@ public class GstAmendmentController {
         return ResponseEntity.ok(legalNameService.getExistingLegalNameDetails(gstId));
     }
 
-    @PostMapping(value = "/legal-name/{gstId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE})
+    @PostMapping("/legal-name/{gstId}")
     public ResponseEntity<LegalNameAmendmentViewDto> submitLegalNameAmendment(
             @PathVariable String gstId,
             @ModelAttribute LegalNameAmendmentViewDto dto,
             @RequestParam("file") MultipartFile file) throws IOException {
-        log.info("REST request to submit Legal Name amendment for GST ID: {}", gstId);
-        LegalNameAmendmentViewDto result = legalNameService.submitLegalNameAmendment(gstId, dto != null ? dto.getCustomerId() : null, dto != null ? dto.getNewLegalName() : null, file);
+        LegalNameAmendmentViewDto result = legalNameService.submitLegalNameAmendment(
+                gstId, dto.getCustomerId(), dto.getNewLegalName(), file);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @GetMapping("/legal-name/record/{id}")
-    public ResponseEntity<LegalNameAmendmentViewDto> getLegalNameAmendmentById(@PathVariable Long id) {
+    public ResponseEntity<LegalNameAmendmentViewDto> getLegalNameAmendmentById(@PathVariable String id) {
         return ResponseEntity.ok(legalNameService.getAmendmentById(id));
     }
 
     @PutMapping("/legal-name/record/{id}")
     public ResponseEntity<LegalNameAmendmentViewDto> updateLegalNameAmendment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @ModelAttribute LegalNameAmendmentViewDto dto,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         LegalNameAmendmentViewDto result = legalNameService.updateLegalNameAmendment(id, dto.getNewLegalName(), file);
@@ -62,7 +68,7 @@ public class GstAmendmentController {
     @PostMapping("/legal-name/submit")
     public ResponseEntity<String> submitLegalNameAmendment(
             @RequestParam(required = false) String gstId,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String id,
             @RequestParam(required = false) String pushToken) {
         return ResponseEntity.ok(legalNameService.submitAmendment(id, gstId, pushToken));
     }
@@ -77,7 +83,7 @@ public class GstAmendmentController {
     }
 
     @PostMapping("/principal-place/{gstId}")
-    public ResponseEntity<PrincipalPlaceAmendmentViewDto> submitNewPrincipalPlaceAmendment(
+    public ResponseEntity<PrincipalPlaceAmendmentViewDto> submitPrincipalPlaceAmendment(
             @PathVariable String gstId,
             @ModelAttribute PrincipalPlaceAmendmentViewDto dto,
             @RequestParam("file") MultipartFile file) throws IOException {
@@ -88,13 +94,13 @@ public class GstAmendmentController {
     }
 
     @GetMapping("/principal-place/record/{id}")
-    public ResponseEntity<PrincipalPlaceAmendmentViewDto> getPrincipalPlaceAmendmentById(@PathVariable Long id) {
+    public ResponseEntity<PrincipalPlaceAmendmentViewDto> getPrincipalPlaceAmendmentById(@PathVariable String id) {
         return ResponseEntity.ok(principalPlaceService.getAmendmentById(id));
     }
 
     @PutMapping("/principal-place/record/{id}")
     public ResponseEntity<PrincipalPlaceAmendmentViewDto> updatePrincipalPlaceAmendment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @ModelAttribute PrincipalPlaceAmendmentViewDto dto,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         PrincipalPlaceAmendmentViewDto result = principalPlaceService.updateAmendment(
@@ -106,7 +112,7 @@ public class GstAmendmentController {
     @PostMapping("/principal-place/submit")
     public ResponseEntity<String> submitPrincipalPlaceAmendment(
             @RequestParam(required = false) String gstId,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String id,
             @RequestParam(required = false) String pushToken) {
         return ResponseEntity.ok(principalPlaceService.submitAmendment(id, gstId, pushToken));
     }
@@ -131,13 +137,13 @@ public class GstAmendmentController {
     }
 
     @GetMapping("/additional-place/record/{id}")
-    public ResponseEntity<AdditionalPlaceAmendmentViewDto> getAdditionalPlaceAmendmentById(@PathVariable Long id) {
+    public ResponseEntity<AdditionalPlaceAmendmentViewDto> getAdditionalPlaceAmendmentById(@PathVariable String id) {
         return ResponseEntity.ok(additionalPlaceService.getAmendmentById(id));
     }
 
     @PutMapping("/additional-place/record/{id}")
     public ResponseEntity<AdditionalPlaceAmendmentViewDto> updateAdditionalPlaceAmendment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @ModelAttribute AdditionalPlaceAmendmentViewDto dto,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         AdditionalPlaceAmendmentViewDto result = additionalPlaceService.updateAdditionalPlace(
@@ -148,7 +154,7 @@ public class GstAmendmentController {
     @PostMapping({"/additional-place/submit", "/submit"})
     public ResponseEntity<String> submitAdditionalPlaceAmendment(
             @RequestParam(required = false) String gstId,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String id,
             @RequestParam(required = false) String pushToken) {
         return ResponseEntity.ok(additionalPlaceService.submitAmendment(id, gstId, pushToken));
     }
@@ -174,13 +180,13 @@ public class GstAmendmentController {
     }
 
     @GetMapping("/bank-account/record/{id}")
-    public ResponseEntity<BankAccountAmendmentViewDto> getBankAccountAmendmentById(@PathVariable Long id) {
+    public ResponseEntity<BankAccountAmendmentViewDto> getBankAccountAmendmentById(@PathVariable String id) {
         return ResponseEntity.ok(bankAccountService.getAmendmentById(id));
     }
 
     @PutMapping("/bank-account/record/{id}")
     public ResponseEntity<BankAccountAmendmentViewDto> updateBankAccountAmendment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @ModelAttribute BankAccountAmendmentViewDto dto,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         BankAccountAmendmentViewDto result = bankAccountService.updateBankAccountAmendment(
@@ -192,17 +198,17 @@ public class GstAmendmentController {
     @PostMapping("/bank-account/submit")
     public ResponseEntity<String> submitBankAccountAmendment(
             @RequestParam(required = false) String gstId,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String id,
             @RequestParam(required = false) String pushToken) {
         return ResponseEntity.ok(bankAccountService.submitAmendment(id, gstId, pushToken));
     }
 
     // ==========================================
-    // 5. Contact Details Amendment
+    // 5. Contact Amendment
     // ==========================================
 
     @GetMapping("/contact/{gstId}/existing")
-    public ResponseEntity<ContactAmendmentViewDto> getExistingContact(@PathVariable String gstId) {
+    public ResponseEntity<ContactAmendmentViewDto> getExistingContactDetails(@PathVariable String gstId) {
         return ResponseEntity.ok(contactService.getExistingContactDetails(gstId));
     }
 
@@ -211,19 +217,19 @@ public class GstAmendmentController {
             @PathVariable String gstId,
             @ModelAttribute ContactAmendmentViewDto dto,
             @RequestParam("file") MultipartFile file) throws IOException {
-        ContactAmendmentViewDto response = contactService.submitContactAmendment(
+        ContactAmendmentViewDto result = contactService.submitContactAmendment(
                 gstId, dto.getCustomerId(), dto.getNewMobileNumber(), dto.getNewEmail(), file);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @GetMapping("/contact/record/{id}")
-    public ResponseEntity<ContactAmendmentViewDto> getContactAmendmentById(@PathVariable Long id) {
+    public ResponseEntity<ContactAmendmentViewDto> getContactAmendmentById(@PathVariable String id) {
         return ResponseEntity.ok(contactService.getAmendmentById(id));
     }
 
     @PutMapping("/contact/record/{id}")
     public ResponseEntity<ContactAmendmentViewDto> updateContactAmendment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @ModelAttribute ContactAmendmentViewDto dto,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         ContactAmendmentViewDto response = contactService.updateContactAmendment(
@@ -234,7 +240,7 @@ public class GstAmendmentController {
     @PostMapping("/contact/submit")
     public ResponseEntity<String> submitContactAmendment(
             @RequestParam(required = false) String gstId,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String id,
             @RequestParam(required = false) String pushToken) {
         return ResponseEntity.ok(contactService.submitAmendment(id, gstId, pushToken));
     }
@@ -260,13 +266,13 @@ public class GstAmendmentController {
     }
 
     @GetMapping("/signatory/record/{id}")
-    public ResponseEntity<SignatoryAmendmentViewDto> getSignatoryAmendmentById(@PathVariable Long id) {
+    public ResponseEntity<SignatoryAmendmentViewDto> getSignatoryAmendmentById(@PathVariable String id) {
         return ResponseEntity.ok(signatoryService.getAmendmentById(id));
     }
 
     @PutMapping("/signatory/record/{id}")
     public ResponseEntity<SignatoryAmendmentViewDto> updateSignatoryAmendment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @ModelAttribute SignatoryAmendmentViewDto dto,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         SignatoryAmendmentViewDto result = signatoryService.updateSignatoryAmendment(
@@ -278,7 +284,7 @@ public class GstAmendmentController {
     @PostMapping("/signatory/submit")
     public ResponseEntity<String> submitSignatoryAmendment(
             @RequestParam(required = false) String gstId,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String id,
             @RequestParam(required = false) String pushToken) {
         return ResponseEntity.ok(signatoryService.submitAmendment(id, gstId, pushToken));
     }

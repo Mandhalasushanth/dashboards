@@ -7,8 +7,11 @@ import {
   UploadDocumentItem,
   executeXhrUpload,
   resolveApiBaseUrl,
+  resolveAsyncApiBaseUrl,
   mapRegistrationDocField,
   resolveAddressProofEnum,
+  normalizeDocumentUri,
+  resolveDocumentMimeType,
 } from "./gstUploadHelper";
 import { gstFilingApi } from "./gstFilingApi";
 import { gstComplianceApi } from "./gstComplianceApi";
@@ -112,11 +115,12 @@ function buildRegistrationFormData(
     if (fieldName) {
       hasFiles = true;
       const name = doc.fileName || `${fieldName}.pdf`;
-      const isPdf = name.toLowerCase().endsWith(".pdf");
+      const mime = resolveDocumentMimeType(name, doc.mimeType || undefined);
+      const cleanUri = normalizeDocumentUri(doc.fileUri);
       appendFilePart(formData, fieldName, {
-        uri: doc.fileUri,
+        uri: cleanUri,
         name: name,
-        type: isPdf ? "application/pdf" : "image/jpeg",
+        type: mime,
       });
     }
   }
@@ -211,7 +215,9 @@ export const gstApi = {
     const { formData, hasFiles } = buildRegistrationFormData(documents, addressProofTypeOverride);
     if (!hasFiles) return "No documents selected for upload";
 
-    const url = `${resolveApiBaseUrl()}/api/v1/gst/documents/${gstId}/register`;
+    const baseUrl = await resolveAsyncApiBaseUrl();
+    const cleanGstId = String(gstId || "").trim();
+    const url = `${baseUrl}/api/v1/gst/documents/${cleanGstId}/register`;
     return executeXhrUpload(url, "POST", formData);
   },
 
@@ -223,8 +229,9 @@ export const gstApi = {
     const { formData, hasFiles } = buildRegistrationFormData(documents, addressProofTypeOverride);
     if (!hasFiles) return "No documents selected for upload";
 
+    const baseUrl = await resolveAsyncApiBaseUrl();
     const cleanDocId = String(documentId || "").trim();
-    const url = `${resolveApiBaseUrl()}/api/v1/gst/documents/${cleanDocId}/update`;
+    const url = `${baseUrl}/api/v1/gst/documents/${cleanDocId}/update`;
     return executeXhrUpload(url, "PUT", formData);
   },
 
@@ -242,13 +249,19 @@ export const gstApi = {
       formData.append("principalPlaceAddressType", resolveAddressProofEnum(addressProofType));
     }
 
+    const name = fileName || "document.pdf";
+    const mime = resolveDocumentMimeType(name);
+    const cleanUri = normalizeDocumentUri(fileUri);
+
     appendFilePart(formData, fieldName || "file", {
-      uri: fileUri,
-      name: fileName || "document.pdf",
-      type: fileName?.toLowerCase().endsWith(".pdf") ? "application/pdf" : "image/jpeg",
+      uri: cleanUri,
+      name: name,
+      type: mime,
     });
 
-    const url = `${resolveApiBaseUrl()}/api/v1/gst/documents/${gstId}/register`;
+    const baseUrl = await resolveAsyncApiBaseUrl();
+    const cleanGstId = String(gstId || "").trim();
+    const url = `${baseUrl}/api/v1/gst/documents/${cleanGstId}/register`;
     return executeXhrUpload(url, "POST", formData);
   },
 
@@ -288,6 +301,54 @@ export const gstApi = {
     const params: Record<string, string> = { gstId: cleanGstId };
     if (pushToken) params.pushToken = pushToken;
     return apiClient.post<string>("/api/v1/gst/submit", undefined, { headers, params });
+  },
+
+  getMyApplications: async (custId?: string) => {
+    const token = await tokenManager.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const resolvedCustId = custId || (await resolveCustomerId());
+    if (!resolvedCustId) return [];
+    return apiClient.get<import("./gstApplicationMapper").GstBackendApplicationDto[]>(
+      `/api/v1/my-applications/${encodeURIComponent(resolvedCustId)}`,
+      { headers }
+    );
+  },
+
+  getMyFilingApplications: async (custId?: string) => {
+    const token = await tokenManager.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const resolvedCustId = custId || (await resolveCustomerId());
+    if (!resolvedCustId) return [];
+    return apiClient.get<import("./gstFilingApplicationMapper").GstFilingBackendDto[]>(
+      `/api/v1/my-applications/filing/${encodeURIComponent(resolvedCustId)}`,
+      { headers }
+    );
+  },
+
+  getMyComplianceApplications: async (custId?: string) => {
+    const token = await tokenManager.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const resolvedCustId = custId || (await resolveCustomerId());
+    if (!resolvedCustId) return [];
+    return apiClient.get<import("./gstComplianceApplicationMapper").GstComplianceBackendDto[]>(
+      `/api/v1/my-applications/compliance/${encodeURIComponent(resolvedCustId)}`,
+      { headers }
+    );
+  },
+
+  getMyAmendmentApplications: async (custId?: string) => {
+    const token = await tokenManager.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const resolvedCustId = custId || (await resolveCustomerId());
+    if (!resolvedCustId) return [];
+    return apiClient.get<import("./gstAmendmentApplicationMapper").GstAmendmentBackendDto[]>(
+      `/api/v1/my-applications/amendment/${encodeURIComponent(resolvedCustId)}`,
+      { headers }
+    );
   },
 };
 

@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { GstValidators } from "../../modules/gst/utils/gstValidators";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Strict Business Address Validation Unit Tests
+// Finsolz GST Registration — Strict Business Address Validation Unit Tests
 // ===============================================================================================
 
 test("Business Address: rejects empty, null, undefined, and whitespace-only input", () => {

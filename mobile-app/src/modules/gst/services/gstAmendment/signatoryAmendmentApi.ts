@@ -6,7 +6,7 @@ import { parseAnyDate } from "@/modules/gst/utils/gstValidators";
 /** Authorised Signatories amendment endpoints. */
 export const signatoryAmendmentApi = {
   getExistingSignatory: (gstId: string) => {
-    return apiClient.get<ExistingSignatoryDto>(`/api/v1/gst/amendments/signatory/${gstId}/existing`);
+    return apiClient.get<ExistingSignatoryDto>(`/api/v1/gst/amendment/signatory/${gstId}/existing`);
   },
   submitSignatoryAmendment: (
     gstId: string,
@@ -54,7 +54,7 @@ export const signatoryAmendmentApi = {
     });
   },
   getSignatoryAmendmentById: (id: number | string) => {
-    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendments/signatory/record/${id}`);
+    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendment/signatory/record/${id}`);
   },
   updateSignatoryAmendment: (
     id: number | string,
@@ -115,7 +115,7 @@ export const signatoryAmendmentApi = {
     if (id !== undefined && id !== null) params.append("id", String(id));
     if (pushToken) params.append("pushToken", pushToken);
     const query = params.toString();
-    const url = `/api/v1/gst/amendments/signatory/submit${query ? `?${query}` : ""}`;
+    const url = `/api/v1/gst/amendment/signatory/submit${query ? `?${query}` : ""}`;
     return apiClient.post<string>(url);
   },
 };

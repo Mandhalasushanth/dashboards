@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SignatoryAmendmentViewDto {
-    private Long id;
+    private String id;
     private String newSignatoryName;
     private String newSignatoryPan;
     private LocalDate newSignatoryDob;

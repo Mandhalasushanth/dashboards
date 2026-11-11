@@ -3,7 +3,7 @@ import { StatusBar, type StatusBarProps } from "react-native";
 import { useIsFocused } from "expo-router";
 
 /**
- * Global status-bar policy for TaxEdge.
+ * Global status-bar policy for Finsolz.
  *
  * React Native keeps a stack of every mounted <StatusBar>, and the most
  * recently mounted entry wins. Screens underneath the current one (tab
@@ -13,7 +13,7 @@ import { useIsFocused } from "expo-router";
  *
  * Rules:
  * 1. <RootStatusBar /> is rendered once in the root layout. It sets the
- *    app-wide default: dark icons, which suit the light TaxEdge screens.
+ *    app-wide default: dark icons, which suit the light Finsolz screens.
  * 2. Screens or headers that need a different style (dark headers) render
  *    <FocusAwareStatusBar />. It only exists in the stack while its screen is
  *    focused, so it can never leak onto another screen.

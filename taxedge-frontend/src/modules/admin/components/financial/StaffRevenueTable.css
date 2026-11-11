@@ -1,0 +1,163 @@
+.tx-staff-rev {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(14px, 2.5vw, 20px);
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-staff-rev__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tx-staff-rev__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-staff-rev__hint {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--tx-secondary-text);
+}
+
+.tx-staff-rev__tabs {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  background-color: var(--tx-background);
+}
+
+.tx-staff-rev__tab {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: var(--tx-radius-sm);
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+  cursor: pointer;
+}
+
+.tx-staff-rev__tab--active {
+  background-color: var(--tx-primary-navy);
+  color: var(--tx-surface);
+}
+
+.tx-staff-rev__empty {
+  padding: 18px;
+  border: 1px dashed var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  font-size: 13px;
+  color: var(--tx-secondary-text);
+  text-align: center;
+}
+
+.tx-staff-rev__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.tx-staff-rev__table th,
+.tx-staff-rev__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+  text-align: left;
+}
+
+.tx-staff-rev__table thead th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+  background: var(--tx-light-blue);
+}
+
+.tx-staff-rev__table tbody th {
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+}
+
+.tx-staff-rev__table .tx-staff-rev__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-staff-rev__money {
+  font-weight: 700;
+  color: var(--tx-primary-text);
+}
+
+.tx-staff-rev__table tbody th.tx-staff-rev__muted {
+  font-weight: 500;
+  color: var(--tx-muted-text);
+}
+
+.tx-staff-rev__share {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-secondary-text);
+}
+
+.tx-staff-rev__meter {
+  width: 72px;
+  height: 6px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-light-blue);
+  overflow: hidden;
+}
+
+.tx-staff-rev__meter > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-primary-navy);
+}
+
+/* Phones: each person becomes a small card with labelled values. */
+@media (max-width: 640px) {
+  .tx-staff-rev__table thead {
+    display: none;
+  }
+
+  .tx-staff-rev__table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--tx-subtle-border);
+  }
+
+  .tx-staff-rev__table th,
+  .tx-staff-rev__table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .tx-staff-rev__table tbody th {
+    grid-column: 1 / -1;
+  }
+
+  .tx-staff-rev__table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--tx-muted-text);
+  }
+
+  .tx-staff-rev__table .tx-staff-rev__num {
+    text-align: left;
+  }
+}

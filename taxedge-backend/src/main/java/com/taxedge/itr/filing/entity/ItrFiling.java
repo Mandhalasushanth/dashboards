@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 import com.taxedge.gst.registration.enums.RegisterationStatus;
 
 import jakarta.persistence.CascadeType;
@@ -14,6 +15,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -58,6 +60,10 @@ public class ItrFiling {
 	@ManyToOne
 	@JoinColumn(name = "cust_id", nullable = false)
 	private Customer customer;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assigned_agent_id")
+	private AgentLogin assignedAgent;
 
 	@OneToMany(mappedBy = "itrFiling", cascade = CascadeType.ALL)
 	private List<ItrDocument> documents;

@@ -101,7 +101,7 @@ export function AnimatedSplashOverlay({ onFinish }: AnimatedSplashOverlayProps) 
   const sheenTranslateX = useSharedValue(-200);
   const sheenOpacity = useSharedValue(0);
 
-  // 4. Brand text "TAXEDGE" fade-up
+  // 4. Brand text "FINSOLZ" fade-up
   const titleTranslateY = useSharedValue(16);
   const titleOpacity = useSharedValue(0);
 
@@ -161,7 +161,7 @@ export function AnimatedSplashOverlay({ onFinish }: AnimatedSplashOverlayProps) 
       })
     );
 
-    // Step 6: "TAXEDGE" fades upward with crisp reveal (~900ms)
+    // Step 6: "FINSOLZ" fades upward with crisp reveal (~900ms)
     titleTranslateY.value = withDelay(
       900,
       withTiming(0, {
@@ -272,7 +272,7 @@ export function AnimatedSplashOverlay({ onFinish }: AnimatedSplashOverlayProps) 
           pointerEvents="none"
         />
 
-        {/* 4. Centered Brand Lockup: TF Logo + TAXEDGE + FIN SOLUTIONS */}
+        {/* 4. Centered Brand Lockup: TF Logo + FINSOLZ + FIN SOLUTIONS */}
         <View style={styles.mainCluster}>
           {/* Official TF Logo with Specular Light Sweep */}
           <Animated.View style={[styles.logoWrapper, logoAnimatedStyle]}>
@@ -306,7 +306,7 @@ export function AnimatedSplashOverlay({ onFinish }: AnimatedSplashOverlayProps) 
           {/* Typography Lockup */}
           <View style={styles.typographyContainer}>
             <Animated.View style={titleAnimatedStyle}>
-              <Text style={styles.brandTitle}>TAXEDGE</Text>
+              <Text style={styles.brandTitle}>FINSOLZ</Text>
             </Animated.View>
             <Animated.View style={subtitleAnimatedStyle}>
               <Text style={styles.subtitle}>FIN SOLUTIONS</Text>

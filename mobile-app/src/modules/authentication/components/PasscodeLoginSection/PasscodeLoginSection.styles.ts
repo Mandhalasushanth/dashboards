@@ -7,14 +7,36 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.md,
   },
   headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: Spacing.md,
   },
   title: {
     fontSize: Typography.fontSize.sm + 0.5,
     fontWeight: Typography.fontWeight.semiBold,
   },
+  eyeBtn: {
+    padding: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  digitText: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#0C2340",
+    textAlign: "center",
+  },
   touchable: {
     width: "100%",
+    position: "relative",
+  },
+  overlayInput: {
+    ...StyleSheet.absoluteFill,
+    opacity: 0.01,
+    color: "transparent",
+    backgroundColor: "transparent",
+    zIndex: 10,
   },
   dotsRow: {
     flexDirection: "row",
@@ -86,16 +108,20 @@ export const getThemedStyles = (colors: {
   border: string;
   backgroundElement: string;
   primary?: string;
+  textSecondary?: string;
 }) => ({
   title: {
+    color: colors.text,
+  },
+  digitText: {
     color: colors.text,
   },
   getDotBoxStyle: (isCurrent: boolean, hasError?: boolean | string | null) => ({
     borderColor: hasError
       ? colors.error
       : isCurrent
-      ? BrandColors.PRIMARY_BLUE
-      : colors.border,
+        ? BrandColors.PRIMARY_BLUE
+        : colors.border,
     backgroundColor: colors.backgroundElement,
   }),
   error: {
@@ -109,3 +135,4 @@ export const getThemedStyles = (colors: {
     color: colors.primary || BrandColors.PRIMARY_BLUE,
   },
 });
+

@@ -66,17 +66,29 @@ export function useGstFilingForm(createdAppId: string) {
 
     // Validate estimated figures if user selected manual estimates or entered values
     if (periodData.filingNature !== "Nil Return") {
-      if (periodData.taxableSales !== undefined && periodData.taxableSales !== "") {
-        const salesErr = validateEstimatedAmount(periodData.taxableSales, "sales", false);
+      const isManual = periodData.calculationMethod === "manual_estimates";
+      if (isManual) {
+        const salesErr = validateEstimatedAmount(periodData.taxableSales, "sales", true);
         if (salesErr) errs.taxableSales = salesErr;
-      }
-      if (periodData.taxablePurchases !== undefined && periodData.taxablePurchases !== "") {
-        const purchErr = validateEstimatedAmount(periodData.taxablePurchases, "purchases", false);
+
+        const purchErr = validateEstimatedAmount(periodData.taxablePurchases, "purchases", true);
         if (purchErr) errs.taxablePurchases = purchErr;
-      }
-      if (periodData.eligibleItc !== undefined && periodData.eligibleItc !== "") {
-        const itcErr = validateEstimatedAmount(periodData.eligibleItc, "eligible ITC", false);
+
+        const itcErr = validateEstimatedAmount(periodData.eligibleItc, "eligible ITC", true);
         if (itcErr) errs.eligibleItc = itcErr;
+      } else {
+        if (periodData.taxableSales !== undefined && periodData.taxableSales !== "") {
+          const salesErr = validateEstimatedAmount(periodData.taxableSales, "sales", false);
+          if (salesErr) errs.taxableSales = salesErr;
+        }
+        if (periodData.taxablePurchases !== undefined && periodData.taxablePurchases !== "") {
+          const purchErr = validateEstimatedAmount(periodData.taxablePurchases, "purchases", false);
+          if (purchErr) errs.taxablePurchases = purchErr;
+        }
+        if (periodData.eligibleItc !== undefined && periodData.eligibleItc !== "") {
+          const itcErr = validateEstimatedAmount(periodData.eligibleItc, "eligible ITC", false);
+          if (itcErr) errs.eligibleItc = itcErr;
+        }
       }
     }
 

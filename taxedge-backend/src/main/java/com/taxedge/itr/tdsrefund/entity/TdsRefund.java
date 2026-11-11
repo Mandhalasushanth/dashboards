@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 import com.taxedge.gst.registration.enums.RegisterationStatus;
 import com.taxedge.itr.tdsrefund.enums.AccountType;
 
@@ -12,7 +14,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +40,14 @@ public class TdsRefund {
 
     @Column(name = "cust_id", nullable = false, length = 50)
     private String custId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cust_id", insertable = false, updatable = false)
+    private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_agent_id")
+    private AgentLogin assignedAgent;
 
     @Column(name = "account_holder_name", nullable = false, length = 100)
     private String accountHolderName;

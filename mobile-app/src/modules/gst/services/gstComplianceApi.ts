@@ -15,7 +15,7 @@ import type { ComplianceFormData } from "@/modules/gst/validation/complianceSche
 
 /**
  * Justified multipart upload timeout (45 seconds).
- * Standard JSON requests in TaxEdge use 30 seconds (`apiClient.ts`). For GST Compliance,
+ * Standard JSON requests in Finsolz use 30 seconds (`apiClient.ts`). For GST Compliance,
  * payloads carry up to two 10 MiB attachments (up to 20 MiB total). On mobile uplinks
  * (3-5 Mbps), 10 MiB takes ~20-35 seconds. A 45-second timeout accommodates legitimate
  * uploads without hanging indefinitely on stalled connections.

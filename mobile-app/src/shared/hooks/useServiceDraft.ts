@@ -89,11 +89,11 @@ export function hasEnteredAnyField(
 
 export async function addDraftToIndex(cleanMobile: string, serviceKey: string): Promise<void> {
   try {
-    const raw = await AsyncStorage.getItem(`@taxedge_draft_index_${cleanMobile}`);
+    const raw = await AsyncStorage.getItem(`@finsolz_draft_index_${cleanMobile}`);
     const index: string[] = raw ? JSON.parse(raw) : [];
     if (!index.includes(serviceKey)) {
       index.push(serviceKey);
-      await AsyncStorage.setItem(`@taxedge_draft_index_${cleanMobile}`, JSON.stringify(index));
+      await AsyncStorage.setItem(`@finsolz_draft_index_${cleanMobile}`, JSON.stringify(index));
     }
   } catch (error) {
     logger.warn("[useServiceDraft] Failed to add draft to index", { serviceKey, error: getErrorMessage(error) });
@@ -102,11 +102,11 @@ export async function addDraftToIndex(cleanMobile: string, serviceKey: string): 
 
 export async function removeDraftFromIndex(cleanMobile: string, serviceKey: string): Promise<void> {
   try {
-    const raw = await AsyncStorage.getItem(`@taxedge_draft_index_${cleanMobile}`);
+    const raw = await AsyncStorage.getItem(`@finsolz_draft_index_${cleanMobile}`);
     if (raw) {
       const index: string[] = JSON.parse(raw);
       const nextIndex = index.filter((k) => k !== serviceKey);
-      await AsyncStorage.setItem(`@taxedge_draft_index_${cleanMobile}`, JSON.stringify(nextIndex));
+      await AsyncStorage.setItem(`@finsolz_draft_index_${cleanMobile}`, JSON.stringify(nextIndex));
     }
   } catch (error) {
     logger.warn("[useServiceDraft] Failed to remove draft from index", { serviceKey, error: getErrorMessage(error) });
@@ -115,13 +115,13 @@ export async function removeDraftFromIndex(cleanMobile: string, serviceKey: stri
 
 export async function getCustomerDrafts(cleanMobile: string): Promise<Record<string, unknown>[]> {
   try {
-    const raw = await AsyncStorage.getItem(`@taxedge_draft_index_${cleanMobile}`);
+    const raw = await AsyncStorage.getItem(`@finsolz_draft_index_${cleanMobile}`);
     if (!raw) return [];
     const index: string[] = JSON.parse(raw);
     const drafts: Record<string, unknown>[] = [];
     for (const key of index) {
       try {
-        const draftRaw = await AsyncStorage.getItem(`@taxedge_draft_${cleanMobile}_${key}`);
+        const draftRaw = await AsyncStorage.getItem(`@finsolz_draft_${cleanMobile}_${key}`);
         if (draftRaw) {
           const parsed = JSON.parse(draftRaw);
           if (parsed && typeof parsed === "object") {
@@ -153,7 +153,7 @@ export function useServiceDraft<T extends Record<string, unknown>>({
     (s) => s.customer?.mobile || s.authenticatedUser?.mobileNumber || s.mobileNumber || "user"
   );
   const cleanMobile = String(currentMobile).replace(/\D/g, "") || "user";
-  const storageKey = `@taxedge_draft_${cleanMobile}_${serviceKey}`;
+  const storageKey = `@finsolz_draft_${cleanMobile}_${serviceKey}`;
 
   const formDataRef = useRef(formData);
   const onSaveRef = useRef(onSave);

@@ -1,0 +1,122 @@
+/* Field styling for the dark secure-access surfaces (login and related screens). */
+.tx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tx-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--tx-on-dark-secondary);
+}
+
+.tx-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  border: 1px solid var(--tx-on-dark-field-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-on-dark-field);
+  color: var(--tx-on-dark-muted);
+  transition: border-color var(--tx-transition-fast), box-shadow var(--tx-transition-fast),
+    background-color var(--tx-transition-fast);
+}
+
+.tx-field__control:hover {
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
+.tx-field__control:focus-within {
+  border-color: var(--tx-primary-orange);
+  box-shadow: var(--tx-focus-ring-orange);
+  color: var(--tx-primary-orange);
+}
+
+.tx-field__control--invalid,
+.tx-field__control--invalid:hover {
+  border-color: var(--tx-on-dark-error);
+  color: var(--tx-on-dark-error);
+}
+
+.tx-field__icon {
+  position: absolute;
+  left: 16px;
+  pointer-events: none;
+}
+
+.tx-field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--tx-on-dark-text);
+  /* 16px prevents iOS Safari from zooming into the field on focus. */
+  font-size: 16px;
+  outline: none;
+}
+
+.tx-field__control--with-icon .tx-field__input {
+  padding-left: 48px;
+}
+
+.tx-field__input::placeholder {
+  color: var(--tx-on-dark-muted);
+}
+
+.tx-field__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Keep browser autofill from painting a light background over the dark field. */
+.tx-field__input:-webkit-autofill,
+.tx-field__input:-webkit-autofill:hover,
+.tx-field__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--tx-on-dark-text);
+  caret-color: var(--tx-on-dark-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--tx-splash-navy) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.tx-field__reveal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: 4px;
+  border-radius: var(--tx-radius-md);
+  color: var(--tx-on-dark-muted);
+  transition: color var(--tx-transition-fast), background-color var(--tx-transition-fast);
+}
+
+.tx-field__reveal:hover:not(:disabled) {
+  color: var(--tx-on-dark-text);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.tx-field__reveal:focus-visible {
+  outline: 2px solid var(--tx-primary-orange);
+  outline-offset: -2px;
+}
+
+.tx-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--tx-on-dark-error);
+}
+
+.tx-field__error .tx-icon {
+  margin-top: 1px;
+}

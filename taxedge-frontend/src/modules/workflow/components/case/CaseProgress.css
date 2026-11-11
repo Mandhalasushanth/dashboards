@@ -1,0 +1,135 @@
+.tx-case-progress {
+  display: grid;
+  grid-template-columns: repeat(var(--tx-progress-steps, 6), minmax(0, 1fr));
+  padding: 16px 12px 14px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background: var(--tx-surface);
+}
+
+.tx-case-progress__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Connector to the next step, drawn from this step's marker. */
+.tx-case-progress__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 13px;
+  left: calc(50% + 16px);
+  right: calc(-50% + 16px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--tx-border);
+}
+
+.tx-case-progress__step--done:not(:last-child)::after {
+  background: var(--tx-success);
+}
+
+.tx-case-progress__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--tx-border);
+  border-radius: 50%;
+  background: var(--tx-surface);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tx-muted-text);
+}
+
+.tx-case-progress__step--done .tx-case-progress__marker {
+  border-color: var(--tx-success);
+  background: var(--tx-success);
+  color: var(--tx-on-dark-text);
+}
+
+.tx-case-progress__step--current .tx-case-progress__marker {
+  border-color: var(--tx-primary-orange);
+  background: var(--tx-primary-orange);
+  color: var(--tx-on-dark-text);
+  box-shadow: var(--tx-focus-ring-orange);
+}
+
+.tx-case-progress__step--attention .tx-case-progress__marker {
+  border-color: var(--tx-warning);
+  background: var(--tx-warning-light);
+  color: var(--tx-warning-strong);
+  box-shadow: var(--tx-focus-ring-orange);
+}
+
+.tx-case-progress__step--stopped .tx-case-progress__marker {
+  border-color: var(--tx-error);
+  background: var(--tx-error);
+  color: var(--tx-on-dark-text);
+}
+
+.tx-case-progress__label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--tx-secondary-text);
+}
+
+.tx-case-progress__step--done .tx-case-progress__label {
+  color: var(--tx-success);
+}
+
+.tx-case-progress__step--current .tx-case-progress__label,
+.tx-case-progress__step--attention .tx-case-progress__label,
+.tx-case-progress__step--stopped .tx-case-progress__label {
+  color: var(--tx-primary-navy);
+}
+
+.tx-case-progress__now {
+  padding: 2px 7px;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-light-orange);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--tx-primary-orange);
+}
+
+.tx-case-progress__step--stopped .tx-case-progress__now {
+  background: var(--tx-error-light);
+  color: var(--tx-error);
+}
+
+/* Phones: a vertical timeline, as in the mobile app. */
+@media (max-width: 600px) {
+  .tx-case-progress {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .tx-case-progress__step {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    text-align: left;
+  }
+
+  .tx-case-progress__step:not(:last-child)::after {
+    top: 30px;
+    bottom: -14px;
+    left: 13px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .tx-case-progress__label {
+    font-size: 0.84rem;
+  }
+}

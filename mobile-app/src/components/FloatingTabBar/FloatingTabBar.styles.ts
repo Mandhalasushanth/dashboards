@@ -1,13 +1,15 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import type { IconName } from "@/types/domain";
 
 export const FLOATING_TAB_HEIGHT = 64;
 export const FLOATING_TAB_GAP = 12;
 
-export const BAR_BG = "#1E3A5F"; // Royal Navy Blue capsule background
-export const ACTIVE_PILL_BG = "#FFFFFF"; // Clean white active pill
-export const ACTIVE_ICON_COLOR = "#FF5722"; // Vibrant Orange icon when clicked/active
-export const INACTIVE_ICON_COLOR = "#FFFFFF"; // Crisp white icon on blue background
+export const BAR_BG = "#FFFFFF"; // Floating white rounded pill container
+export const ACTIVE_PILL_BG = "#0B2B59"; // Deep-blue rounded capsule
+export const ACTIVE_ICON_COLOR = "#FFFFFF"; // White active icon
+export const ACTIVE_LABEL_COLOR = "#FFFFFF"; // White active label
+export const INACTIVE_ICON_COLOR = "#1E3A5F"; // Navy-blue inactive icon
+export const INACTIVE_LABEL_COLOR = "#334155"; // Navy-slate inactive label
 
 export const HIDDEN_FROM_BAR = new Set(["gst", "documents"]);
 
@@ -62,25 +64,34 @@ export const styles = StyleSheet.create({
   },
   floatingWrapper: {
     position: "absolute",
-    left: 12,
-    right: 12,
+    left: 14,
+    right: 14,
     alignItems: "center",
   },
   capsuleContainer: {
     width: "100%",
     height: FLOATING_TAB_HEIGHT,
     backgroundColor: BAR_BG,
-    borderRadius: 32,
+    borderRadius: 36,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-    shadowColor: "#0A192F",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 14,
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: "rgba(226, 232, 240, 0.8)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0A192F",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.12,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 10,
+      },
+      default: {},
+    }),
   },
   tabItem: {
     flex: 1,
@@ -90,17 +101,24 @@ export const styles = StyleSheet.create({
   },
   activePill: {
     backgroundColor: ACTIVE_PILL_BG,
-    width: "94%",
+    width: "92%",
     height: 52,
     borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 2,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0B2B59",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+      default: {},
+    }),
   },
   inactivePill: {
     width: "100%",
@@ -112,15 +130,23 @@ export const styles = StyleSheet.create({
   activeLabel: {
     fontSize: 9.5,
     fontWeight: "700",
-    color: ACTIVE_ICON_COLOR,
+    color: ACTIVE_LABEL_COLOR,
     marginTop: 2,
     textAlign: "center",
   },
   inactiveLabel: {
     fontSize: 9.5,
     fontWeight: "600",
-    color: INACTIVE_ICON_COLOR,
+    color: INACTIVE_LABEL_COLOR,
     marginTop: 2,
     textAlign: "center",
   },
+});
+
+export const getBackdropGradientThemedStyle = (height: number) => ({
+  height,
+});
+
+export const getFloatingWrapperThemedStyle = (bottom: number) => ({
+  bottom,
 });

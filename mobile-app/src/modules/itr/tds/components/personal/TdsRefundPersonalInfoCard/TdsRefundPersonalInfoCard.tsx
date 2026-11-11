@@ -2,42 +2,42 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
 import { PersonalDetails } from "../../../types/customerIncome.types";
 import {
-  cleanPan,
-  cleanAadhaar,
-  cleanMobile,
-  cleanPinCode,
-} from "../../../utils/tdsValidation";
-import { validatePersonalDetails } from "../../../validation/tdsCustomerSchema";
+  CustomerFormErrors,
+  validatePersonalDetails,
+} from "../../../validation/tdsCustomerSchema";
+import { sanitizeNameOnBlur } from "@/shared/validators/nameValidator";
 import { styles } from "./TdsRefundPersonalInfoCard.styles";
 import { TdsRefundPersonalInfoEditForm } from "./components/TdsRefundPersonalInfoEditForm";
 
 export interface TdsRefundPersonalInfoCardProps {
   personalData: PersonalDetails;
+  // BUG_B23_004: outer form validation errors for personal fields
+  personalErrors?: CustomerFormErrors;
   isLoading?: boolean;
-
   isError?: boolean;
   errorMessage?: string;
   onRetry?: () => void;
   onSaveProfile: (updated: PersonalDetails) => Promise<boolean | void>;
+  onBlurField?: (key: string) => void;
 }
 
 export const TdsRefundPersonalInfoCard: React.FC<
   TdsRefundPersonalInfoCardProps
 > = ({
   personalData,
+  personalErrors,
   isLoading = false,
   isError = false,
   errorMessage = "Unable to load your profile information.",
   onRetry,
   onSaveProfile,
+  onBlurField,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<PersonalDetails>(personalData);
@@ -47,6 +47,7 @@ export const TdsRefundPersonalInfoCard: React.FC<
   // Synchronize local edit buffer when prop updates while not editing
   useEffect(() => {
     if (!isEditing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditForm(personalData);
     }
   }, [personalData, isEditing]);
@@ -113,8 +114,30 @@ export const TdsRefundPersonalInfoCard: React.FC<
     }
   };
 
-  const handleSave = async () => {
+  const handleBlurEditField = (field: keyof PersonalDetails) => {
     const validation = validatePersonalDetails(editForm);
+    const err = validation.errors[field];
+    setEditErrors((prev) => {
+      if (err) {
+        if (prev[field] === err) return prev;
+        return { ...prev, [field]: err };
+      }
+      if (prev[field]) {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      }
+      return prev;
+    });
+    onBlurField?.(`personal.${field}`);
+  };
+
+  const handleSave = async () => {
+    const sanitizedForm: PersonalDetails = {
+      ...editForm,
+      fullName: sanitizeNameOnBlur(editForm.fullName),
+    };
+    const validation = validatePersonalDetails(sanitizedForm);
     if (!validation.isValid) {
       setEditErrors(validation.errors);
       return;
@@ -122,7 +145,7 @@ export const TdsRefundPersonalInfoCard: React.FC<
 
     try {
       setIsSaving(true);
-      await onSaveProfile(editForm);
+      await onSaveProfile(sanitizedForm);
       setIsEditing(false);
       setEditErrors({});
     } catch {
@@ -202,6 +225,7 @@ export const TdsRefundPersonalInfoCard: React.FC<
         updateEditField={updateEditField}
         handleCancelEdit={handleCancelEdit}
         handleSave={handleSave}
+        onBlurField={handleBlurEditField}
       />
     );
   }
@@ -250,6 +274,12 @@ export const TdsRefundPersonalInfoCard: React.FC<
 
   const addressInfo = formatAddressForData(activeData);
 
+  // BUG_B23_004: compute personal error count for read-only banner
+  const personalErrorKeys = personalErrors
+    ? Object.keys(personalErrors).filter((k) => !k.includes(".") || k.startsWith("personal."))
+    : [];
+  const hasPersonalErrors = personalErrorKeys.length > 0;
+
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -277,6 +307,16 @@ export const TdsRefundPersonalInfoCard: React.FC<
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
       </View>
+
+      {/* BUG_B23_004: validation error banner in read-only mode */}
+      {hasPersonalErrors && !isEditing && (
+        <View style={styles.personalErrorBanner}>
+          <Ionicons name="alert-circle" size={14} color="#DC2626" />
+          <Text style={styles.personalErrorBannerText}>
+            Personal information is incomplete. Tap Edit to fix the required fields.
+          </Text>
+        </View>
+      )}
 
       <View style={styles.infoRowsList}>
         {/* Full Name */}

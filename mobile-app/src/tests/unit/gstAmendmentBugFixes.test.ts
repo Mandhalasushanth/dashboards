@@ -85,32 +85,18 @@ test("Test 5: Special characters and spaces in PAN are rejected", () => {
   });
 });
 
-// ─── TEST 6: PAN keyboard switches to numeric after 5 letters ────────────────
+// ─── TEST 6: PAN keyboard uses normal default keyboard ────────────────────────
 
-test("Test 6: PAN keyboard type is number-pad when 5 characters are entered", () => {
+test("Test 6: PAN keyboard uses consistent standard keyboard format", () => {
   const filePath = path.resolve(
     __dirname,
     "../../modules/gst/gst-amendment/components/GstNonCoreAmendmentEdit/GstNonCoreAmendmentEdit.tsx"
   );
   const content = fs.readFileSync(filePath, "utf-8");
 
-  // panKeyboardType must be computed and passed to the PAN InputField
-  assert.match(content, /panKeyboardType/, "panKeyboardType variable must exist");
-  assert.match(content, /number-pad/, "number-pad keyboard type must be referenced");
-  assert.match(content, /panLen\s*>=\s*5/, "switch at 5+ chars must be coded");
-});
-
-// ─── TEST 7: PAN keyboard switches back to alpha after 4 digits (position 9+) ─
-
-test("Test 7: PAN keyboard type is default when 9 or 10 characters are entered", () => {
-  const filePath = path.resolve(
-    __dirname,
-    "../../modules/gst/gst-amendment/components/GstNonCoreAmendmentEdit/GstNonCoreAmendmentEdit.tsx"
-  );
-  const content = fs.readFileSync(filePath, "utf-8");
-
-  // Switch back to default at length 9 (final char)
-  assert.match(content, /panLen\s*<=\s*8/, "switch back at 9+ chars must be coded");
+  // Consistent keyboardType="default" and autoCapitalize="characters"
+  assert.match(content, /keyboardType="default"/, "PAN input must use standard default keyboard");
+  assert.match(content, /autoCapitalize="characters"/, "PAN input must auto-capitalize");
 });
 
 // ─── TEST 8: Valid 18+ DOB is accepted ───────────────────────────────────────
@@ -312,3 +298,4 @@ test("Test 15: GST Amendment sections other than authorised-signatories are unaf
   assert.ok("Bank Name" in bankDict, "Bank Name must appear in bank-accounts summary");
   assert.ok("Account Number" in bankDict);
 });
+

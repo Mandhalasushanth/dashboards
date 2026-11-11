@@ -92,6 +92,7 @@ export const styles = StyleSheet.create({
     marginTop: 4, marginBottom: -4,
   },
   fieldGroup: { gap: 6 },
+  labelRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   label: {
     fontSize: Typography.fontSize.sm + 1,
     fontWeight: Typography.fontWeight.semiBold,

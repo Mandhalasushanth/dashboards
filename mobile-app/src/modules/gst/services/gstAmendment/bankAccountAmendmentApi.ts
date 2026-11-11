@@ -5,7 +5,7 @@ import { uploadAmendmentWithFile, formatFile } from "./gstAmendmentTransport";
 /** Bank Accounts amendment endpoints. */
 export const bankAccountAmendmentApi = {
   getExistingBankAccount: (gstId: string) => {
-    return apiClient.get<ExistingBankAccountDto>(`/api/v1/gst/amendments/bank-account/${gstId}/existing`);
+    return apiClient.get<ExistingBankAccountDto>(`/api/v1/gst/amendment/bank-account/${gstId}/existing`);
   },
   submitBankAccountAmendment: (
     gstId: string,
@@ -47,7 +47,7 @@ export const bankAccountAmendmentApi = {
     });
   },
   getBankAccountAmendmentById: (id: number | string) => {
-    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendments/bank-account/record/${id}`);
+    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendment/bank-account/record/${id}`);
   },
   updateBankAccountAmendment: (
     id: number | string,
@@ -98,7 +98,7 @@ export const bankAccountAmendmentApi = {
     if (id !== undefined && id !== null) params.append("id", String(id));
     if (pushToken) params.append("pushToken", pushToken);
     const query = params.toString();
-    const url = `/api/v1/gst/amendments/bank-account/submit${query ? `?${query}` : ""}`;
+    const url = `/api/v1/gst/amendment/bank-account/submit${query ? `?${query}` : ""}`;
     return apiClient.post<string>(url);
   },
 };

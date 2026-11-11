@@ -1,0 +1,19 @@
+.tx-team-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tx-team-view__panel {
+  padding: 16px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+@media (max-width: 480px) {
+  .tx-team-view__panel {
+    padding: 12px;
+  }
+}

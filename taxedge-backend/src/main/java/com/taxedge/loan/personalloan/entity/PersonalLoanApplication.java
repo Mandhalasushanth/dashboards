@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import com.taxedge.customer.entity.Customer;
 import com.taxedge.loan.personalloan.enums.ExistingLoanStatus;
 import com.taxedge.loan.personalloan.enums.LoanApplicationStatus;
+import com.taxedge.loan.personalloan.enums.NatureOfBusiness;
+import com.taxedge.loan.personalloan.enums.PersonalLoanJobType;
 import com.taxedge.loan.personalloan.enums.PersonalLoanPurpose;
 import com.taxedge.loan.personalloan.helper.PersonalLoanHelper;
 
@@ -42,7 +44,7 @@ import lombok.Setter;
 public class PersonalLoanApplication {
 
     @Id
-    @Column(name = "loan_application_id", nullable = false, updatable = false, length = 20)
+    @Column(name = "loan_application_id", nullable = false, updatable = false, length = 30)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,14 +55,15 @@ public class PersonalLoanApplication {
     @Column(name = "loan_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal loanAmount;
 
-    @Column(name = "employment_type", length = 20)
+    @Column(name = "employment_type", length = 30)
     private String employmentType;
 
     @Column(name = "employer_name", length = 100)
     private String employerName;
 
     @Column(name = "job_type", length = 50)
-    private String jobType;
+    @Enumerated(EnumType.STRING)
+    private PersonalLoanJobType jobType;
 
     @Column(name = "work_experience", length = 50)
     private String workExperience;
@@ -72,7 +75,8 @@ public class PersonalLoanApplication {
     private String businessOrProfessionName;
 
     @Column(name = "nature_of_business", length = 50)
-    private String natureOfBusiness;
+    @Enumerated(EnumType.STRING)
+    private NatureOfBusiness natureOfBusiness;
 
     @Column(name = "average_monthly_income", precision = 15, scale = 2)
     private BigDecimal averageMonthlyIncome;
@@ -97,7 +101,7 @@ public class PersonalLoanApplication {
     private BigDecimal monthlyNetSalary;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "existing_loan_status", length = 20)
+    @Column(name = "existing_loan_status", length = 30)
     private ExistingLoanStatus existingLoanStatus;
 
     @Column(name = "primary_bank_name", length = 100)
@@ -110,7 +114,7 @@ public class PersonalLoanApplication {
     private String ifscCode;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 30)
     private LoanApplicationStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)

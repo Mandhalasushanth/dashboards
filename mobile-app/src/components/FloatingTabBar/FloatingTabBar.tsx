@@ -24,6 +24,8 @@ import {
   TAB_META,
   metaFor,
   styles,
+  getBackdropGradientThemedStyle,
+  getFloatingWrapperThemedStyle,
   type TabMeta,
 } from "./FloatingTabBar.styles";
 
@@ -131,16 +133,11 @@ export function FloatingTabBar({
       <LinearGradient
         colors={backdropColors}
         locations={[0, 0.28, 0.65, 1]}
-        style={[styles.backdropGradient, { height: backdropHeight }]}
+        style={[styles.backdropGradient, getBackdropGradientThemedStyle(backdropHeight)]}
         pointerEvents="none"
       />
       <View
-        style={[
-          styles.floatingWrapper,
-          {
-            bottom: bottomOffset,
-          },
-        ]}
+        style={[styles.floatingWrapper, getFloatingWrapperThemedStyle(bottomOffset)]}
         pointerEvents="box-none"
       >
         <View style={styles.capsuleContainer}>

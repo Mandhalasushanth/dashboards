@@ -3,6 +3,7 @@ import {
   View,
   Text,
   ScrollView,
+  type ScrollViewInstance,
   TouchableOpacity,
   TextInput,
   StatusBar,
@@ -18,6 +19,8 @@ import {
 } from "./GstAmendmentLanding.styles";
 import { CORE_AMENDMENT_SECTIONS } from "../../config/gstCoreAmendmentConfig";
 import { NON_CORE_AMENDMENT_SECTIONS } from "../../config/gstNonCoreAmendmentConfig";
+import { GstinInfoIcon } from "@/modules/gst/components/common";
+import { removeEmoji } from "@/modules/gst/utils/gstEmojiFilter";
 
 interface GstAmendmentLandingProps {
   gstin: string;
@@ -25,7 +28,7 @@ interface GstAmendmentLandingProps {
   errorGstin?: string;
   onSelectSection: (sectionId: string) => void;
   onBack: () => void;
-  scrollViewRef: React.RefObject<ScrollView | null>;
+  scrollViewRef: React.RefObject<ScrollView | null> | React.RefObject<ScrollViewInstance | null> | any;
   insets: { top: number; bottom: number };
 }
 
@@ -40,7 +43,7 @@ export const GstAmendmentLanding: React.FC<GstAmendmentLandingProps> = ({
 }) => {
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Header */}
       <View style={[styles.headerBar, getHeaderBarStyle(insets.top)]}>
@@ -59,7 +62,7 @@ export const GstAmendmentLanding: React.FC<GstAmendmentLandingProps> = ({
       </View>
 
       <KeyboardAwareScrollView
-        ref={scrollViewRef}
+        ref={scrollViewRef as any}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -78,9 +81,12 @@ export const GstAmendmentLanding: React.FC<GstAmendmentLandingProps> = ({
         {/* GSTIN Input */}
         <View style={styles.gstinBlock}>
           <View style={styles.gstinLabelRow}>
-            <Text style={styles.gstinLabel}>
-              GSTIN to Amend <Text style={styles.star}>*</Text>
-            </Text>
+            <View style={styles.gstinLabelLeft}>
+              <Text style={styles.gstinLabel}>
+                GSTIN to Amend <Text style={styles.star}>*</Text>
+              </Text>
+              <GstinInfoIcon />
+            </View>
             <Text style={styles.gstinCounter}>{`${gstin.length}/15`}</Text>
           </View>
           <TextInput
@@ -88,7 +94,7 @@ export const GstAmendmentLanding: React.FC<GstAmendmentLandingProps> = ({
             placeholder="Enter GSTIN"
             placeholderTextColor="#94A3B8"
             value={gstin}
-            onChangeText={onGstinChange}
+            onChangeText={(text) => onGstinChange(removeEmoji(text))}
             autoCapitalize="characters"
             maxLength={15}
           />

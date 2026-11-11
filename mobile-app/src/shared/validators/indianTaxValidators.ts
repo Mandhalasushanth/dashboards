@@ -13,6 +13,7 @@ const PAN_SHAPE_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 export const GSTIN_REGEX = /^[0-9]{2}[A-Z]{3}[ABCFGHJLPT][A-Z][0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 export const AADHAAR_REGEX = /^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/;
 export const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+export const BANK_ACCOUNT_REGEX = /^[0-9]{9,18}$/;
 export const PINCODE_REGEX = /^[1-9]{1}[0-9]{2}[0-9]{3}$/;
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PHONE_REGEX = /^[6-9]\d{9}$/;
@@ -36,6 +37,12 @@ export function validateAadhaar(aadhaar: string): boolean {
 export function validateIfsc(ifsc: string): boolean {
   if (!ifsc) return false;
   return IFSC_REGEX.test(ifsc.trim().toUpperCase());
+}
+
+export function validateBankAccountNumber(accountNumber: string): boolean {
+  if (!accountNumber) return false;
+  const clean = accountNumber.trim();
+  return BANK_ACCOUNT_REGEX.test(clean) && !/^0+$/.test(clean);
 }
 
 export function validatePincode(pincode: string): boolean {

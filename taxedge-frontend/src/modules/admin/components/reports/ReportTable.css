@@ -1,0 +1,199 @@
+.tx-report {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: clamp(16px, 2.5vw, 24px);
+  border: 1px solid var(--tx-border);
+  border-top: 3px solid var(--tx-primary-orange);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-report__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.tx-report__heading {
+  min-width: 0;
+}
+
+.tx-report__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-report__count {
+  padding: 2px 10px;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-light-blue);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+}
+
+.tx-report__count--empty {
+  background: var(--tx-background);
+  color: var(--tx-secondary-text);
+}
+
+.tx-report__description {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--tx-secondary-text);
+}
+
+.tx-report__exports {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tx-report__exports-label {
+  margin-right: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tx-secondary-text);
+}
+
+/* The table fits the card: long values wrap rather than the table scrolling sideways. */
+.tx-report__frame {
+  overflow: hidden;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+}
+
+.tx-report__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tx-report__table th {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--tx-border);
+  background-color: var(--tx-light-blue);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tx-primary-navy);
+  text-align: left;
+}
+
+.tx-report__table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+  color: var(--tx-primary-text);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.tx-report__table tbody tr:nth-child(even) td {
+  background-color: #f8faff;
+}
+
+.tx-report__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tx-report__table tbody tr:hover td {
+  background-color: #eef4ff;
+}
+
+.tx-report__num {
+  text-align: right !important;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-report__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 40px 16px;
+  border: 1px dashed var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  text-align: center;
+}
+
+.tx-report__empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+}
+
+.tx-report__empty-text {
+  font-size: 13px;
+  color: var(--tx-secondary-text);
+}
+
+/* Small screens: each row becomes a card, labelled from data-label, so nothing scrolls sideways. */
+@media (max-width: 700px) {
+  .tx-report__frame {
+    border: none;
+  }
+
+  .tx-report__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .tx-report__table,
+  .tx-report__table tbody,
+  .tx-report__table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .tx-report__table tr {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--tx-border);
+    border-radius: var(--tx-radius-md);
+  }
+
+  .tx-report__table tbody tr:nth-child(even) td,
+  .tx-report__table tbody tr:hover td {
+    background: transparent;
+  }
+
+  .tx-report__table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--tx-subtle-border);
+    text-align: right;
+  }
+
+  .tx-report__table tr td:last-child {
+    border-bottom: none;
+  }
+
+  .tx-report__table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--tx-secondary-text);
+    text-align: left;
+  }
+}

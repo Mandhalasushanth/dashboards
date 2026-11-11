@@ -14,6 +14,7 @@ public interface GstFilingMapper {
 
     @Mapping(target = "gstfilingId", ignore = true)
     @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "submittedAt", ignore = true)
@@ -26,6 +27,7 @@ public interface GstFilingMapper {
 
     @Mapping(target = "gstfilingId", ignore = true)
     @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "submittedAt", ignore = true)

@@ -27,4 +27,8 @@ public interface PersonalLoanDocumentService {
     PersonalLoanDocumentDto getDocuments(String loanApplicationId);
 
     byte[] downloadFile(String loanApplicationId, String fileType);
+
+    void deleteDocument(String loanApplicationId, String fileType);
+
+    void deleteAllDocuments(String loanApplicationId);
 }

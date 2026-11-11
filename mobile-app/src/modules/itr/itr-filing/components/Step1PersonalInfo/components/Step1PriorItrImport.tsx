@@ -52,7 +52,7 @@ export const Step1PriorItrImport: React.FC<Step1PriorItrImportProps> = ({
       {isPreviousItrExpanded && (
         <>
           <Text style={styles.cardDescriptionAccordion}>
-            Optional — If you filed a return through TaxEdge previously, you can import carry-forward loss and deduction records.
+            Optional — If you filed a return through Finsolz previously, you can import carry-forward loss and deduction records.
           </Text>
 
           <View style={styles.priorItrBox}>

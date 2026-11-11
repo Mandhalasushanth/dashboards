@@ -5,7 +5,7 @@ import { uploadAmendmentWithFile, formatFile, mapNatureOfPremises } from "./gstA
 /** Additional Place amendment endpoints. */
 export const additionalPlaceAmendmentApi = {
   getExistingAdditionalPlace: (gstId: string) => {
-    return apiClient.get<ExistingAdditionalPlaceDto | ExistingAdditionalPlaceDto[]>(`/api/v1/gst/amendments/additional-place/${gstId}/existing`);
+    return apiClient.get<ExistingAdditionalPlaceDto | ExistingAdditionalPlaceDto[]>(`/api/v1/gst/amendment/additional-place/${gstId}/existing`);
   },
   submitAdditionalPlaceAmendment: (
     gstId: string,
@@ -32,7 +32,7 @@ export const additionalPlaceAmendmentApi = {
     });
   },
   getAdditionalPlaceAmendmentById: (id: number | string) => {
-    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendments/additional-place/record/${id}`);
+    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendment/additional-place/record/${id}`);
   },
   updateAdditionalPlaceAmendment: (
     id: number | string,
@@ -68,7 +68,7 @@ export const additionalPlaceAmendmentApi = {
     if (id !== undefined && id !== null) params.append("id", String(id));
     if (pushToken) params.append("pushToken", pushToken);
     const query = params.toString();
-    const url = `/api/v1/gst/amendments/additional-place/submit${query ? `?${query}` : ""}`;
+    const url = `/api/v1/gst/amendment/additional-place/submit${query ? `?${query}` : ""}`;
     return apiClient.post<string>(url);
   },
 };

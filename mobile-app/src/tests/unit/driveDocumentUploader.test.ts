@@ -10,7 +10,7 @@ test("driveDocumentUploader: file extension allowlist validation", () => {
     return allowed.includes(ext);
   };
 
-  assert.equal(checkExtension("TaxEdge_Report.pdf"), true);
+  assert.equal(checkExtension("Finsolz_Report.pdf"), true);
   assert.equal(checkExtension("profile_photo.JPG"), true);
   assert.equal(checkExtension("scan.png"), true);
   assert.equal(checkExtension("document.docx"), false);

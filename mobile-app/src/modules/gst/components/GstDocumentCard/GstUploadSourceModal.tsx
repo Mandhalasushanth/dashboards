@@ -16,6 +16,7 @@ export const GstUploadSourceModal: React.FC<GstUploadSourceModalProps> = ({
   documentTitle,
   maxSizeText = "10 MB",
   onChooseFiles,
+  onSelectGallery,
   onTakePhoto,
   onClose,
 }) => {
@@ -25,9 +26,10 @@ export const GstUploadSourceModal: React.FC<GstUploadSourceModalProps> = ({
       documentTitle={documentTitle}
       maxSizeText={maxSizeText}
       onPickFiles={onChooseFiles}
+      onPickGallery={onSelectGallery}
       onTakePhoto={onTakePhoto}
       onClose={onClose}
-      allowGallery={false}
+      allowGallery={Boolean(onSelectGallery)}
     />
   );
 };

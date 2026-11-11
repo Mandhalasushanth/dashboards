@@ -1,10 +1,15 @@
 import React from "react";
 import { Alert } from "react-native";
-import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { pickDocumentFromDrive } from "@/shared/utils/driveDocumentUploader";
 import { DocumentUploadBottomSheet } from "@/modules/itr/tds/components/upload/DocumentUploadBottomSheet/DocumentUploadBottomSheet";
+import {
+  ITR_ALLOWED_EXTENSIONS,
+  resolveItrMimeType,
+  isItrSupportedFile,
+  getItrAcceptedFormatsString,
+} from "@/modules/itr/utils/itrDocumentUploadHelper";
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
 
@@ -34,6 +39,14 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     providedSize?: number,
     mimeType?: string
   ): Promise<boolean> => {
+    if (!isItrSupportedFile(name, mimeType)) {
+      Alert.alert(
+        "Unsupported File Format",
+        `Please select a supported file (${getItrAcceptedFormatsString()}).`
+      );
+      return false;
+    }
+
     let sizeInBytes = providedSize;
 
     if (!sizeInBytes) {
@@ -51,7 +64,7 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     if (sizeInBytes && sizeInBytes > MAX_FILE_SIZE_BYTES) {
       Alert.alert(
         "File Too Large",
-        "The selected file exceeds 2 MB. Please select a smaller file (under 2 MB) to proceed."
+        "The selected file exceeds 15 MB. Please select a smaller file (under 15 MB) to proceed."
       );
       return false;
     }
@@ -60,11 +73,13 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       ? `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`
       : "1.2 MB";
 
+    const resolvedMime = resolveItrMimeType(name, mimeType);
+
     onFilePicked({
       uri,
       name,
       size: formattedSize,
-      mimeType,
+      mimeType: resolvedMime,
     });
     onClose();
     return true;
@@ -75,7 +90,7 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     try {
       const picked = await pickDocumentFromDrive({
         maxSizeBytes: MAX_FILE_SIZE_BYTES,
-        allowedExtensions: ["pdf", "jpg", "jpeg", "png", "xls", "xlsx", "doc", "docx", "csv", "json"],
+        allowedExtensions: [...ITR_ALLOWED_EXTENSIONS],
       });
 
       if (picked) {
@@ -83,7 +98,7 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
           uri: picked.uri,
           name: picked.name,
           size: picked.size,
-          mimeType: picked.mimeType,
+          mimeType: resolveItrMimeType(picked.name, picked.mimeType),
         });
         onClose();
       }
@@ -170,7 +185,7 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     <DocumentUploadBottomSheet
       visible={visible}
       documentTitle={docTitle}
-      maxSizeBytesText="2 MB"
+      maxSizeBytesText="15 MB"
       onClose={onClose}
       onPickFiles={handlePickDocument}
       onPickGallery={handlePickGallery}

@@ -74,16 +74,25 @@ export const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: Typography.fontSize.xs,
     color: "#64748B",
+    // BUG_B26_002: prevent label from shrinking — it must always show at its natural width
+    flexShrink: 0,
   },
   fieldValue: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semiBold,
     color: "#0F172A",
+    // BUG_B26_001: fill remaining space and right-align so long values (email, address, name)
+    // wrap within the card instead of overflowing past the right edge
+    flex: 1,
+    textAlign: "right",
   },
   fieldValueHighlight: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
     color: "#083B75",
+    // BUG_B26_001: same flex constraint for the PAN highlight variant
+    flex: 1,
+    textAlign: "right",
   },
   editProfileBtn: {
     alignSelf: "flex-end",
@@ -238,6 +247,8 @@ export const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
     color: "#0F172A",
+    // BUG_B26_004: allow bank name to shrink when "Validated" and "Selected" tags both appear
+    flexShrink: 1,
   },
   bankMaskedNumber: {
     fontSize: Typography.fontSize.sm,
@@ -354,5 +365,8 @@ export const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.bold,
     color: "#FFFFFF",
+    // BUG_B26_005: allow long CTA text ("Confirm & Continue to Income") to shrink
+    // rather than clip against the trailing arrow icon
+    flexShrink: 1,
   },
 });

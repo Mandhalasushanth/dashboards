@@ -129,7 +129,7 @@ export const styles = StyleSheet.create({
     color: "#F8FAFC",
   },
   valueMultiline: {
-    textAlign: "left",
+    textAlign: "right",
     lineHeight: 18,
   },
   valueSuccess: {

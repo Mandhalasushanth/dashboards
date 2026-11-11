@@ -25,155 +25,110 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class HomeLoanApplicationController {
 
-    private final HomeLoanApplicationService homeLoanApplicationService;
-    private final HomeLoanRequirementApplicationService homeLoanRequirementApplicationService;
-    private final HomeLoanDocumentService homeLoanDocumentService;
+        private final HomeLoanApplicationService homeLoanApplicationService;
+        private final HomeLoanRequirementApplicationService homeLoanRequirementApplicationService;
+        private final HomeLoanDocumentService homeLoanDocumentService;
 
-    @GetMapping("/kyc/{customerId}")
-    public HomeLoanApplicationKycDto getCustomerKycDetails(
-            @PathVariable String customerId) {
+        @GetMapping("/kyc/{customerId}")
+        public HomeLoanApplicationKycDto getCustomerKycDetails(
+                        @PathVariable String customerId) {
 
-        return homeLoanApplicationService.getCustomerKycDetails(customerId);
-    }
-
-    @PostMapping("/requirements")
-    public ResponseEntity<HomeLoanRequirementApplicationDto> createApplication(
-            @Valid @RequestBody HomeLoanRequirementApplicationDto dto) {
-
-        HomeLoanRequirementApplicationDto response =
-                homeLoanRequirementApplicationService.createApplication(dto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-
-    @GetMapping("/requirements/{homeLoanId}")
-    public ResponseEntity<HomeLoanRequirementApplicationDto> getApplication(
-            @PathVariable String homeLoanId) {
-
-        HomeLoanRequirementApplicationDto response =
-                homeLoanRequirementApplicationService.getApplication(homeLoanId);
-
-        return ResponseEntity.ok(response);
-    }
-
-
-    @GetMapping("/requirements")
-    public ResponseEntity<List<HomeLoanRequirementApplicationDto>>
-    getAllApplications() {
-
-        List<HomeLoanRequirementApplicationDto> response =
-                homeLoanRequirementApplicationService.getAllApplications();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/requirements/{homeLoanId}")
-    public ResponseEntity<HomeLoanRequirementApplicationDto> updateApplication(
-            @PathVariable String homeLoanId,
-            @Valid @RequestBody HomeLoanRequirementApplicationDto dto) {
-
-        HomeLoanRequirementApplicationDto response =
-                homeLoanRequirementApplicationService.updateApplication(
-                        homeLoanId, dto);
-
-        return ResponseEntity.ok(response);
-    }
-
-
-    @DeleteMapping("/requirements/{homeLoanId}")
-    public ResponseEntity<Void> deleteApplication(
-            @PathVariable String homeLoanId) {
-
-        homeLoanRequirementApplicationService.deleteApplication(homeLoanId);
-
-        return ResponseEntity.noContent().build();
-    }
-
-
-    @PostMapping(value = "/{homeLoanId}/documents",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public HomeLoanDocumentResponseDto uploadDocuments(
-            @PathVariable String homeLoanId,
-            @ModelAttribute HomeLoanDocumentRequestDto dto) throws IOException {
-
-        return homeLoanDocumentService.uploadDocuments(homeLoanId, dto);
-    }
-
-
-    @GetMapping("/requirements/documents")
-    public List<HomeLoanDocumentRequirementDto> getDocumentRequirements(
-            @RequestParam HomeLoanRequirementPurpose loanPurpose) {
-
-        return homeLoanDocumentService.getDocumentRequirements(loanPurpose);
-    }
-
-    @GetMapping("/{homeLoanId}/documents")
-    public HomeLoanDocumentResponseDto getDocuments(
-            @PathVariable String homeLoanId) {
-
-        return homeLoanDocumentService.getDocuments(homeLoanId);
-    }
-
-    @PutMapping(value = "/{homeLoanId}/documents",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public HomeLoanDocumentResponseDto replaceDocuments(
-            @PathVariable String homeLoanId,
-            @RequestParam Map<String, MultipartFile> files
-    ) throws IOException {
-
-        if (files == null || files.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "At least one document must be provided"
-            );
+                return homeLoanApplicationService.getCustomerKycDetails(customerId);
         }
 
-        return homeLoanDocumentService.replaceDocuments(
-                homeLoanId, files
-        );
-    }
+        @PostMapping("/requirements")
+        public ResponseEntity<HomeLoanRequirementApplicationDto> createApplication(
+                        @Valid @RequestBody HomeLoanRequirementApplicationDto dto) {
 
-    @DeleteMapping("/{homeLoanId}/documents/{documentType}")
-    public HomeLoanDocumentResponseDto removeDocument(
-            @PathVariable String homeLoanId,
-            @PathVariable String documentType) {
+                HomeLoanRequirementApplicationDto response = homeLoanRequirementApplicationService
+                                .createApplication(dto);
 
-        return homeLoanDocumentService.removeDocument(
-                homeLoanId, documentType);
-    }
-    private MediaType detectMediaType(byte[] content) {
-
-        if (content.length >= 5
-                && content[0] == '%'
-                && content[1] == 'P'
-                && content[2] == 'D'
-                && content[3] == 'F'
-                && content[4] == '-') {
-            return MediaType.APPLICATION_PDF;
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
 
-        if (content.length >= 8
-                && content[0] == (byte) 0x89
-                && content[1] == 'P'
-                && content[2] == 'N'
-                && content[3] == 'G'
-                && content[4] == 0x0D
-                && content[5] == 0x0A
-                && content[6] == 0x1A
-                && content[7] == 0x0A) {
-            return MediaType.IMAGE_PNG;
+        @GetMapping("/requirements/{homeLoanId}")
+        public ResponseEntity<HomeLoanRequirementApplicationDto> getApplication(
+                        @PathVariable String homeLoanId) {
+
+                HomeLoanRequirementApplicationDto response = homeLoanRequirementApplicationService
+                                .getApplication(homeLoanId);
+
+                return ResponseEntity.ok(response);
         }
 
-        if (content.length >= 3
-                && content[0] == (byte) 0xFF
-                && content[1] == (byte) 0xD8
-                && content[2] == (byte) 0xFF) {
-            return MediaType.IMAGE_JPEG;
+        @GetMapping("/requirements")
+        public ResponseEntity<List<HomeLoanRequirementApplicationDto>> getAllApplications() {
+
+                List<HomeLoanRequirementApplicationDto> response = homeLoanRequirementApplicationService
+                                .getAllApplications();
+
+                return ResponseEntity.ok(response);
         }
 
-        return MediaType.APPLICATION_OCTET_STREAM;
-    }
+        @PutMapping("/requirements/{homeLoanId}")
+        public ResponseEntity<HomeLoanRequirementApplicationDto> updateApplication(
+                        @PathVariable String homeLoanId,
+                        @Valid @RequestBody HomeLoanRequirementApplicationDto dto) {
+
+                HomeLoanRequirementApplicationDto response = homeLoanRequirementApplicationService.updateApplication(
+                                homeLoanId, dto);
+
+                return ResponseEntity.ok(response);
+        }
+
+        @DeleteMapping("/requirements/{homeLoanId}")
+        public ResponseEntity<Void> deleteApplication(
+                        @PathVariable String homeLoanId) {
+
+                homeLoanRequirementApplicationService.deleteApplication(homeLoanId);
+
+                return ResponseEntity.noContent().build();
+        }
+
+        @PostMapping(value = "/{homeLoanId}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public HomeLoanDocumentResponseDto uploadDocuments(
+                        @PathVariable String homeLoanId,
+                        @ModelAttribute HomeLoanDocumentRequestDto dto) throws IOException {
+
+                return homeLoanDocumentService.uploadDocuments(homeLoanId, dto);
+        }
+
+        @GetMapping("/requirements/documents")
+        public List<HomeLoanDocumentRequirementDto> getDocumentRequirements(
+                        @RequestParam(required = false) HomeLoanRequirementPurpose loanPurpose) {
+
+                return homeLoanDocumentService.getDocumentRequirements(loanPurpose);
+        }
+
+        @GetMapping("/{homeLoanId}/documents")
+        public HomeLoanDocumentResponseDto getDocuments(
+                        @PathVariable String homeLoanId) {
+
+                return homeLoanDocumentService.getDocuments(homeLoanId);
+        }
+
+        @PutMapping(value = "/{homeLoanId}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public HomeLoanDocumentResponseDto replaceDocuments(
+                        @PathVariable String homeLoanId,
+                        @RequestParam Map<String, MultipartFile> files) throws IOException {
+
+                if (files == null || files.isEmpty()) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "At least one document must be provided");
+                }
+
+                return homeLoanDocumentService.replaceDocuments(
+                                homeLoanId, files);
+        }
+
+        @DeleteMapping("/{homeLoanId}/documents/{documentType}")
+        public HomeLoanDocumentResponseDto removeDocument(
+                        @PathVariable String homeLoanId,
+                        @PathVariable String documentType) {
+
+                return homeLoanDocumentService.removeDocument(
+                                homeLoanId, documentType);
+        }
 
 }

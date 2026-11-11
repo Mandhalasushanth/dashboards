@@ -1,7 +1,5 @@
 import { useAuthStore } from "@/store/authStore";
-import { useApplicationStore } from "@/store/applicationStore";
 import { ItrFilingFormData, ItrPersonalInfo, ItrSelectableBank, ItrBankDetails, ItrPriorFilingAndNotice, GstReconciliationSummary, ItrCategoryType, ItrStructuredDeductions, TaxesPaidDetails } from "../itr-filing/types/itrFiling.types";
-import { getCurrentAssessmentYear } from "../taxRules";
 import { calculateItrTax } from "../itr-filing/engine/itrTaxCalculator";
 import { determineApplicableItrForm } from "../itr-filing/engine/itrFormEngine";
 import { generateDynamicDocumentChecklist } from "../itr-filing/engine/itrDocumentEngine";
@@ -12,9 +10,6 @@ export const getInitialFormData = (): ItrFilingFormData => {
   const customer = authState.customer;
   const user = authState.authenticatedUser;
 
-  // 2. Pull GST draft data if available from applicationStore
-  const gstDraft = useApplicationStore.getState().gstDraft;
-  const gstBusiness = gstDraft?.businessData || {};
 
   const personalInfo: ItrPersonalInfo = {
     pan: customer?.pan || (user as any)?.pan || "",
@@ -67,18 +62,16 @@ export const getInitialFormData = (): ItrFilingFormData => {
     noticeDetails: "",
   };
 
-  const hasGst = Boolean(gstBusiness.gstin || gstBusiness.businessName);
-
   const gstReconciliation: GstReconciliationSummary = {
-    gstin: gstBusiness.gstin || "",
-    legalName: gstBusiness.businessName || "",
-    tradeName: gstBusiness.tradeName || "",
+    gstin: "",
+    legalName: "",
+    tradeName: "",
     businessActivity: "",
     registrationDate: "",
-    gstr1Turnover: Number(gstBusiness.annualTurnover || 0),
-    gstr3bTurnover: Number(gstBusiness.annualTurnover || 0),
-    booksTurnover: Number(gstBusiness.annualTurnover || 0),
-    proposedItrTurnover: Number(gstBusiness.annualTurnover || 0),
+    gstr1Turnover: 0,
+    gstr3bTurnover: 0,
+    booksTurnover: 0,
+    proposedItrTurnover: 0,
     variance: 0,
     hasVariance: false,
     varianceExplanation: "",
@@ -108,13 +101,13 @@ export const getInitialFormData = (): ItrFilingFormData => {
     business: {
       enabled: false,
       businessType: "presumptive_44ad" as const,
-      businessName: gstBusiness.businessName || "",
-      gstin: gstBusiness.gstin || "",
+      businessName: "",
+      gstin: "",
       businessActivity: "",
-      grossTurnover: gstBusiness.annualTurnover ? String(gstBusiness.annualTurnover) : "",
+      grossTurnover: "",
       declaredProfit: "",
-      source: hasGst ? ("GST_FILING" as const) : ("USER_DECLARED" as const),
-      hasGstActivity: hasGst,
+      source: "USER_DECLARED" as const,
+      hasGstActivity: false,
       gstr1Turnover: "",
       gstr3bTurnover: "",
       gstReconciliationRequired: false,

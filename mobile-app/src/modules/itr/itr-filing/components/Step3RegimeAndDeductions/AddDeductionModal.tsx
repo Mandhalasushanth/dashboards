@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { AmountTextInput } from "@/shared/components/AmountTextInput";
 import { AdditionalDeductionItem } from "../../types/itrFiling.types";
 import { styles } from "./Step3RegimeAndDeductions.styles";
 
@@ -27,10 +28,10 @@ export const AddDeductionModal: React.FC<AddDeductionModalProps> = ({ visible, o
       newDeductionType === "80G"
         ? "80G Charitable Donations"
         : newDeductionType === "80TTA"
-        ? "80TTA Savings Account Interest"
-        : newDeductionType === "80CCD_NPS"
-        ? "80CCD(1B) NPS Additional Contribution"
-        : "80DD Medical for Disabled Dependent";
+          ? "80TTA Savings Account Interest"
+          : newDeductionType === "80CCD_NPS"
+            ? "80CCD(1B) NPS Additional Contribution"
+            : "80DD Medical for Disabled Dependent";
 
     const newItem: AdditionalDeductionItem = {
       id: `ded-${Date.now()}`,
@@ -74,9 +75,8 @@ export const AddDeductionModal: React.FC<AddDeductionModalProps> = ({ visible, o
             <Text style={styles.inputLabel}>Amount Claimed</Text>
             <View style={styles.inputBox}>
               <Text style={styles.currencyPrefix}>₹</Text>
-              <TextInput
+              <AmountTextInput
                 style={styles.textInput}
-                keyboardType="numeric"
                 placeholder="Enter amount"
                 placeholderTextColor="#94A3B8"
                 value={newDeductionAmount}

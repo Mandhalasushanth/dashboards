@@ -15,7 +15,7 @@ export interface InvoiceData {
 }
 
 /**
- * Builds clean, responsive, print-optimized HTML for the TaxEdge invoice
+ * Builds clean, responsive, print-optimized HTML for the Finsolz invoice
  */
 export const buildInvoiceHtml = (data: InvoiceData): string => {
   const currentDate =
@@ -202,8 +202,8 @@ export const buildInvoiceHtml = (data: InvoiceData): string => {
     <div class="brand-logo">
       <div class="logo-badge">TE</div>
       <div>
-        <div class="brand-title">TaxEdge Finsolz</div>
-        <div class="brand-sub">GSTIN: 29TAXEDGE1234K1Z5 | HSN/SAC: 998231</div>
+        <div class="brand-title">Finsolz Finsolz</div>
+        <div class="brand-sub">GSTIN: 29FINSOLZ1234K1Z5 | HSN/SAC: 998231</div>
       </div>
     </div>
     <div class="status-pill">PAID & VERIFIED</div>
@@ -270,7 +270,7 @@ export const buildInvoiceHtml = (data: InvoiceData): string => {
   </div>
 
   <div class="compliance-footer">
-    TaxEdge Finsolz Pvt Ltd • 256-bit SSL Encrypted • This is a computer-generated tax invoice and requires no physical signature.
+    Finsolz Finsolz Pvt Ltd • 256-bit SSL Encrypted • This is a computer-generated tax invoice and requires no physical signature.
   </div>
 </body>
 </html>
@@ -300,7 +300,7 @@ export const downloadAndOpenInvoicePdf = async (data: InvoiceData): Promise<void
     if (isAvailable) {
       const shareOptions: Sharing.SharingOptions = {
         mimeType: "application/pdf",
-        dialogTitle: `TaxEdge Receipt #${data.invoiceNo}`,
+        dialogTitle: `Finsolz Receipt #${data.invoiceNo}`,
       };
       if (Platform.OS === "ios") {
         shareOptions.UTI = "com.adobe.pdf";
@@ -316,8 +316,8 @@ export const downloadAndOpenInvoicePdf = async (data: InvoiceData): Promise<void
     // Graceful fallback to React Native native share
     try {
       await Share.share({
-        title: `TaxEdge Receipt #${data.invoiceNo}`,
-        message: `TaxEdge Payment Receipt\nInvoice: ${data.invoiceNo}\nService: ${data.serviceName}\nAmount Paid: ${data.amount}\nTxn ID: ${data.txnId || "N/A"}`,
+        title: `Finsolz Receipt #${data.invoiceNo}`,
+        message: `Finsolz Payment Receipt\nInvoice: ${data.invoiceNo}\nService: ${data.serviceName}\nAmount Paid: ${data.amount}\nTxn ID: ${data.txnId || "N/A"}`,
       });
     } catch {
       Alert.alert("Notice", `Receipt #${data.invoiceNo} has been verified and saved.`);
@@ -344,16 +344,16 @@ export const shareInvoicePdfDocument = async (data: InvoiceData): Promise<void> 
       await Sharing.shareAsync(fileUri, shareOptions);
     } else {
       await Share.share({
-        title: `TaxEdge Receipt #${data.invoiceNo}`,
-        message: `TaxEdge Payment Receipt\nInvoice: ${data.invoiceNo}\nService: ${data.serviceName}\nAmount Paid: ${data.amount}\nTxn ID: ${data.txnId || "N/A"}`,
+        title: `Finsolz Receipt #${data.invoiceNo}`,
+        message: `Finsolz Payment Receipt\nInvoice: ${data.invoiceNo}\nService: ${data.serviceName}\nAmount Paid: ${data.amount}\nTxn ID: ${data.txnId || "N/A"}`,
       });
     }
   } catch (_error) {
     // Graceful fallback if native file sharing intent fails
     try {
       await Share.share({
-        title: `TaxEdge Receipt #${data.invoiceNo}`,
-        message: `TaxEdge Payment Receipt\nInvoice: ${data.invoiceNo}\nService: ${data.serviceName}\nGSTIN: ${data.gstin || "N/A"}\nPeriod: ${data.period || "Current"}\nAmount Paid: ${data.amount}\nTxn ID: ${data.txnId || "N/A"}\nStatus: Payment Verified & Received`,
+        title: `Finsolz Receipt #${data.invoiceNo}`,
+        message: `Finsolz Payment Receipt\nInvoice: ${data.invoiceNo}\nService: ${data.serviceName}\nGSTIN: ${data.gstin || "N/A"}\nPeriod: ${data.period || "Current"}\nAmount Paid: ${data.amount}\nTxn ID: ${data.txnId || "N/A"}\nStatus: Payment Verified & Received`,
       });
     } catch {
       Alert.alert("Share Receipt", `Receipt #${data.invoiceNo} is verified and ready.`);

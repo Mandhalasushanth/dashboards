@@ -2,19 +2,20 @@ import { useEffect } from "react";
 import { LogBox } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ThemeProvider } from "@/design-system/theme";
+import { AnimatedSplashOverlay } from "@/components";
+import { CompleteProfileModal } from "@/shared/components/CompleteProfileModal";
+import { AppUpdateBanner } from "@/core/updates";
+import { ErrorBoundary } from "@/core/error-handling/ErrorBoundary";
+import { RootStatusBar } from "@/shared/components/FocusAwareStatusBar";
+import { AppBootstrap } from "@/core/bootstrap/AppBootstrap";
+import { logger } from "@/core/logging/logger";
 import { ServiceRouteGuard } from "@/shared/components/ServiceRouteGuard";
 
 LogBox.ignoreLogs([
   "Can't perform a React state update on a component that hasn't mounted yet",
 ]);
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { ThemeProvider } from "@/design-system/theme";
-import { AnimatedSplashOverlay } from "@/components";
-import { CompleteProfileModal } from "@/shared/components/CompleteProfileModal";
-import { ErrorBoundary } from "@/core/error-handling/ErrorBoundary";
-import { RootStatusBar } from "@/shared/components/FocusAwareStatusBar";
-import { AppBootstrap } from "@/core/bootstrap/AppBootstrap";
-import { logger } from "@/core/logging/logger";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -59,6 +60,7 @@ export default function RootLayout() {
           <Stack.Screen name="service/itr-review" />
           <Stack.Screen name="service/itr-filed" />
           <Stack.Screen name="service/itr-success" />
+          <Stack.Screen name="service/application-status" />
           <Stack.Screen name="service/tds-refund" />
           <Stack.Screen name="service/tds-form" />
           <Stack.Screen name="service/tds-checklist" />
@@ -92,6 +94,7 @@ export default function RootLayout() {
           </Stack>
           <ServiceRouteGuard />
           <CompleteProfileModal />
+          <AppUpdateBanner />
         </ThemeProvider>
       </SafeAreaProvider>
     </ErrorBoundary>

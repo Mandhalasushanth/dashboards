@@ -1,7 +1,7 @@
 import { Step2SalaryIncome } from "./components/Step2SalaryIncome";
 import { Step2HousePropertyIncome } from "./components/Step2HousePropertyIncome";
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
 import {
@@ -32,12 +32,13 @@ import {
   CAPITAL_GAINS_CARD_INFO,
   OTHER_SOURCES_CARD_INFO,
 } from "./components/incomeCardsInfoData";
+import { validateIncomeSources } from "./utils/validateIncomeSources";
 
 interface Step2IncomeSourcesProps {
   isLoading?: boolean;
   isEditing?: boolean;
   sources: IncomeSourcesState;
-  determinedForm: DeterminedFormInfo;
+  determinedForm?: DeterminedFormInfo;
   gstReconciliation?: GstReconciliationSummary;
   category?: ItrCategoryType | null;
   onSwitchCategory?: (category: ItrCategoryType) => void;
@@ -52,9 +53,9 @@ interface Step2IncomeSourcesProps {
 
 export const Step2IncomeSources: React.FC<Step2IncomeSourcesProps> = ({
   isLoading = false,
-  isEditing, 
+  isEditing,
   sources,
-  determinedForm,
+  determinedForm: _determinedForm,
   gstReconciliation,
   onUpdateSalary,
   onUpdateHouseProperty,
@@ -66,114 +67,7 @@ export const Step2IncomeSources: React.FC<Step2IncomeSourcesProps> = ({
 }) => {
   const [infoModalContent, setInfoModalContent] = useState<InfoModalContent | null>(null);
 
-  const validateInputs = (): boolean => {
-    const hasAnyIncome =
-      sources.salary.enabled ||
-      sources.houseProperty.enabled ||
-      sources.business.enabled ||
-      sources.capitalGains.enabled ||
-      sources.otherSources.enabled;
-
-    if (!hasAnyIncome) {
-      Alert.alert(
-        "Income Source Required",
-        "Please select at least one income source to proceed."
-      );
-      return false;
-    }
-
-    if (sources.salary.enabled) {
-      if (!sources.salary.employerName?.trim()) {
-        Alert.alert("Salary Details Required", "Employer Legal Name is mandatory.");
-        return false;
-      }
-      if (!sources.salary.grossSalary?.trim()) {
-        Alert.alert("Salary Details Required", "Gross Salary (Annual) is mandatory.");
-        return false;
-      }
-      if (!sources.salary.allowances?.trim()) {
-        Alert.alert("Salary Details Required", "Exempt Allowances is mandatory (enter 0 if not applicable).");
-        return false;
-      }
-      if (!sources.salary.tdsDeducted?.trim()) {
-        Alert.alert("Salary Details Required", "TDS Deducted by Employer is mandatory (enter 0 if not applicable).");
-        return false;
-      }
-    }
-    
-    if (sources.houseProperty.enabled) {
-      if (sources.houseProperty.propertyType === "let_out") {
-        if (!sources.houseProperty.annualRentReceived?.trim()) {
-          Alert.alert("House Property Details Required", "Annual Rent Received is mandatory for let-out property.");
-          return false;
-        }
-        if (!sources.houseProperty.municipalTaxesPaid?.trim()) {
-          Alert.alert("House Property Details Required", "Municipal Taxes Paid is mandatory (enter 0 if none).");
-          return false;
-        }
-      }
-      if (!sources.houseProperty.homeLoanInterest?.trim()) {
-        Alert.alert("House Property Details Required", "Home Loan Interest Paid is mandatory (enter 0 if no loan).");
-        return false;
-      }
-    }
-
-    if (sources.business.enabled) {
-      if (!sources.business.businessType) {
-        Alert.alert("Business Details Required", "Please select how you report this business.");
-        return false;
-      }
-      if (!sources.business.grossTurnover?.trim()) {
-        Alert.alert("Business Details Required", "Gross Turnover is mandatory for Business / Profession income.");
-        return false;
-      }
-      if (!sources.business.declaredProfit?.trim()) {
-        Alert.alert("Business Details Required", "Declared Profit is mandatory (enter 0 if none).");
-        return false;
-      }
-    }
-
-    if (sources.capitalGains.enabled) {
-      const hasAnyAsset =
-        sources.capitalGains.hasEquityMf ||
-        sources.capitalGains.hasFnoIntraday ||
-        sources.capitalGains.hasPropertyAssets ||
-        sources.capitalGains.hasCryptoVda;
-      if (!hasAnyAsset) {
-        Alert.alert("Capital Gains Required", "Please select at least one asset type traded.");
-        return false;
-      }
-      if (!sources.capitalGains.shortTermGains?.trim()) {
-        Alert.alert("Capital Gains Details Required", "Short-Term Gains (STCG) is mandatory (enter 0 if none).");
-        return false;
-      }
-      if (!sources.capitalGains.longTermGains?.trim()) {
-        Alert.alert("Capital Gains Details Required", "Long-Term Gains (LTCG) is mandatory (enter 0 if none).");
-        return false;
-      }
-    }
-
-    if (sources.otherSources.enabled) {
-      if (!sources.otherSources.savingsInterest?.trim()) {
-        Alert.alert("Other Sources Required", "Savings Bank Interest is mandatory (enter 0 if none).");
-        return false;
-      }
-      if (!sources.otherSources.fdInterest?.trim()) {
-        Alert.alert("Other Sources Required", "FD / Term Interest is mandatory (enter 0 if none).");
-        return false;
-      }
-      if (!sources.otherSources.dividendIncome?.trim()) {
-        Alert.alert("Other Sources Required", "Dividend Income is mandatory (enter 0 if none).");
-        return false;
-      }
-      if (!sources.otherSources.otherIncome?.trim()) {
-        Alert.alert("Other Sources Required", "Other Miscellaneous income is mandatory (enter 0 if none).");
-        return false;
-      }
-    }
-
-    return true;
-  };
+  const validateInputs = (): boolean => validateIncomeSources(sources);
 
   const handleProceed = () => {
     if (validateInputs()) {
@@ -183,40 +77,6 @@ export const Step2IncomeSources: React.FC<Step2IncomeSourcesProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Dynamic ITR Form Determination Banner */}
-      <View style={styles.determinationCard}>
-        <View style={styles.determinationHeaderRow}>
-          <View style={styles.determinationTitleCol}>
-            <Ionicons name="sparkles" size={18} color="#1D4ED8" />
-            <Text style={styles.determinationTitle}>
-              Applicable Return Form
-            </Text>
-          </View>
-          <View style={styles.formBadge}>
-            <Text style={styles.formBadgeText}>{determinedForm.form}</Text>
-          </View>
-        </View>
-
-        <Text style={styles.determinationRationale}>
-          {determinedForm.rationale}
-        </Text>
-
-        {/* Dynamic Criteria Checks */}
-        {determinedForm.criteriaChecks &&
-          determinedForm.criteriaChecks.length > 0 && (
-            <View style={styles.determinationCriteriaList}>
-              {determinedForm.criteriaChecks.map((check) => (
-                <View key={check.id} style={styles.determinationCriteriaRow}>
-                  <Ionicons name="checkmark-circle" size={13} color="#1D4ED8" />
-                  <Text style={styles.determinationCriteriaText}>
-                    {check.label}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-      </View>
-
       <Text style={styles.sectionTitle}>Income Sources & Activity</Text>
       <Text style={styles.sectionSubtitle}>
         Select all sources of income you earned this year. Fields will adjust

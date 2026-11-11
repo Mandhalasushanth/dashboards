@@ -1,0 +1,80 @@
+/* Horizontal tab bar; scrolls with the page (like Notifications) so it never covers the panel header. */
+.tx-settings-nav {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  overflow-x: auto;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-md);
+  scrollbar-width: none;
+}
+
+.tx-settings-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.tx-settings-nav__tab {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--tx-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--tx-secondary-text);
+  transition: background-color var(--tx-transition-fast), color var(--tx-transition-fast);
+}
+
+.tx-settings-nav__tab:hover {
+  background-color: var(--tx-background);
+  color: var(--tx-primary-navy);
+}
+
+.tx-settings-nav__tab:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-settings-nav__tab--active,
+.tx-settings-nav__tab--active:hover {
+  background-color: var(--tx-light-blue);
+  color: var(--tx-primary-navy);
+  font-weight: 600;
+}
+
+.tx-settings-nav__tab--active::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  bottom: 0;
+  left: 14px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background-color: var(--tx-primary-orange);
+}
+
+.tx-settings-nav__dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-primary-orange);
+}
+
+.tx-settings-nav__dot--error {
+  background-color: var(--tx-error);
+}
+
+@media (max-width: 640px) {
+  .tx-settings-nav__tab {
+    flex: 0 0 auto;
+    padding: 0 12px;
+  }
+}

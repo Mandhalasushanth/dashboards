@@ -25,9 +25,9 @@ export function getTdsCustId(fallbackMobile?: string): string {
   return rawMobile.replace(/\D/g, "").slice(-10);
 }
 
-const getStorageKeyForm = () => `@taxedge_draft_${getCleanMobile()}_tds-refund`;
-const getStorageKeyDocs = () => `@taxedge_draft_${getCleanMobile()}_tds_docs`;
-const getStorageKeyAppId = () => `@taxedge_draft_${getCleanMobile()}_tds_app_id`;
+const getStorageKeyForm = () => `@finsolz_draft_${getCleanMobile()}_tds-refund`;
+const getStorageKeyDocs = () => `@finsolz_draft_${getCleanMobile()}_tds_docs`;
+const getStorageKeyAppId = () => `@finsolz_draft_${getCleanMobile()}_tds_app_id`;
 
 export const INITIAL_TDS_FORM_DATA: TdsCustomerIncomeFormData = {
   business: { legalName: "", pan: "", aadhaar: "", mobileNumber: "" },

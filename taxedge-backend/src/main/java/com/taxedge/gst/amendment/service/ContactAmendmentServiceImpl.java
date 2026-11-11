@@ -2,6 +2,8 @@ package com.taxedge.gst.amendment.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.Year;
+import java.util.Base64;
 import java.util.Optional;
 
 import com.taxedge.customer.entity.Customer;
@@ -38,6 +40,25 @@ public class ContactAmendmentServiceImpl implements ContactAmendmentService {
     private final FcmNotificationService fcmNotificationService;
     private final EmailService emailService;
 
+    private synchronized String generateAmendmentId() {
+        int currentYear = Year.now().getValue();
+        String prefix = "CA" + currentYear;
+        Optional<String> maxIdOpt = contactAmendmentRepository.findMaxIdByPrefix(prefix);
+
+        int nextSequence = 1;
+        if (maxIdOpt.isPresent() && maxIdOpt.get() != null) {
+            String maxId = maxIdOpt.get().trim();
+            try {
+                String seqPart = maxId.substring(prefix.length());
+                nextSequence = Integer.parseInt(seqPart) + 1;
+            } catch (Exception e) {
+                log.warn("Failed to parse sequence from max ID [{}], defaulting to 1", maxId);
+            }
+        }
+
+        return String.format("%s%04d", prefix, nextSequence);
+    }
+
     private Customer resolveAndVerifyCustomer(String customerId, String gstId) {
         String resolvedCustId = null;
 
@@ -71,9 +92,16 @@ public class ContactAmendmentServiceImpl implements ContactAmendmentService {
 
     @Override
     public ContactAmendmentViewDto getExistingContactDetails(String gstId) {
-        Optional<Business> businessOpt = businessRepository.findById(gstId);
-        if (businessOpt.isPresent()) {
-            Business business = businessOpt.get();
+        String lookupGst = gstId != null ? gstId.trim() : "";
+
+        Optional<ContactAmendmentEntity> existingAmendment = contactAmendmentRepository.findByGstNumber(lookupGst);
+        if (existingAmendment.isPresent()) {
+            return amendmentMapper.toDto(existingAmendment.get());
+        }
+
+        Optional<Business> existingBusiness = businessRepository.findById(lookupGst);
+        if (existingBusiness.isPresent()) {
+            Business business = existingBusiness.get();
             return ContactAmendmentViewDto.builder()
                     .newMobileNumber(business.getSignatoryMobile())
                     .newEmail(business.getSignatoryEmail())
@@ -107,6 +135,7 @@ public class ContactAmendmentServiceImpl implements ContactAmendmentService {
         inputDto.setImageData(fileBytes);
 
         ContactAmendmentEntity amendment = amendmentMapper.toEntity(inputDto);
+        amendment.setId(generateAmendmentId());
         amendment.setCustomer(customer);
 
         amendment = contactAmendmentRepository.save(amendment);
@@ -115,9 +144,9 @@ public class ContactAmendmentServiceImpl implements ContactAmendmentService {
     }
 
     @Override
-    public ContactAmendmentViewDto getAmendmentById(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Amendment ID must not be null");
+    public ContactAmendmentViewDto getAmendmentById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Amendment ID must not be null or empty");
         }
         ContactAmendmentEntity entity = contactAmendmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No contact amendment found with id: " + id));
@@ -127,9 +156,9 @@ public class ContactAmendmentServiceImpl implements ContactAmendmentService {
 
     @Override
     @Transactional
-    public ContactAmendmentViewDto updateContactAmendment(Long id, String mobileNumber, String email, MultipartFile file) throws IOException {
-        if (id == null) {
-            throw new IllegalArgumentException("Amendment ID must not be null");
+    public ContactAmendmentViewDto updateContactAmendment(String id, String mobileNumber, String email, MultipartFile file) throws IOException {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Amendment ID must not be null or empty");
         }
         ContactAmendmentEntity entity = contactAmendmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No contact amendment found with id: " + id));
@@ -147,11 +176,11 @@ public class ContactAmendmentServiceImpl implements ContactAmendmentService {
 
     @Override
     @Transactional
-    public String submitAmendment(Long id, String gstId, String pushToken) {
+    public String submitAmendment(String id, String gstId, String pushToken) {
         ContactAmendmentEntity amendment;
 
-        if (id != null) {
-            amendment = contactAmendmentRepository.findById(id)
+        if (id != null && !id.trim().isEmpty()) {
+            amendment = contactAmendmentRepository.findById(id.trim())
                     .orElseThrow(() -> new ResourceNotFoundException("Contact amendment not found with id: " + id));
         } else if (gstId != null && !gstId.isBlank()) {
             String trimmedGst = gstId.trim();

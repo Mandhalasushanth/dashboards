@@ -1,20 +1,29 @@
 {
   "expo": {
-    "name": "TaxEdge",
-    "slug": "taxedge",
+    "name": "Finsolz",
+    "slug": "finsolz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "taxedgemobile",
-    "userInterfaceStyle": "automatic",
+    "scheme": "finsolzmobile",
+    "userInterfaceStyle": "light",
+    "updates": {
+      "url": "https://u.expo.dev/903596d2-48e5-4d35-ae72-3f34cba67b4a",
+      "checkAutomatically": "NEVER",
+      "enabled": true
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/logo.png",
+      "bundleIdentifier": "com.finsolz.mobile",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "TaxEdge uses Face ID to securely authenticate and access your account."
+        "NSFaceIDUsageDescription": "Finsolz uses Face ID to securely authenticate and access your account."
       }
     },
     "android": {
-      "package": "com.taxedge.mobile",
+      "package": "com.finsolz.mobile",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -48,15 +57,15 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "TaxEdge uses your photos so you can set a profile picture.",
-          "cameraPermission": "TaxEdge uses your camera so you can take a profile picture."
+          "photosPermission": "Finsolz uses your photos so you can set a profile picture.",
+          "cameraPermission": "Finsolz uses your camera so you can take a profile picture."
         }
       ],
       "expo-sharing",
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "TaxEdge uses your location to fill the GST business address."
+          "locationWhenInUsePermission": "Finsolz uses your location to fill the GST business address."
         }
       ],
       "./plugins/withUcropDone",
@@ -81,23 +90,28 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "TaxEdge uses Face ID to securely authenticate and access your account."
+          "faceIDPermission": "Finsolz uses Face ID to securely authenticate and access your account."
         }
       ],
       "expo-font",
       "expo-secure-store",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-updates"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
     },
     "extra": {
-      "router": {},
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
       "eas": {
-        "projectId": "9d9291f5-c430-43b9-bbea-0e96ffb55776"
+        "projectId": "903596d2-48e5-4d35-ae72-3f34cba67b4a"
       }
     },
-    "owner": "reddynaru"
+    "owner": "shashiprakash833"
   }
 }

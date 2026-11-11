@@ -25,7 +25,7 @@ export const MissingInfoBanner: React.FC<MissingInfoBannerProps> = ({
       </View>
 
       <Text style={styles.description}>
-        TaxEdge identified the following pending items for your return. Please review or confirm them prior to submission.
+        Finsolz identified the following pending items for your return. Please review or confirm them prior to submission.
       </Text>
 
       <View style={styles.itemsList}>

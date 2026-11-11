@@ -16,19 +16,24 @@ import { useAuthStore } from "@/store/authStore";
 import { useApplicationStore } from "@/store/applicationStore";
 import { useNotificationStore } from "@/store/notificationStore";
 import { useServiceAccessGuard } from "@/shared/hooks/useServiceAccessGuard";
+import { isProfileComplete } from "@/shared/guards/serviceAccess";
 import { SCREEN_BOTTOM_PADDING } from "@/shared/components/ScreenLayout";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Spacing } from "@/shared/theme";
-import { styles } from "@/styles/app/(main)/home.styles";
+import {
+  styles,
+  getScrollGreetingThemedStyle,
+  getHomeContainerThemedStyle,
+  getScrollContentThemedStyle,
+  getSectionTitleThemedStyle,
+} from "@/styles/app/(main)/home.styles";
 import type { DashboardServiceTile } from "@/types/home.types";
 
 // ── Extracted sub-components ──────────────────────────────────────────────────
 import { HomeHeader } from "@/components/screens/home/HomeHeader";
 import { ApplyBannerCarousel, type ApplyBanner } from "@/components/screens/home/ApplyBannerCarousel";
 import { ServicesGrid } from "@/components/screens/home/ServicesGrid";
-import { StatsGrid, type StatTile } from "@/components/screens/home/StatsGrid";
 import { DraftBanner } from "@/components/screens/home/DraftBanner";
-import { RecentApplicationCard } from "@/components/screens/home/RecentApplicationCard";
 import { HomeProfileSetupCard } from "@/components/screens/home/HomeProfileSetupCard";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -47,286 +52,244 @@ const SERVICE_3D_IMAGES = {
   business: require("../../../assets/images/services_3d/business.png"),
 };
 
-export const DASHBOARD_SERVICES: DashboardServiceTile[] = [
-  { id: "incorporation", label: "Incorporation", image: SERVICE_3D_IMAGES.incorporation, route: "/service/company-registration", description: "Company\nregistration", bgColor: "#FFF8F1", borderColor: "#FED7AA", arrowColor: "#EA580C" },
-  { id: "gst", label: "GST", image: SERVICE_3D_IMAGES.gst, route: "/service/gst", description: "Registration,\nfiling & compliance", bgColor: "#F0F7FF", borderColor: "#BFDBFE", arrowColor: "#2563EB" },
-  { id: "itr", label: "ITR", image: SERVICE_3D_IMAGES.itr, route: "/service/itr", description: "Income Tax\nFiling", bgColor: "#F5F3FF", borderColor: "#DDD6FE", arrowColor: "#7C3AED" },
-  { id: "projects", label: "Projects", image: SERVICE_3D_IMAGES.projects, route: { pathname: "/service/loans", params: { category: "project-finance" } }, description: "Project\nManagement", bgColor: "#F0FDF4", borderColor: "#BBF7D0", arrowColor: "#059669" },
-  { id: "loans", label: "Loans", image: SERVICE_3D_IMAGES.loans, route: "/service/loans", description: "Personal, Home\n& Business Loans", bgColor: "#FFFBEB", borderColor: "#FDE68A", arrowColor: "#D97706" },
-  { id: "insurance", label: "Insurance", image: SERVICE_3D_IMAGES.insurance, route: "/service/health-insurance", description: "Coverage\nfor your future", bgColor: "#F0F9FF", borderColor: "#BAE6FD", arrowColor: "#0284C7" },
-  { id: "business", label: "Business", image: SERVICE_3D_IMAGES.business, route: "/service/accounting-bookkeeping", description: "Business Solutions & Support", bgColor: "#F5F3FF", borderColor: "#DDD6FE", arrowColor: "#7C3AED", isFullWidth: true },
-];
-
-const BANNER_NAVY = "#083B75";
-const BANNER_NAVY_DEEP = "#052750";
-
-export const APPLY_BANNERS: ApplyBanner[] = (
-  [
-    { key: "b-gst", id: "GST", route: "/service/gst", title: "GST", desc: "Registration, filing & compliance", cta: "Apply Now", icon: "receipt" },
-    { key: "b-itr", id: "ITR", route: "/service/itr", title: "ITR & TDS", desc: "File returns, claim your refund", cta: "File Now", icon: "calculator" },
-    { key: "b-loans", id: "LOANS", route: "/service/loans", title: "LOANS", desc: "Explore our loan solutions", cta: "Explore", icon: "wallet" },
-    { key: "b-ins", id: "INSURANCE", route: "/service/health-insurance", title: "INSURANCE", desc: "Health & life cover plans", cta: "Get Quote", icon: "shield-checkmark" },
-    { key: "b-company", id: "BUSINESS", route: "/service/company-registration", title: "COMPANY SETUP", desc: "Incorporation & registrations", cta: "Start Now", icon: "business" },
-    { key: "b-acct", id: "BUSINESS", route: "/service/accounting-bookkeeping", title: "ACCOUNTING", desc: "Bookkeeping & monthly reports", cta: "Know More", icon: "stats-chart" },
-  ] as const
-).map((banner, i) => ({ ...banner, bg: i % 2 === 0 ? BANNER_NAVY : BANNER_NAVY_DEEP }));
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const statusTone = (status: string) => {
-  if (status === "Completed") return { fg: "#047857", bg: "#E6F5F0" };
-  if (status === "Rejected") return { fg: "#B91C1C", bg: "#FDEBEB" };
-  if (status === "Verification") return { fg: "#6D28D9", bg: "#F1ECFE" };
-  return { fg: "#1D4ED8", bg: "#EAF1FE" };
+// Standardized dual-color theme (Warm Orange and Cool Blue alternating)
+const THEME_ORANGE = {
+  bgColor: "#FFF8F1",
+  borderColor: "#FED7AA",
+  arrowColor: "#EA580C",
 };
 
-// ── Screen ────────────────────────────────────────────────────────────────────
+const THEME_BLUE = {
+  bgColor: "#F0F7FF",
+  borderColor: "#BFDBFE",
+  arrowColor: "#2563EB",
+};
+
+export const DASHBOARD_SERVICES: DashboardServiceTile[] = [
+  // Row 1: Orange | Blue
+  { id: "incorporation", label: "Incorporation", image: SERVICE_3D_IMAGES.incorporation, route: "/service/company-registration", description: "Company\nregistration", ...THEME_ORANGE },
+  { id: "gst", label: "GST", image: SERVICE_3D_IMAGES.gst, route: "/service/gst", description: "Registration,\nfiling & compliance", ...THEME_BLUE },
+  // Row 2: Blue | Orange (Checkerboard)
+  { id: "itr", label: "ITR", image: SERVICE_3D_IMAGES.itr, route: "/service/itr", description: "Income Tax\nFiling", ...THEME_BLUE },
+  { id: "projects", label: "Projects", image: SERVICE_3D_IMAGES.projects, route: { pathname: "/service/loans", params: { category: "project-finance" } }, description: "Project\nManagement", ...THEME_ORANGE },
+  // Row 3: Orange | Blue
+  { id: "loans", label: "Loans", image: SERVICE_3D_IMAGES.loans, route: "/service/loans", description: "Personal, Home\n& Business Loans", ...THEME_ORANGE },
+  { id: "insurance", label: "Insurance", image: SERVICE_3D_IMAGES.insurance, route: "/service/health-insurance", description: "Coverage\nfor your future", ...THEME_BLUE },
+  // Row 4: Full-width bottom card
+  { id: "business", label: "Business", image: SERVICE_3D_IMAGES.business, route: "/service/accounting-bookkeeping", description: "Business Solutions & Support", ...THEME_BLUE, isFullWidth: true },
+];
+
+export const APPLY_BANNERS: ApplyBanner[] = [
+  { key: "b-loans", id: "LOANS", route: "/service/loans", title: "Loans", desc: "Turn your goals into reality\nwith our flexible loan solutions.", cta: "Explore Loans", icon: "wallet", tag: "Ready to help", bg: "#082B59" },
+  { key: "b-gst", id: "GST", route: "/service/gst", title: "GST", desc: "Registration, filing & compliance\nfor growing businesses", cta: "Apply Now", icon: "receipt", tag: "Fast & Reliable", bg: "#082B59" },
+  { key: "b-itr", id: "ITR", route: "/service/itr", title: "ITR & TDS", desc: "File returns, claim your refund\naccurately & on time", cta: "File Now", icon: "calculator", tag: "Max Refund", bg: "#082B59" },
+  { key: "b-ins", id: "INSURANCE", route: "/service/health-insurance", title: "Insurance", desc: "Coverage for your future\nhealth & life cover plans", cta: "Get Quote", icon: "shield-checkmark", tag: "Total Care", bg: "#082B59" },
+  { key: "b-company", id: "BUSINESS", route: "/service/company-registration", title: "Company Setup", desc: "Incorporation & registrations\nstart in 3 simple steps", cta: "Start Now", icon: "business", tag: "Fast Setup", bg: "#082B59" },
+  { key: "b-acct", id: "BUSINESS", route: "/service/accounting-bookkeeping", title: "Accounting", desc: "Bookkeeping & monthly reports\nby certified experts", cta: "Know More", icon: "stats-chart", tag: "Expert CA", bg: "#082B59" },
+];
 
 export default function HomeScreen() {
-  const colors = useTheme();
-  const scheme = useColorScheme();
-  const isDark = scheme === "dark";
   const router = useRouter();
+  const colors = useTheme();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const insets = useSafeAreaInsets();
-  const { accessService } = useServiceAccessGuard();
 
+  const user = useAuthStore((s) => s.authenticatedUser);
   const customer = useAuthStore((s) => s.customer);
-  const applications = useApplicationStore((s) => s.applications);
+  const profileCompleted = useAuthStore((s) => s.profileCompleted);
+  const isExistingUser = useAuthStore((s) => s.isExistingUser);
+  const customerExists = useAuthStore((s) => s.customerExists);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+
+  const loadApplications = useApplicationStore((s) => s.loadApplications);
+
   const gstDraft = useApplicationStore((s) => s.gstDraft);
   const gstFilingDraft = useApplicationStore((s) => s.gstFilingDraft);
   const itrDraft = useApplicationStore((s) => s.itrDraft);
-  const unreadCount = useNotificationStore((s) => s.unreadCount);
+
+  const isProfileCompleted = isProfileComplete({
+    profileCompleted,
+    isExistingUser,
+    customerExists,
+    customer,
+    authenticatedUser: user,
+  });
+
+  const { accessService } = useServiceAccessGuard();
 
   useFocusEffect(
     useCallback(() => {
-      useApplicationStore.getState().loadApplications();
+      try {
+        loadApplications().catch(() => {});
+      } catch {
+        // Fallback silently if synchronous error occurs
+      }
+    }, [loadApplications])
+  );
 
+  useFocusEffect(
+    useCallback(() => {
       const onBackPress = () => {
-        Alert.alert(
-          "Exit TaxEdge",
-          "Are you sure you want to exit the application?",
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Exit",
-              style: "destructive",
-              onPress: () => BackHandler.exitApp(),
-            },
-          ]
-        );
+        Alert.alert("Exit App", "Are you sure you want to exit?", [
+          { text: "Cancel", style: "cancel" },
+          { text: "Exit", onPress: () => BackHandler.exitApp() },
+        ]);
         return true;
       };
 
-      const subscription = BackHandler.addEventListener(
-        "hardwareBackPress",
-        onBackPress
-      );
-
-      return () => subscription.remove();
+      const sub = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => sub.remove();
     }, [])
   );
 
-  // ── Derived values ──────────────────────────────────────────────────────────
-
-  const hasRealName = Boolean(
-    customer?.name &&
-    customer.name.trim() !== "" &&
-    customer.name.toLowerCase() !== "valued client" &&
-    customer.name.toLowerCase() !== "valued" &&
-    customer.name.toLowerCase() !== "priya" &&
-    customer.profileCompleted
-  );
-
-  const greetingTitle = hasRealName
-    ? `Hello, ${customer!.name.trim().split(" ")[0]} 👋`
-    : "Welcome to TaxEdge 👋";
-
-  const activeCount = (applications || []).filter((a) => a?.status !== "Completed").length;
-  const pendingDocsCount = (applications || []).reduce(
-    (sum, a) => sum + ((a?.documents || []).filter((d) => d?.status === "Pending").length), 0
-  );
-  const completedCount = (applications || []).filter((a) => a?.status === "Completed").length;
-  const paymentDue = (applications || [])
-    .filter((a) => a?.paymentStatus === "Pending")
-    .reduce((sum, a) => sum + (a?.paymentAmount || 0), 0);
-
-  const recentApps = applications.slice(0, 3);
-
-  const STATS: StatTile[] = [
-    { id: "active", label: "Active\nApplications", value: `${activeCount}`, tint: "#059669", tintBg: "#E6F5F0", icon: "folder", route: "/(main)/applications" },
-    { id: "docs", label: "Pending\nDocuments", value: `${pendingDocsCount}`, tint: "#EA580C", tintBg: "#FEF0E6", icon: "document-attach", route: "/(main)/applications" },
-    { id: "due", label: "Payment Due", value: `₹${paymentDue.toLocaleString("en-IN")}`, tint: "#DC2626", tintBg: "#FDEBEB", icon: "card", route: "/(main)/payments" },
-    { id: "done", label: "Completed\nServices", value: `${completedCount}`, tint: "#2563EB", tintBg: "#EAF1FE", icon: "checkbox", route: "/(main)/applications" },
-  ];
-
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  const displayName = customer?.name || user?.name || "User";
+  const greetingTitle = isProfileCompleted
+    ? `Hello, ${displayName} 👋`
+    : "Hello, User 👋";
 
   const handleBannerSelect = (banner: ApplyBanner) => {
     accessService(banner.route);
   };
 
   const openTile = (tile: DashboardServiceTile) => {
-    // accessService applies the one profile rule (shared/guards/serviceAccess) for every tile.
     if (tile.route) accessService(tile.route);
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  const handleCompleteProfile = () => {
+    router.push("/(auth)/createprofile");
+  };
+
+  const handleHelpPress = () => {
+    router.push("/chat/support");
+  };
+
+  const handleNotificationsPress = () => {
+    router.push("/notifications");
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, getHomeContainerThemedStyle(colors.background)]}>
       <FocusAwareStatusBar barStyle="light-content" />
 
-      {/* Blue hero header */}
+      {/* Single Unified Fixed Header */}
       <HomeHeader
         greetingTitle={greetingTitle}
         unreadCount={unreadCount}
-        colors={colors}
-        topInset={insets.top + Spacing.sm}
-        onNotificationsPress={() => router.push("/notifications")}
+        topInset={insets.top}
+        onNotificationsPress={handleNotificationsPress}
       />
 
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: SCREEN_BOTTOM_PADDING }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          getScrollContentThemedStyle(SCREEN_BOTTOM_PADDING),
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        {!customer?.profileCompleted && (
-          <HomeProfileSetupCard
-            onComplete={() => router.push("/(auth)/createprofile")}
-            completionPercentage={60}
-          />
+        {/* Before completing the create account, show Complete Profile card */}
+        {!isProfileCompleted && (
+          <View style={styles.homeBodyContainer}>
+            <HomeProfileSetupCard
+              onComplete={handleCompleteProfile}
+              completionPercentage={60}
+            />
+          </View>
         )}
 
-        {/* Apply-for banner carousel */}
+        {/* Carousel banner with white space on left and right */}
         <ApplyBannerCarousel
           banners={APPLY_BANNERS}
           colors={colors}
           onSelect={handleBannerSelect}
         />
 
-        {/* Services section */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Services</Text>
-        </View>
-        <ServicesGrid
-          services={DASHBOARD_SERVICES}
-          isDark={isDark}
-          colors={colors}
-          onPress={openTile}
-        />
-
-        {/* Financial overview section */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Financial Overview</Text>
-          <TouchableOpacity
-            onPress={() => router.push("/(main)/applications")}
-            hitSlop={8}
-            style={styles.linkRow}
-            accessibilityRole="button"
-            accessibilityLabel="View All Applications"
-          >
-            <Text style={[styles.viewAllText, { color: colors.primary }]}>View All</Text>
-            <Ionicons name="arrow-forward" size={14} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-        <StatsGrid stats={STATS} isDark={isDark} colors={colors} />
-
-        {/* In-progress draft banners */}
-        {gstDraft && (
-          <DraftBanner
-            updatedAt={gstDraft.updatedAt}
-            stepIndex={gstDraft.stepIndex || 0}
-            totalSteps="4"
-            accentColor={colors.orange}
-            lightBg="#FEF0E6"
-            lightBorder="#FFD8BF"
-            tagLabel="INCOMPLETE APPLICATION"
-            title="GST Registration"
-            subtitle="Pick up right where you left off"
-            resumeLabel="Resume Application"
-            isDark={isDark}
-            colors={colors}
-            onPress={() => accessService("/service/gst-registration")}
-          />
-        )}
-        {gstFilingDraft && (
-          <DraftBanner
-            updatedAt={gstFilingDraft.updatedAt}
-            stepIndex={gstFilingDraft.stepIndex || 0}
-            totalSteps="4"
-            accentColor={colors.primary}
-            lightBg="#EAF1FE"
-            lightBorder="#BFDBFE"
-            tagLabel="INCOMPLETE FILING"
-            title={`GST Return Filing (${gstFilingDraft.periodData?.filingMonth || "Current Period"})`}
-            subtitle="Continue your return filing"
-            resumeLabel="Resume Filing"
-            isDark={isDark}
-            colors={colors}
-            onPress={() => accessService("/service/gst-filing")}
-          />
-        )}
-        {itrDraft && (
-          <DraftBanner
-            updatedAt={itrDraft.updatedAt}
-            stepIndex={itrDraft.stepIndex || 0}
-            totalSteps="5"
-            accentColor={colors.orange}
-            lightBg="#FEF0E6"
-            lightBorder="#FFD8BF"
-            tagLabel="INCOMPLETE APPLICATION"
-            title={`ITR Filing - ${itrDraft.categoryTitle || "Income Tax Return"}`}
-            subtitle="Pick up right where you left off"
-            resumeLabel="Resume Application"
-            isDark={isDark}
-            colors={colors}
-            onPress={() => accessService("/service/itr-filing")}
-          />
-        )}
-
-        {/* Recent applications */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Applications</Text>
-          <TouchableOpacity onPress={() => router.push("/(main)/applications")} hitSlop={8} style={styles.linkRow}>
-            <Text style={[styles.viewAllText, { color: colors.primary }]}>View All</Text>
-            <Ionicons name="chevron-forward" size={14} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-
-        {recentApps.length === 0 ? (
-          <View style={[styles.card, styles.cardPadded, { backgroundColor: colors.backgroundElement, borderColor: colors.border }]}>
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              No applications yet. Start a service to see it here.
+        {/* Services & Rest of Page on Plain Single Screen */}
+        <View style={styles.homeBodyContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, getSectionTitleThemedStyle(colors.text)]}>
+              Services
             </Text>
           </View>
-        ) : (
-          recentApps.map((app) => (
-            <RecentApplicationCard
-              key={app.id}
-              app={app}
+
+          <ServicesGrid
+            services={DASHBOARD_SERVICES}
+            isDark={isDark}
+            colors={colors}
+            onPress={openTile}
+          />
+
+          {/* In-progress draft banners */}
+          {gstDraft && (
+            <DraftBanner
+              updatedAt={gstDraft.updatedAt}
+              stepIndex={gstDraft.stepIndex || 0}
+              totalSteps="4"
+              accentColor={colors.orange}
+              lightBg="#FEF0E6"
+              lightBorder="#FFD8BF"
+              tagLabel="INCOMPLETE APPLICATION"
+              title="GST Registration"
+              subtitle="Pick up right where you left off"
+              resumeLabel="Resume Application"
               isDark={isDark}
               colors={colors}
-              statusTone={statusTone}
+              onPress={() => accessService("/service/gst-registration")}
             />
-          ))
-        )}
+          )}
+          {gstFilingDraft && (
+            <DraftBanner
+              updatedAt={gstFilingDraft.updatedAt}
+              stepIndex={gstFilingDraft.stepIndex || 0}
+              totalSteps="4"
+              accentColor={colors.primary}
+              lightBg="#EAF1FE"
+              lightBorder="#BFDBFE"
+              tagLabel="INCOMPLETE FILING"
+              title={`GST Return Filing (${gstFilingDraft.periodData?.filingMonth || "Current Period"})`}
+              subtitle="Continue your return filing"
+              resumeLabel="Resume Filing"
+              isDark={isDark}
+              colors={colors}
+              onPress={() => accessService("/service/gst-filing")}
+            />
+          )}
+          {itrDraft && (
+            <DraftBanner
+              updatedAt={itrDraft.updatedAt}
+              stepIndex={itrDraft.stepIndex || 0}
+              totalSteps="5"
+              accentColor={colors.orange}
+              lightBg="#FEF0E6"
+              lightBorder="#FFD8BF"
+              tagLabel="INCOMPLETE APPLICATION"
+              title={`ITR Filing - ${itrDraft.categoryTitle || "Income Tax Return"}`}
+              subtitle="Pick up right where you left off"
+              resumeLabel="Resume Application"
+              isDark={isDark}
+              colors={colors}
+              onPress={() => accessService("/service/itr-filing")}
+            />
+          )}
 
-        {/* Need help */}
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => router.push("/chat/support")}
-          style={styles.helpCard}
-        >
-          <View style={styles.helpIcon}>
-            <Ionicons name="chatbubble-ellipses" size={22} color="#FFFFFF" />
-          </View>
-          <View style={styles.helpText}>
-            <Text style={styles.helpTitle}>Need Help?</Text>
-            <Text style={styles.helpDesc}>Our experts are available 24/7</Text>
-          </View>
-          <View style={styles.helpBtn}>
-            <Text style={styles.helpBtnText}>Chat</Text>
-          </View>
-        </TouchableOpacity>
+          {/* Need help */}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={handleHelpPress}
+            style={styles.helpCard}
+          >
+            <View style={styles.helpIcon}>
+              <Ionicons name="chatbubble-ellipses" size={22} color="#FFFFFF" />
+            </View>
+            <View style={styles.helpText}>
+              <Text style={styles.helpTitle}>Need Help?</Text>
+              <Text style={styles.helpDesc}>Our experts are available 24/7</Text>
+            </View>
+            <View style={styles.helpBtn}>
+              <Text style={styles.helpBtnText}>Chat</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );

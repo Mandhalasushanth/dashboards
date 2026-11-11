@@ -191,7 +191,7 @@ export default function ServiceDetailScreen() {
           <View style={[styles.card, getThemedCardStyle(colors)]}>
             <Text style={[styles.cardSectionTitle, { color: colors.text }]}>Service Overview</Text>
             <Text style={[styles.overviewContentText, { color: colors.textSecondary }]}>
-              TaxEdge Finsolz provides professional compliance assistance for {service.name}. Our experienced executives handle drafting, compiling, verifying, and submitting files directly to government portal nodes, ensuring 100% accuracy and complete protection against late penalties.
+              Finsolz Finsolz provides professional compliance assistance for {service.name}. Our experienced executives handle drafting, compiling, verifying, and submitting files directly to government portal nodes, ensuring 100% accuracy and complete protection against late penalties.
             </Text>
           </View>
         )}
@@ -217,7 +217,7 @@ export default function ServiceDetailScreen() {
           <View style={[styles.card, getThemedCardStyle(colors)]}>
             <Text style={[styles.cardSectionTitle, { color: colors.text }]}>Benefits & Advantages</Text>
             <Text style={[styles.cardSectionSub, { color: colors.textSecondary }]}>
-              Why choose TaxEdge Finsolz:
+              Why choose Finsolz Finsolz:
             </Text>
             <View style={styles.checklist}>
               {getBenefits().map((benefit, idx) => (

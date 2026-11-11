@@ -1,0 +1,11 @@
+.tx-assign-agent__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 240px));
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .tx-assign-agent__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

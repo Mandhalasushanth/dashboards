@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.taxedge.loan.propertyloan.dto.PropertyLoanCreateRequest;
 import com.taxedge.loan.propertyloan.dto.PropertyLoanDocumentItemResponse;
 import com.taxedge.loan.propertyloan.dto.PropertyLoanResponse;
-import com.taxedge.loan.propertyloan.dto.PropertyLoanReviewResponse;
 import com.taxedge.loan.propertyloan.dto.PropertyLoanUpdateRequest;
 import com.taxedge.loan.propertyloan.entity.PropertyLoanDocument;
 import com.taxedge.loan.propertyloan.enums.PropertyDocumentType;
@@ -61,11 +60,6 @@ public class PropertyLoanController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("application/{id}/review")
-    public ResponseEntity<PropertyLoanReviewResponse> getReview(@PathVariable String id) {
-        return ResponseEntity.ok(applicationService.getReview(id));
-    }
-
     @PostMapping("application/{id}/submit")
     public ResponseEntity<PropertyLoanResponse> submitApplication(@PathVariable String id) {
         return ResponseEntity.ok(applicationService.submitApplication(id));
@@ -77,12 +71,33 @@ public class PropertyLoanController {
     }
 
     @PostMapping(value = "application/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PropertyLoanDocumentItemResponse> uploadDocument(
+    public ResponseEntity<?> uploadDocuments(
             @PathVariable String id,
-            @RequestParam("documentType") PropertyDocumentType documentType,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam(value = "documentType", required = false) PropertyDocumentType documentType,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            org.springframework.web.multipart.MultipartHttpServletRequest request) {
+
+        if (documentType != null && file != null && !file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(documentService.uploadDocument(id, documentType, file));
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(documentService.uploadDocument(id, documentType, file));
+                .body(documentService.uploadDocuments(id, request.getFileMap()));
+    }
+
+    @PutMapping(value = "application/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateDocuments(
+            @PathVariable String id,
+            @RequestParam(value = "documentType", required = false) PropertyDocumentType documentType,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            org.springframework.web.multipart.MultipartHttpServletRequest request) {
+
+        if (documentType != null && file != null && !file.isEmpty()) {
+            return ResponseEntity.ok(documentService.uploadDocument(id, documentType, file));
+        }
+
+        return ResponseEntity.ok(documentService.uploadDocuments(id, request.getFileMap()));
     }
 
     @GetMapping("application/{id}/documents")
@@ -94,10 +109,9 @@ public class PropertyLoanController {
     public ResponseEntity<byte[]> downloadDocument(
             @PathVariable String id,
             @PathVariable PropertyDocumentType documentType) {
-        PropertyLoanDocument doc = documentService.downloadDocument(id, documentType);
-        byte[] content = doc.getFileContent(documentType);
-        String fileName = doc.getFileName(documentType) != null ? doc.getFileName(documentType) : (documentType.name().toLowerCase() + ".pdf");
-        String contentType = fileName.endsWith(".png") ? "image/png" : (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") ? "image/jpeg" : MediaType.APPLICATION_PDF_VALUE);
+        byte[] content = documentService.downloadDocument(id, documentType);
+        String fileName = documentType.name().toLowerCase() + ".pdf";
+        String contentType = MediaType.APPLICATION_PDF_VALUE;
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")

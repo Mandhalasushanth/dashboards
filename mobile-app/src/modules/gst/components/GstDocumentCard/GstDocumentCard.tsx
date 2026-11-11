@@ -229,6 +229,56 @@ export const GstDocumentCard: React.FC<GstDocumentCardProps> = ({
     }
   };
 
+  const handleSelectGallery = async () => {
+    setShowSourceModal(false);
+    try {
+      const currentPerm = await ImagePicker.getMediaLibraryPermissionsAsync();
+      let granted = currentPerm.granted;
+
+      if (!granted && currentPerm.canAskAgain) {
+        const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        granted = req.granted;
+      }
+
+      if (!granted) {
+        Alert.alert(
+          "Permission Required",
+          "Photo library permission is needed to select documents."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 0.85,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      const safeId = item.id.replace(/[^a-zA-Z0-9_-]/g, "_");
+      const fallbackName = `${safeId}_gallery_${Date.now()}.jpg`;
+      const fileName = asset.fileName || fallbackName;
+      const rawBytes =
+        typeof asset.fileSize === "number" && Number.isFinite(asset.fileSize)
+          ? asset.fileSize
+          : undefined;
+
+      processFileAsset({
+        uri: asset.uri,
+        name: fileName,
+        size: rawBytes,
+        fileSize: rawBytes,
+        rawSizeBytes: rawBytes,
+        mimeType: asset.mimeType || "image/jpeg",
+      });
+    } catch {
+      onUploadError?.(item.id, "Could not open photo gallery. Please try again.");
+    }
+  };
+
   const handleConfirmRemove = () => {
     setShowRemoveModal(false);
     onRemove(item.id);
@@ -389,6 +439,7 @@ export const GstDocumentCard: React.FC<GstDocumentCardProps> = ({
         visible={showSourceModal}
         documentTitle={item.name}
         onChooseFiles={handleChooseFiles}
+        onSelectGallery={handleSelectGallery}
         onTakePhoto={handleTakePhoto}
         onClose={() => setShowSourceModal(false)}
       />

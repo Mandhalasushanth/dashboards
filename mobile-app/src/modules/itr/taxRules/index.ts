@@ -65,6 +65,32 @@ export function getSupportedAssessmentYears(currentDate: Date = new Date()): Ass
 
 export const SUPPORTED_ASSESSMENT_YEARS = getSupportedAssessmentYears();
 
+/**
+ * Returns past-inclusive assessment years in descending order (current first, then prior years).
+ * Unlike getSupportedAssessmentYears(), no advance-estimation year is included.
+ * Use this for Revised ITR, belated filing, or any context restricted to already-filed years.
+ */
+export function getPastAssessmentYears(
+  count: number = 3,
+  currentDate: Date = new Date()
+): AssessmentYearOption[] {
+  const currentAY = getCurrentAssessmentYear(currentDate);
+  const parts = currentAY.split("-").map(Number);
+  const startYear = isNaN(parts[0]) ? 2026 : parts[0];
+  const endYear = isNaN(parts[1]) ? startYear + 1 : parts[1];
+
+  return Array.from({ length: count }, (_, i) => ({
+    id: `${startYear - i}-${endYear - i}`,
+    label: `AY ${startYear - i}-${String(endYear - i).slice(-2)}`,
+    sub:
+      i === 0
+        ? `FY ${startYear - i - 1}-${String(startYear - i).slice(-2)} (Current Filing)`
+        : `FY ${startYear - i - 1}-${String(startYear - i).slice(-2)} (Prior / Belated)`,
+    financialYear: `${startYear - i - 1}-${startYear - i}`,
+    isCurrent: i === 0,
+  }));
+}
+
 const TAX_RULES_MAP: Record<string, TaxRuleVersionConfig> = {
   "2024-2025": AY2024_25,
   "2025-2026": AY2025_26,

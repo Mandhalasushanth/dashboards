@@ -8,7 +8,13 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
 import { ItrCategoryType } from "../../types/itrFiling.types";
+import {
+  ALL_CATEGORIES,
+  CategoryOption,
+} from "../../constants/itrCategories";
 import { styles } from "./Step0CategorySelect.styles";
+
+export { ALL_CATEGORIES, CategoryOption };
 
 interface Step0CategorySelectProps {
   selectedCategory: ItrCategoryType | null;
@@ -17,106 +23,17 @@ interface Step0CategorySelectProps {
   onStartApplication: () => void;
 }
 
-interface CategoryOption {
-  id: ItrCategoryType;
-  title: string;
-  subtitle: string;
-  iconName: keyof typeof Ionicons.glyphMap;
-  disallowedAccountTypes?: string[];
-}
-
-const ALL_CATEGORIES: CategoryOption[] = [
-  {
-    id: "salaried",
-    title: "Salaried",
-    subtitle: "Salary income with Form 16",
-    iconName: "person-outline",
-    disallowedAccountTypes: [
-      "Proprietorship",
-      "Partnership",
-      "LLP",
-      "Private Limited",
-      "Public Limited",
-      "HUF",
-    ],
-  },
-  {
-    id: "business",
-    title: "Business Income",
-    subtitle: "Trading, manufacturing & sales",
-    iconName: "storefront-outline",
-  },
-  {
-    id: "professional",
-    title: "Professional",
-    subtitle: "Doctor, Lawyer, Consultant, CA",
-    iconName: "medkit-outline",
-    disallowedAccountTypes: ["Private Limited", "Public Limited", "HUF"],
-  },
-  {
-    id: "freelancer",
-    title: "Freelancer",
-    subtitle: "Independent contractor & gigs",
-    iconName: "laptop-outline",
-    disallowedAccountTypes: [
-      "Partnership",
-      "LLP",
-      "Private Limited",
-      "Public Limited",
-      "HUF",
-    ],
-  },
-  {
-    id: "trader_investor",
-    title: "Trader / Investor",
-    subtitle: "Stocks, F&O & Intraday",
-    iconName: "trending-up-outline",
-  },
-  {
-    id: "rental",
-    title: "Rental Income",
-    subtitle: "House & commercial property",
-    iconName: "home-outline",
-    disallowedAccountTypes: [
-      "Partnership",
-      "LLP",
-      "Private Limited",
-      "Public Limited",
-    ],
-  },
-  {
-    id: "capital_gains",
-    title: "Capital Gains",
-    subtitle: "Property, shares & mutual funds",
-    iconName: "document-text-outline",
-  },
-  {
-    id: "multiple",
-    title: "Multiple Sources",
-    subtitle: "Combination of income sources",
-    iconName: "link-outline",
-  },
-];
-
 export const Step0CategorySelect: React.FC<Step0CategorySelectProps> = ({
   selectedCategory,
-  accountType = "Individual",
   onSelectCategory,
   onStartApplication,
 }) => {
-  const visibleCategories = useMemo(() => {
-    return ALL_CATEGORIES.filter((cat) => {
-      if (!cat.disallowedAccountTypes) return true;
-      return !cat.disallowedAccountTypes.includes(accountType);
-    });
-  }, [accountType]);
-
   const currentSelected = useMemo(() => {
-    if (selectedCategory && visibleCategories.some((c) => c.id === selectedCategory)) {
+    if (selectedCategory && ALL_CATEGORIES.some((c) => c.id === selectedCategory)) {
       return selectedCategory;
     }
     return null;
-  }, [selectedCategory, visibleCategories]);
+  }, [selectedCategory]);
 
   return (
     <View style={styles.container}>
@@ -142,7 +59,7 @@ export const Step0CategorySelect: React.FC<Step0CategorySelectProps> = ({
 
         {/* 2-Column Grid */}
         <View style={styles.gridContainer}>
-          {visibleCategories.map((cat) => {
+          {ALL_CATEGORIES.map((cat) => {
             const isSelected = currentSelected === cat.id;
 
             return (
@@ -165,7 +82,7 @@ export const Step0CategorySelect: React.FC<Step0CategorySelectProps> = ({
                   ]}
                 >
                   <Ionicons
-                    name={cat.iconName}
+                    name={cat.iconName as any}
                     size={20}
                     color={isSelected ? BrandColors.PRIMARY_ORANGE : "#083B75"}
                   />

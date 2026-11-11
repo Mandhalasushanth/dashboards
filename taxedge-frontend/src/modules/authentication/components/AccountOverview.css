@@ -1,0 +1,54 @@
+.tx-account-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+
+.tx-account-overview__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tx-account-overview__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+}
+
+.tx-account-overview__row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.tx-account-overview__row dt {
+  color: var(--tx-secondary-text);
+}
+
+.tx-account-overview__row dd {
+  min-width: 0;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.tx-account-overview__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tx-account-overview__chip {
+  padding: 4px 10px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-light-blue);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+}
+
+.tx-account-overview__empty {
+  color: var(--tx-secondary-text);
+}

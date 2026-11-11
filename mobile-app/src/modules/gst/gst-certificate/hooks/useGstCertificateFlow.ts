@@ -43,7 +43,7 @@ export function useGstCertificateFlow() {
   const registrationDraft = useGstStore((s) => s.registrationDraft);
 
   const registeredMobile = customer?.mobile ? `+91 ${customer.mobile}` : "+91 9347074726";
-  const registeredEmail = customer?.email || "user@taxedge.in";
+  const registeredEmail = customer?.email || "user@finsolz.in";
 
   const [gstin, setGstin] = useState(params.gstin || "");
   const [requestType, setRequestType] = useState("Download Existing Certificate (Form REG-06)");
@@ -72,7 +72,7 @@ export function useGstCertificateFlow() {
       void (async () => {
         const clean = getActiveCustomerMobile();
         try {
-          const raw = await AsyncStorage.getItem(`@taxedge_draft_${clean}_gst-certificate`);
+          const raw = await AsyncStorage.getItem(`@finsolz_draft_${clean}_gst-certificate`);
           if (!raw) return;
           const parsed = JSON.parse(raw) as { formData?: Record<string, unknown> };
           if (parsed.formData?.gstin && !gstin) {

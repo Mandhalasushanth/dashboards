@@ -1,0 +1,111 @@
+/* Width comes from a 5%-step class, so no inline styles are needed. */
+.tx-progress {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-subtle-border);
+}
+
+.tx-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width var(--tx-transition-normal);
+}
+
+.tx-progress__fill--ok {
+  background-color: var(--tx-success);
+}
+
+.tx-progress__fill--warning {
+  background-color: var(--tx-warning);
+}
+
+.tx-progress__fill--danger {
+  background-color: var(--tx-error);
+}
+
+.tx-progress__fill--p0 {
+  width: 0%;
+}
+
+.tx-progress__fill--p5 {
+  width: 5%;
+}
+
+.tx-progress__fill--p10 {
+  width: 10%;
+}
+
+.tx-progress__fill--p15 {
+  width: 15%;
+}
+
+.tx-progress__fill--p20 {
+  width: 20%;
+}
+
+.tx-progress__fill--p25 {
+  width: 25%;
+}
+
+.tx-progress__fill--p30 {
+  width: 30%;
+}
+
+.tx-progress__fill--p35 {
+  width: 35%;
+}
+
+.tx-progress__fill--p40 {
+  width: 40%;
+}
+
+.tx-progress__fill--p45 {
+  width: 45%;
+}
+
+.tx-progress__fill--p50 {
+  width: 50%;
+}
+
+.tx-progress__fill--p55 {
+  width: 55%;
+}
+
+.tx-progress__fill--p60 {
+  width: 60%;
+}
+
+.tx-progress__fill--p65 {
+  width: 65%;
+}
+
+.tx-progress__fill--p70 {
+  width: 70%;
+}
+
+.tx-progress__fill--p75 {
+  width: 75%;
+}
+
+.tx-progress__fill--p80 {
+  width: 80%;
+}
+
+.tx-progress__fill--p85 {
+  width: 85%;
+}
+
+.tx-progress__fill--p90 {
+  width: 90%;
+}
+
+.tx-progress__fill--p95 {
+  width: 95%;
+}
+
+.tx-progress__fill--p100 {
+  width: 100%;
+}

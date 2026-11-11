@@ -1,9 +1,10 @@
 import { StyleSheet, Platform } from "react-native";
+import { BorderRadius } from "@/shared/theme";
 
 export const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: BorderRadius.md,
     padding: 18,
     borderWidth: 1,
     borderColor: "#E5E7EB",

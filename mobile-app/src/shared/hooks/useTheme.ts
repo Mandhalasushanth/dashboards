@@ -1,22 +1,17 @@
 import { Colors, type ThemeColors, type ThemeName } from "@/shared/constants/theme";
-import { useThemeStore } from "@/design-system/theme/themeStore";
 
 export type UseThemeResult = ThemeColors & {
   colors: ThemeColors;
+  /** Always false: the app has one light theme. */
   isDark: boolean;
   scheme: ThemeName;
 };
 
-export function useTheme(): UseThemeResult {
-  const scheme = useThemeStore((state) => state.theme);
-  const colors = Colors[scheme];
+const LIGHT: UseThemeResult = { ...Colors.light, colors: Colors.light, isDark: false, scheme: "light" };
 
-  return {
-    ...colors,
-    colors,
-    isDark: scheme === "dark",
-    scheme,
-  };
+/** The app's colours; there is a single light theme and no dark mode. */
+export function useTheme(): UseThemeResult {
+  return LIGHT;
 }
 
 export default useTheme;

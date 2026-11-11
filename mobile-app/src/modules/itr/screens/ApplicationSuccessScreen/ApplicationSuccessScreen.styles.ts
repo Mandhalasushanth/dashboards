@@ -143,7 +143,7 @@ export const getContainerInsetsStyle = (topInset: number): ViewStyle => ({
 });
 
 export const getScrollContentInsetsStyle = (bottomInset: number): ViewStyle => ({
-  paddingBottom: bottomInset + 130,
+  paddingBottom: bottomInset + 184,
 });
 
 export const getBottomBarInsetsStyle = (bottomInset: number): ViewStyle => ({

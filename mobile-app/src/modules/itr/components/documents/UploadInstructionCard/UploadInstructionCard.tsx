@@ -18,7 +18,7 @@ export const UploadInstructionCard: React.FC = () => {
 
         <View style={styles.bulletRow}>
           <View style={styles.orangeDot} />
-          <Text style={styles.bulletText}>Supported formats: PDF, JPG, PNG</Text>
+          <Text style={styles.bulletText}>Supported formats: PDF, JPG, PNG, XLS, XLSX</Text>
         </View>
 
         <View style={styles.bulletRow}>

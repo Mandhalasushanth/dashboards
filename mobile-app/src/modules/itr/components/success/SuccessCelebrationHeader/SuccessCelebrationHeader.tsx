@@ -55,7 +55,7 @@ export const SuccessCelebrationHeader: React.FC<SuccessCelebrationHeaderProps> =
       {/* Application ID Pill Card */}
       <View style={styles.idCard}>
         <Text style={styles.idLabel}>Application ID </Text>
-        <Text style={styles.idValue}>{applicationId}</Text>
+        <Text style={styles.idValue} numberOfLines={1} ellipsizeMode="tail">{applicationId}</Text>
       </View>
     </View>
   );

@@ -1,20 +1,20 @@
 import { StyleSheet } from "react-native";
-import { BrandColors, Typography, Spacing, BorderRadius } from "@/shared/theme";
+import { BrandColors, BorderRadius, Spacing, Typography } from "@/shared/theme";
 
 export const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(11, 31, 58, 0.6)",
+    backgroundColor: "rgba(11, 31, 58, 0.45)",
     justifyContent: "flex-end",
   },
   modalContent: {
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: BorderRadius.lg,
-    borderTopRightRadius: BorderRadius.lg,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.xxl,
-    maxHeight: "90%",
+    paddingTop: Spacing.base,
+    paddingBottom: Spacing.xl,
+    maxHeight: "88%",
   },
   headerRow: {
     flexDirection: "row",
@@ -28,9 +28,9 @@ export const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   headerTitle: {
-    fontSize: Typography.fontSize.lg,
+    fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.bold,
-    color: "#0F172A",
+    color: "#083B75",
   },
   closeBtn: {
     padding: Spacing.xs,
@@ -38,33 +38,32 @@ export const styles = StyleSheet.create({
   subtitle: {
     fontSize: Typography.fontSize.xs,
     color: "#64748B",
-    lineHeight: 18,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
+    lineHeight: 16,
   },
   formContainer: {
-    gap: Spacing.md,
-    marginBottom: Spacing.base,
+    paddingBottom: Spacing.lg,
   },
   inputGroup: {
-    gap: 4,
+    marginBottom: Spacing.sm,
   },
   labelRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    marginBottom: 4,
   },
   inputLabel: {
     fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.semiBold,
+    fontWeight: Typography.fontWeight.medium,
     color: "#334155",
   },
   mandatoryStar: {
     color: "#DC2626",
+    marginLeft: 2,
     fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.bold,
   },
   inputBox: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FAFC",
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
     borderColor: "#CBD5E1",
@@ -75,35 +74,6 @@ export const styles = StyleSheet.create({
   textInput: {
     fontSize: Typography.fontSize.xs,
     color: "#0F172A",
-  },
-  accountTypeRow: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-    marginTop: 2,
-  },
-  accountTypePill: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1.5,
-    borderColor: "#CBD5E1",
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  accountTypePillActive: {
-    borderColor: BrandColors.PRIMARY_ORANGE,
-    backgroundColor: "#FFFBF7",
-  },
-  accountTypePillText: {
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.semiBold,
-    color: "#64748B",
-  },
-  accountTypePillTextActive: {
-    color: BrandColors.PRIMARY_ORANGE,
-    fontWeight: Typography.fontWeight.bold,
   },
   saveBankBtn: {
     backgroundColor: BrandColors.PRIMARY_ORANGE,
@@ -117,5 +87,16 @@ export const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
+  },
+  inputBoxError: {
+    borderColor: "#DC2626",
+  },
+  ifscTextInput: {
+    width: "100%",
+  },
+  errorText: {
+    fontSize: Typography.fontSize.xs,
+    color: "#DC2626",
+    marginTop: 2,
   },
 });

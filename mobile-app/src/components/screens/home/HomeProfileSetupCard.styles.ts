@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet, Platform, type ViewStyle } from "react-native";
 import { BrandColors, Spacing, BorderRadius, Typography } from "@/shared/theme";
 
 export const styles = StyleSheet.create({
@@ -64,7 +64,6 @@ export const styles = StyleSheet.create({
   },
   progressFill: {
     height: "100%",
-    width: "60%",
     backgroundColor: BrandColors.PRIMARY_ORANGE,
     borderRadius: 3,
   },
@@ -86,4 +85,8 @@ export const styles = StyleSheet.create({
     fontSize: Typography.fontSize.xs + 1,
     fontWeight: Typography.fontWeight.bold,
   },
+});
+
+export const getProgressFillThemedStyle = (percentage: number): ViewStyle => ({
+  width: `${Math.min(Math.max(percentage, 0), 100)}%`,
 });

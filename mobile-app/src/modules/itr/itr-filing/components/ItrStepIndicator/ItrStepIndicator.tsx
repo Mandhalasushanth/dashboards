@@ -4,8 +4,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { styles } from "./ItrStepIndicator.styles";
 
 interface ItrStepIndicatorProps {
-  currentStep: number; // 0 to 4 (representing steps 1 to 5)
-  totalSteps?: number; // 5
+  currentStep: number; // 0 to 3 (representing steps 1 to 4)
+  totalSteps?: number; // defaults to 4
   stepTitle: string;
   onBack: () => void;
   hideBackButton?: boolean;
@@ -22,7 +22,7 @@ const STEP_LABELS = [
 
 export const ItrStepIndicator: React.FC<ItrStepIndicatorProps> = ({
   currentStep,
-  totalSteps = 5,
+  totalSteps = 4,
   stepTitle,
   onBack,
   hideBackButton = false,

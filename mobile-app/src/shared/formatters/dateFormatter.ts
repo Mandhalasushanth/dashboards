@@ -154,3 +154,61 @@ export function formatRelativeTime(value: unknown, now: Date = new Date()): stri
 
   return formatDateTime(date.toISOString());
 }
+
+const SUBMISSION_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+] as const;
+
+/**
+ * Formats an application submission date consistently as DD MMM YYYY (e.g. "03 Nov 2026").
+ * Rejects relative strings like "Today" or "Yesterday".
+ * Gracefully returns an empty string for missing or invalid dates without throwing or fabricating a date.
+ */
+export function formatSubmissionDate(dateInput?: unknown): string {
+  if (!dateInput || (typeof dateInput !== "string" && typeof dateInput !== "number" && !(dateInput instanceof Date))) {
+    return "";
+  }
+
+  if (typeof dateInput === "string") {
+    const trimmed = dateInput.trim();
+    if (!trimmed || /^(today|yesterday|just now|unavailable|not available)$/i.test(trimmed)) {
+      return "";
+    }
+
+    // Already in DD MMM YYYY format (e.g. "03 Nov 2026" or "3 Nov 2026")
+    const ddmmyyyy = /^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})/.exec(trimmed);
+    if (ddmmyyyy) {
+      const d = ddmmyyyy[1].padStart(2, "0");
+      const m = ddmmyyyy[2].charAt(0).toUpperCase() + ddmmyyyy[2].slice(1, 3).toLowerCase();
+      const y = ddmmyyyy[3];
+      return `${d} ${m} ${y}`;
+    }
+
+    // DD-MM-YYYY format (e.g. "03-11-2026")
+    const dashMatch = /^(\d{1,2})-(\d{1,2})-(\d{4})/.exec(trimmed);
+    if (dashMatch) {
+      const d = dashMatch[1].padStart(2, "0");
+      const mIdx = Number(dashMatch[2]) - 1;
+      const y = dashMatch[3];
+      if (mIdx >= 0 && mIdx < 12) return `${d} ${SUBMISSION_MONTHS[mIdx]} ${y}`;
+    }
+
+    // YYYY-MM-DD format (e.g. "2026-11-03")
+    const isoDate = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(trimmed);
+    if (isoDate && !trimmed.includes("T")) {
+      const y = isoDate[1];
+      const mIdx = Number(isoDate[2]) - 1;
+      const d = isoDate[3].padStart(2, "0");
+      if (mIdx >= 0 && mIdx < 12) return `${d} ${SUBMISSION_MONTHS[mIdx]} ${y}`;
+    }
+  }
+
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput as any);
+  if (isNaN(date.getTime())) return "";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = SUBMISSION_MONTHS[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
+}

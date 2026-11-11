@@ -18,6 +18,7 @@ public interface ItrFilingMapper {
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "submittedAt", ignore = true)
+	@Mapping(target = "assignedAgent", ignore = true)
 	ItrFiling toEntity(ItrFilingPostDto dto);
 
 	@Mapping(target = "itrId", ignore = true)
@@ -28,5 +29,6 @@ public interface ItrFilingMapper {
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "submittedAt", ignore = true)
+	@Mapping(target = "assignedAgent", ignore = true)
 	void updateEntity(ItrFilingPostDto dto, @MappingTarget ItrFiling itrFiling);
 }

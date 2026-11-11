@@ -41,7 +41,7 @@ import lombok.Setter;
 public class PropertyLoanApplication {
 
     @Id
-    @Column(name = "loan_application_id", nullable = false, updatable = false, length = 20)
+    @Column(name = "loan_application_id", nullable = false, updatable = false, length = 30)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -89,7 +89,7 @@ public class PropertyLoanApplication {
     private PropertyOwnership ownership;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 30)
     private LoanApplicationStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)

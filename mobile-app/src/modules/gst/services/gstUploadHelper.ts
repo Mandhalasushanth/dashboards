@@ -1,4 +1,5 @@
 import { apiClient, SERVER_IP, SERVER_PORT } from "../../../core/api/apiClient";
+import { getActiveBaseUrl } from "../../../core/api/apiConfig";
 import { tokenManager } from "../../../core/authentication/tokenManager";
 import { logger } from "../../../core/logging/logger";
 
@@ -8,6 +9,7 @@ export interface UploadDocumentItem {
   fileUri?: string | null;
   fileName?: string | null;
   subtitle?: string | null;
+  mimeType?: string | null;
 }
 
 export class GstApiUploadError extends Error {
@@ -15,6 +17,35 @@ export class GstApiUploadError extends Error {
     super(message);
     this.name = "GstApiUploadError";
   }
+}
+
+/**
+ * Normalizes document file URI across iOS and Android file picking APIs.
+ */
+export function normalizeDocumentUri(uri: string): string {
+  if (!uri) return "";
+  let clean = uri.trim();
+  // Ensure file:// scheme exists on iOS if path starts with /
+  if (clean.startsWith("/") && !clean.startsWith("file://") && !clean.startsWith("content://")) {
+    return `file://${clean}`;
+  }
+  return clean;
+}
+
+/**
+ * Resolves appropriate MIME type based on filename extension or explicit MIME.
+ */
+export function resolveDocumentMimeType(filename?: string | null, fallback = "application/pdf"): string {
+  if (!filename) return fallback;
+  const lower = filename.trim().toLowerCase();
+  if (lower.endsWith(".pdf")) return "application/pdf";
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if (lower.endsWith(".xls")) return "application/vnd.ms-excel";
+  if (lower.endsWith(".csv")) return "text/csv";
+  if (lower.endsWith(".json")) return "application/json";
+  return fallback;
 }
 
 /**
@@ -75,9 +106,37 @@ export async function executeXhrUpload(
 
 /**
  * Get active base URL with default fallback.
+ * Checks apiClient.getBaseUrl() first, then AsyncStorage / centralized environment.
  */
 export function resolveApiBaseUrl(): string {
-  return apiClient.getBaseUrl() || `http://${SERVER_IP}:${SERVER_PORT}`;
+  const clientBase = apiClient.getBaseUrl();
+  if (clientBase && clientBase.trim()) {
+    return clientBase.replace(/\/$/, "");
+  }
+  return `http://${SERVER_IP}:${SERVER_PORT}`;
+}
+
+/**
+ * Asynchronously resolves active base URL ensuring custom storage config is fully loaded.
+ */
+export async function resolveAsyncApiBaseUrl(): Promise<string> {
+  try {
+    const loaded = await apiClient.ensureBaseUrlLoaded();
+    if (loaded && loaded.trim()) {
+      return loaded.replace(/\/$/, "");
+    }
+  } catch (err) {
+    logger.debug("[gstUploadHelper] Failed to ensureBaseUrlLoaded, falling back to getActiveBaseUrl", { error: err });
+  }
+  try {
+    const active = await getActiveBaseUrl();
+    if (active && active.trim()) {
+      return active.replace(/\/$/, "");
+    }
+  } catch (err) {
+    logger.debug("[gstUploadHelper] Failed getActiveBaseUrl", { error: err });
+  }
+  return resolveApiBaseUrl();
 }
 
 /**

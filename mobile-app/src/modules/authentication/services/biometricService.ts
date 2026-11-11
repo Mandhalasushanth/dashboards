@@ -4,8 +4,8 @@ import { Platform } from "react-native";
 import { getErrorMessage } from "@/core/error-handling/errorMessage";
 import { logger } from "@/core/logging/logger";
 
-const KEY_BIOMETRIC_ENABLED = "taxedge_biometric_enabled";
-const KEY_BIOMETRIC_MOBILE = "taxedge_biometric_mobile";
+const KEY_BIOMETRIC_ENABLED = "finsolz_biometric_enabled";
+const KEY_BIOMETRIC_MOBILE = "finsolz_biometric_mobile";
 
 // In-memory fallback for web or environments where SecureStore isn't available
 const memoryStorage: Record<string, string> = {};

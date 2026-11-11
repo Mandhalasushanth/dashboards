@@ -4,6 +4,7 @@ import {
   validateEmail,
   validateFullName,
 } from "@/shared/validators/indianTaxValidators";
+import { toBackendDob } from "@/modules/authentication/services/customerRegistrationPayload";
 
 export interface PersonalFormState {
   name: string;
@@ -58,6 +59,7 @@ export const buildPersonalUpdatePayload = (
   mobileNumber: personalDetails?.mobileNumber || customer?.mobile,
   name: personalForm.name.trim().replace(/\s+/g, " "),
   email: personalForm.email.trim(),
-  dob: personalForm.dob.trim(),
+  // BUG_B25_003: form stores DD-MM-YYYY but backend (Spring Boot LocalDate) requires YYYY-MM-DD
+  dob: toBackendDob(personalForm.dob.trim()),
   address: personalForm.address.trim(),
 });

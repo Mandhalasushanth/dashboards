@@ -1,0 +1,121 @@
+.tx-push-sent {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-xl);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-push-sent__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-push-sent__count {
+  padding: 2px 8px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-light-navy);
+  font-size: 12px;
+}
+
+.tx-push-sent__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  color: var(--tx-secondary-text);
+  text-align: center;
+}
+
+.tx-push-sent__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tx-push-sent__item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--tx-subtle-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-background);
+}
+
+.tx-push-sent__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--tx-radius-md);
+  background-color: var(--tx-light-orange);
+  color: var(--tx-primary-orange);
+}
+
+.tx-push-sent__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tx-push-sent__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tx-push-sent__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tx-primary-text);
+  overflow-wrap: anywhere;
+}
+
+.tx-push-sent__tag {
+  padding: 2px 8px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-light-blue);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tx-primary-blue);
+}
+
+.tx-push-sent__message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--tx-primary-text);
+  overflow-wrap: anywhere;
+}
+
+.tx-push-sent__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--tx-secondary-text);
+}
+
+@media (max-width: 560px) {
+  .tx-push-sent {
+    padding: 16px;
+  }
+}

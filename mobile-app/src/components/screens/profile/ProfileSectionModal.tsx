@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, Modal, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { SecondaryButton } from "@/shared/components/Button/SecondaryButton";
 import { styles } from "@/styles/app/(main)/profile.styles";
 import type { Application } from "@/types/domain";
+import { ProfileModalHeader } from "./ProfileModalHeader";
 
 export type ProfileModalType = "gst" | "itr" | "loans";
 
@@ -34,7 +34,7 @@ const CONFIGS: Record<ProfileModalType, ModalConfig> = {
     icon: "receipt-outline",
     iconColor: "#7C3AED",
     iconBg: "#F1ECFE",
-    emptyTitle: "GST Details",
+    emptyTitle: "No GST Applications Yet",
     emptySubtitle:
       "GST registration details, return filing records, and compliance summaries will be available here once you apply for GST services or connect your GSTIN.",
     ctaText: "Apply for GST Registration",
@@ -122,9 +122,14 @@ export function ProfileSectionModal({
             { backgroundColor: colors.backgroundElement },
           ]}
         >
-          <Text style={[styles.modalTitle, { color: colors.text }]}>
-            {config.title}
-          </Text>
+          <ProfileModalHeader
+            title={config.title}
+            icon={config.icon}
+            iconColor={config.iconColor}
+            iconBg={config.iconBg}
+            onClose={onClose}
+            colors={colors}
+          />
 
           {matchingApps.length === 0 ? (
             <View style={styles.incompleteModalBox}>
@@ -153,11 +158,6 @@ export function ProfileSectionModal({
               </Text>
 
               <View style={styles.personalActions}>
-                <SecondaryButton
-                  title="Close"
-                  onPress={onClose}
-                  style={styles.modalActionBtn}
-                />
                 <TouchableOpacity
                   style={[
                     styles.completeActionBtn,
@@ -175,7 +175,7 @@ export function ProfileSectionModal({
           ) : (
             <>
               <ScrollView
-                style={{ maxHeight: 300, marginVertical: 10 }}
+                style={styles.modalScrollArea}
                 showsVerticalScrollIndicator={false}
               >
                 {matchingApps.map((app) => (
@@ -183,16 +183,16 @@ export function ProfileSectionModal({
                     key={app.id}
                     style={[
                       styles.incompleteCard,
+                      styles.appItemCard,
                       {
                         backgroundColor: colors.background,
                         borderColor: colors.border,
-                        marginBottom: 10,
                       },
                     ]}
                   >
                     <View style={styles.incompleteRow}>
                       <Text
-                        style={[styles.infoKey, { color: colors.text, flex: 1 }]}
+                        style={[styles.infoKey, styles.flexOne, { color: colors.text }]}
                         numberOfLines={1}
                       >
                         {app.serviceName || config.title}
@@ -202,11 +202,10 @@ export function ProfileSectionModal({
                       </View>
                     </View>
                     <Text
-                      style={{
-                        fontSize: 11,
-                        color: colors.textSecondary,
-                        marginTop: 4,
-                      }}
+                      style={[
+                        styles.appSubText,
+                        { color: colors.textSecondary },
+                      ]}
                     >
                       Application #{app.id} • {app.createdAt || "Submitted"}
                     </Text>
@@ -215,11 +214,6 @@ export function ProfileSectionModal({
               </ScrollView>
 
               <View style={styles.personalActions}>
-                <SecondaryButton
-                  title="Close"
-                  onPress={onClose}
-                  style={styles.modalActionBtn}
-                />
                 <TouchableOpacity
                   style={[
                     styles.completeActionBtn,

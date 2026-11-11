@@ -8,11 +8,9 @@ public interface ContactAmendmentService {
     ContactAmendmentViewDto getExistingContactDetails(String gstId);
     ContactAmendmentViewDto submitContactAmendment(String gstId, String customerId, String mobileNumber, String email, MultipartFile file) throws IOException;
 
-    ContactAmendmentViewDto getAmendmentById(Long id);
+    ContactAmendmentViewDto getAmendmentById(String id);
 
-    ContactAmendmentViewDto updateContactAmendment(Long id, String mobileNumber, String email, MultipartFile file) throws IOException;
+    ContactAmendmentViewDto updateContactAmendment(String id, String mobileNumber, String email, MultipartFile file) throws IOException;
 
-    String submitAmendment(Long id, String gstId, String pushToken);
-
-    
+    String submitAmendment(String id, String gstId, String pushToken);
 }

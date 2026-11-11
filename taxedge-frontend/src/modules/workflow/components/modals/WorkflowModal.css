@@ -1,0 +1,145 @@
+.tx-wf-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(6, 21, 45, 0.55);
+  backdrop-filter: blur(2px);
+  animation: tx-wf-fade 0.18s ease-out;
+}
+
+.tx-wf-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  border-radius: var(--tx-radius-lg);
+  background: var(--tx-surface);
+  box-shadow: var(--tx-shadow-dark);
+  outline: none;
+  animation: tx-wf-rise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tx-wf-modal--md {
+  max-width: 560px;
+}
+
+.tx-wf-modal--lg {
+  max-width: 780px;
+}
+
+.tx-wf-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--tx-border);
+}
+
+.tx-wf-modal__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-wf-modal__subtitle {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  color: var(--tx-secondary-text);
+}
+
+.tx-wf-modal__close {
+  display: inline-flex;
+  padding: 4px;
+  border: none;
+  border-radius: var(--tx-radius-sm);
+  background: transparent;
+  color: var(--tx-secondary-text);
+  cursor: pointer;
+}
+
+.tx-wf-modal__close:hover:not(:disabled) {
+  background: var(--tx-subtle-border);
+  color: var(--tx-primary-text);
+}
+
+.tx-wf-modal__close:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-wf-modal__form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tx-wf-modal__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px;
+  overflow-y: auto;
+}
+
+/* Scrolling flex column: children keep their height instead of being squeezed (the tab strip vanished). */
+.tx-wf-modal__body > * {
+  flex-shrink: 0;
+}
+
+.tx-wf-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--tx-border);
+  background: var(--tx-background);
+  border-radius: 0 0 var(--tx-radius-lg) var(--tx-radius-lg);
+}
+
+@keyframes tx-wf-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tx-wf-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Phones: the dialog becomes a bottom sheet that uses the full width. */
+@media (max-width: 600px) {
+  .tx-wf-modal__overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .tx-wf-modal {
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: var(--tx-radius-lg) var(--tx-radius-lg) 0 0;
+  }
+
+  .tx-wf-modal__header,
+  .tx-wf-modal__body,
+  .tx-wf-modal__footer {
+    padding-inline: 16px;
+  }
+
+  .tx-wf-modal__footer {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    border-radius: 0;
+  }
+
+  .tx-wf-modal__footer .tx-button {
+    flex: 1 1 0;
+  }
+}

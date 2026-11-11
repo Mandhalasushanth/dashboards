@@ -24,7 +24,7 @@ export interface GstFilingBackendDto {
   filingFrequency?: "MONTHLY" | "QUARTERLY" | "ANNUAL_FINANCIAL_YEAR" | string;
   returnType?: "GSTR_1" | "GSTR_3B" | string;
   filingType?: "REGULAR" | "NIL_RETURN" | string;
-  taxCalculationMethod?: "ESTIMATION_FIGURES" | "TAXEDGE_CA_CALCULATION" | string;
+  taxCalculationMethod?: "ESTIMATION_FIGURES" | "FINSOLZ_CA_CALCULATION" | string;
   estimatedTaxableSales?: number | null;
   estimatedTaxablePurchases?: number | null;
   estimatedEligibleItc?: number | null;
@@ -170,7 +170,7 @@ export function buildFilingPayload(
     filingType: isNil ? "NIL_RETURN" : "REGULAR",
     taxCalculationMethod: isEstimates
       ? "ESTIMATION_FIGURES"
-      : "TAXEDGE_CA_CALCULATION",
+      : "FINSOLZ_CA_CALCULATION",
     estimatedTaxableSales: isEstimates
       ? parseFilingNumber(periodData.taxableSales || periodData.turnover)
       : null,
@@ -361,7 +361,7 @@ export function syncPreviousAppDocuments(
       matched.fileUri &&
       typeof matched.fileUri === "string" &&
       matched.fileUri.trim() !== "" &&
-      !matched.fileUri.startsWith("https://taxedge.in/docs/")
+      !matched.fileUri.startsWith("https://finsolz.in/docs/")
     ) {
       return {
         ...initDoc,

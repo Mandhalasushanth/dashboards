@@ -7,145 +7,138 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Keyboard,
 } from "react-native";
-import { UniversalDraftModal } from "@/shared/components/UniversalDraftModal";
-import { useUniversalDraftGuard } from "@/shared/hooks/useUniversalDraftGuard";
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useRevisedProgressStore } from "../../store/revisedProgressStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { RevisedItrHeader } from "../../components/common";
-import { ReturnSummaryCard } from "../../components/find";
-import { useApplicationStore } from "@/store/applicationStore";
+import { RevisedItrHeader, RevisedItrAckInfoIcon } from "../../components/common";
+import { GstSelectModal } from "@/modules/gst/components/common/GstSelectModal";
 import { useAuthStore } from "@/modules/authentication/store/authStore";
 import { RevisedItrApiService } from "../../services/RevisedItrApiService";
-import { OriginalReturnDetails } from "../../types/revisedItr.types";
+import { getPastAssessmentYears } from "@/modules/itr/taxRules";
+import {
+  filterNumericAcknowledgementNumber,
+  isOriginalItrAckNumberValid,
+} from "../../utils/acknowledgementValidation";
 import {
   styles,
   getContainerInsetsStyle,
   getScrollContentInsetsStyle,
-  getBottomBarInsetsStyle,
 } from "./FindOriginalReturnScreen.styles";
 
 export const FindOriginalReturnScreen: React.FC = () => {
   const router = useRouter();
-  const params = useLocalSearchParams<{ acknowledgementNumber?: string; assessmentYear?: string; isEditing?: string }>();
-  const maxStepReached = useRevisedProgressStore((s) => s.maxStepReached);
+  const params = useLocalSearchParams<{
+    acknowledgementNumber?: string;
+    assessmentYear?: string;
+    isEditing?: string;
+  }>();
+  useRevisedProgressStore((s) => s.maxStepReached);
   const insets = useSafeAreaInsets();
-  const applications = useApplicationStore((state) => state.applications);
 
-  const existingItr = applications.find(
-    (a) => a.serviceId === "itr-filing" || a.category === "ITR"
+  const initialAck = filterNumericAcknowledgementNumber(params.acknowledgementNumber || "");
+  const [ackNumber, setAckNumber] = useState<string>(initialAck);
+  const ayOptions = getPastAssessmentYears(3).map((ay) => ay.label);
+  const [assessmentYear, setAssessmentYear] = useState<string>(
+    params.assessmentYear || ""
   );
-
-  const [ackNumber, setAckNumber] = useState<string>(params.acknowledgementNumber || "");
-  const [assessmentYear, setAssessmentYear] = useState<string>("AY 2025-26");
-  const [showAyDropdown, setShowAyDropdown] = useState<boolean>(false);
-  const [foundReturn, setFoundReturn] = useState<OriginalReturnDetails | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const {
-    showDraftModal,
-    openDraftModal,
-    handleSaveAndExit,
-    handleDiscardAndExit,
-    handleCancel,
-  } = useUniversalDraftGuard({
-    isDirty: () => ackNumber.trim().length > 0 || foundReturn !== null,
-    onSaveDraft: () => {
-      useApplicationStore.getState().saveRevisedItrDraft({ step: 0 });
-    },
-    onDiscardDraft: () => {
-      useApplicationStore.getState().clearRevisedItrDraft();
-      useRevisedProgressStore.getState().reset();
-    },
-    isSubmitted: () => false,
+  const [showAyModal, setShowAyModal] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(() => {
+    if (params.acknowledgementNumber) {
+      if (initialAck.length === 0) {
+        return "Please enter the 15-digit Acknowledgement Number.";
+      }
+      if (initialAck.length < 15) {
+        return "Acknowledgement number must be exactly 15 digits.";
+      }
+      return null;
+    }
+    return null;
   });
-
-  const ayOptions = ["AY 2025-26", "AY 2024-25", "AY 2023-24"];
+  const [ayError, setAyError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
-    const draft = useApplicationStore.getState().revisedItrDraft;
-    if (draft) {
-      const step = Number((draft as any)?.step ?? (draft as any)?.currentStep ?? 0);
-      const draftParams = ((draft as any)?.formData || {}) as any;
-      if (step >= 4) {
-        router.push({ pathname: "/service/revised-itr-review" as any, params: draftParams });
-      } else if (step === 3) {
-        router.push({ pathname: "/service/revised-itr-documents" as any, params: draftParams });
-      } else if (step === 2) {
-        router.push({ pathname: "/service/revised-itr-update" as any, params: draftParams });
-      } else if (step === 1) {
-        router.push({ pathname: "/service/revised-itr-reason" as any, params: draftParams });
-      }
-    } else {
-      // Clear any in-memory store data from earlier completed sessions
+    // Clear store state from earlier completed sessions when starting afresh
+    if (params.isEditing !== "true" && !params.acknowledgementNumber) {
       useRevisedProgressStore.getState().reset();
     }
-  }, []);
+  }, [params.isEditing, params.acknowledgementNumber]);
 
-  const handleFindReturn = () => {
-    // 15-digit numeric validation
-    const cleaned = ackNumber.trim();
-    if (!cleaned) {
-      setError("Please enter the 15-digit Acknowledgement Number.");
-      return;
-    }
-    if (!/^\d{15}$/.test(cleaned)) {
-      setError("Acknowledgement Number must be exactly 15 digits.");
-      return;
-    }
+  const handleAckNumberChange = (val: string) => {
+    // Real-time numeric filtering: reject letters, emojis, spaces, commas, and special characters
+    const filtered = filterNumericAcknowledgementNumber(val);
+    setAckNumber(filtered);
 
-    setError(null);
-    const matched = applications.find(
-      (a) =>
-        (a.formData as any)?.previousAckNumber === cleaned ||
-        a.id === cleaned
-    );
-
-    if (matched) {
-      const fd = (matched.formData || {}) as any;
-      setFoundReturn({
-        acknowledgementNumber: cleaned,
-        assessmentYear: fd.assessmentYear || assessmentYear,
-        filingDate: matched.createdAt || "Filed via TaxEdge",
-        itrForm: fd.formTitle || fd.formType || "ITR-1 (Sahaj)",
-        filingStatus: matched.status || "Successfully Filed",
-        grossTotalIncome: fd.grossTotalIncome
-          ? `₹${Number(fd.grossTotalIncome).toLocaleString("en-IN")}`
-          : "—",
-      });
-    } else {
-      setFoundReturn({
-        acknowledgementNumber: cleaned,
-        assessmentYear,
-        filingDate: "Verified from IT Portal",
-        itrForm: "ITR Form",
-        filingStatus: "Filed & Verified",
-        grossTotalIncome: "—",
-      });
+    // Clear error once 15 digits are reached
+    if (error && filtered.length === 15) {
+      setError(null);
     }
   };
 
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const handleAckNumberBlur = () => {
+    // Validate on blur when user leaves the field
+    if (ackNumber.length > 0 && ackNumber.length < 15) {
+      setError("Acknowledgement number must be exactly 15 digits.");
+    } else if (ackNumber.length === 15) {
+      setError(null);
+    }
+  };
+
+  const handleOpenAyModal = () => {
+    Keyboard.dismiss();
+    if (ackNumber.length > 0 && ackNumber.length < 15) {
+      setError("Acknowledgement number must be exactly 15 digits.");
+    }
+    setShowAyModal(true);
+  };
+
+  const isAckValid = isOriginalItrAckNumberValid(ackNumber);
+  const isAySelected = assessmentYear.trim().length > 0;
+  const isContinueDisabled = !isAckValid || !isAySelected || isSubmitting;
+
   const { revisedItrId, setBackendIds, setMaxStepReached } = useRevisedProgressStore();
   const { customer, authenticatedUser } = useAuthStore();
 
   // POST Method - Normal Flow (Continue)
   const handleContinue = async () => {
-    if (!foundReturn) {
-      handleFindReturn();
+    const cleanAck = filterNumericAcknowledgementNumber(ackNumber);
+    if (cleanAck.length !== 15) {
+      setError(
+        cleanAck.length === 0
+          ? "Please enter the 15-digit Acknowledgement Number."
+          : "Acknowledgement number must be exactly 15 digits."
+      );
+      return;
+    }
+
+    if (!assessmentYear.trim()) {
+      setAyError("Please select the Assessment Year.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const customerId = customer?.customerId || (authenticatedUser as any)?.customerId || "CUST-12345";
-      
+      const customerId =
+        customer?.customerId ||
+        (authenticatedUser as any)?.customerId ||
+        (authenticatedUser as any)?.custId ||
+        "";
+      if (!customerId) {
+        Alert.alert(
+          "Registration Required",
+          "Please complete your account registration before filing a revised ITR.",
+        );
+        return;
+      }
+
       const payload = {
         customerId,
-        itrAcknowledgementNumber: foundReturn.acknowledgementNumber,
-        assessmentYear: foundReturn.assessmentYear.replace("AY ", "").trim()
+        itrAcknowledgementNumber: cleanAck,
+        assessmentYear: assessmentYear.replace("AY ", "").trim(),
       };
 
       const response = await RevisedItrApiService.saveRevisedItr(payload);
@@ -158,13 +151,13 @@ export const FindOriginalReturnScreen: React.FC = () => {
       router.push({
         pathname: "/service/revised-itr-reason" as any,
         params: {
-          acknowledgementNumber: foundReturn.acknowledgementNumber,
-          assessmentYear: foundReturn.assessmentYear,
+          acknowledgementNumber: cleanAck,
+          assessmentYear,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error saving revised ITR:", e);
-      Alert.alert("Error", "Failed to save revised ITR.");
+      Alert.alert("Error", e?.message || "Failed to save revised ITR.");
     } finally {
       setIsSubmitting(false);
     }
@@ -172,8 +165,18 @@ export const FindOriginalReturnScreen: React.FC = () => {
 
   // PUT Method - Editing Flow (Update & Continue)
   const handleUpdateAndContinue = async () => {
-    if (!foundReturn) {
-      handleFindReturn();
+    const cleanAck = filterNumericAcknowledgementNumber(ackNumber);
+    if (cleanAck.length !== 15) {
+      setError(
+        cleanAck.length === 0
+          ? "Please enter the 15-digit Acknowledgement Number."
+          : "Acknowledgement number must be exactly 15 digits."
+      );
+      return;
+    }
+
+    if (!assessmentYear.trim()) {
+      setAyError("Please select the Assessment Year.");
       return;
     }
 
@@ -184,12 +187,23 @@ export const FindOriginalReturnScreen: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      const customerId = customer?.customerId || (authenticatedUser as any)?.customerId || "CUST-12345";
-      
+      const customerId =
+        customer?.customerId ||
+        (authenticatedUser as any)?.customerId ||
+        (authenticatedUser as any)?.custId ||
+        "";
+      if (!customerId) {
+        Alert.alert(
+          "Registration Required",
+          "Please complete your account registration before filing a revised ITR.",
+        );
+        return;
+      }
+
       const payload = {
         customerId,
-        itrAcknowledgementNumber: foundReturn.acknowledgementNumber,
-        assessmentYear: foundReturn.assessmentYear.replace("AY ", "").trim()
+        itrAcknowledgementNumber: cleanAck,
+        assessmentYear: assessmentYear.replace("AY ", "").trim(),
       };
 
       await RevisedItrApiService.updateRevisedItr(revisedItrId, payload);
@@ -198,13 +212,13 @@ export const FindOriginalReturnScreen: React.FC = () => {
       router.push({
         pathname: "/service/revised-itr-review" as any,
         params: {
-          acknowledgementNumber: foundReturn.acknowledgementNumber,
-          assessmentYear: foundReturn.assessmentYear,
+          acknowledgementNumber: cleanAck,
+          assessmentYear,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error updating revised ITR:", e);
-      Alert.alert("Error", "Failed to update revised ITR.");
+      Alert.alert("Error", e?.message || "Failed to update revised ITR.");
     } finally {
       setIsSubmitting(false);
     }
@@ -214,8 +228,8 @@ export const FindOriginalReturnScreen: React.FC = () => {
     <View style={[styles.container, getContainerInsetsStyle(insets.top)]}>
       <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Screen Header */}
-      <RevisedItrHeader subtitle="Find Original Return" />
+      {/* Screen Header with Step Indicator */}
+      <RevisedItrHeader subtitle="Find Original Return" currentStep={1} totalSteps={5} />
 
       {/* Main Content */}
       <ScrollView
@@ -224,138 +238,155 @@ export const FindOriginalReturnScreen: React.FC = () => {
           getScrollContentInsetsStyle(insets.bottom),
         ]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Title Section */}
         <View style={styles.titleSection}>
           <Text style={styles.pageTitle}>Find Original Return</Text>
+          <Text style={styles.pageSubtitle}>
+            Verify your previous return filing details to start the revision.
+          </Text>
         </View>
 
-        {/* Input: Acknowledgement Number */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>
-            Original ITR Acknowledgement Number <Text style={styles.requiredStar}>*</Text>
+        {/* Single Merged Card: Original Return Details & Assessment Year */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.cardHeaderLeft}>
+              <Ionicons name="document-text-outline" size={18} color="#083B75" />
+              <Text style={styles.cardTitle}>Original Return Details</Text>
+            </View>
+          </View>
+          <Text style={styles.cardDescription}>
+            Enter the 15-digit acknowledgement number from your previously filed ITR-V and select the assessment year.
           </Text>
-          <TextInput
-            style={[styles.textInput, error ? styles.inputError : null]}
-            placeholder="Enter acknowledgement number"
-            placeholderTextColor="#94A3B8"
-            keyboardType="number-pad"
-            maxLength={15}
-            value={ackNumber}
-            onChangeText={(val) => {
-              setAckNumber(val);
-              if (error) setError(null);
-            }}
-          />
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        </View>
 
-        {/* Input: Assessment Year Dropdown */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>
-            Assessment Year <Text style={styles.requiredStar}>*</Text>
-          </Text>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setShowAyDropdown(!showAyDropdown)}
-            style={styles.dropdownSelector}
-          >
-            <Text style={styles.dropdownValue}>{assessmentYear || "Select year"}</Text>
-            <Ionicons
-              name={showAyDropdown ? "chevron-up" : "chevron-down"}
-              size={18}
-              color="#0B1F3A"
+          {/* Field 1: Acknowledgement Number */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Text style={styles.inputLabelInline}>
+                Original ITR Acknowledgement Number <Text style={styles.requiredStar}>*</Text>
+              </Text>
+              <RevisedItrAckInfoIcon style={styles.infoIconSpacing} />
+            </View>
+            <TextInput
+              style={[styles.textInput, error ? styles.inputError : null]}
+              placeholder="Enter 15-digit acknowledgement number"
+              placeholderTextColor="#94A3B8"
+              keyboardType="number-pad"
+              maxLength={15}
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={ackNumber}
+              onChangeText={handleAckNumberChange}
+              onBlur={handleAckNumberBlur}
             />
-          </TouchableOpacity>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          </View>
 
-          {showAyDropdown && (
-            <View style={styles.dropdownMenu}>
-              {ayOptions.map((opt) => (
-                <TouchableOpacity
-                  key={opt}
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    setAssessmentYear(opt);
-                    setShowAyDropdown(false);
-                  }}
-                  style={styles.dropdownItem}
-                >
+          <View style={styles.fieldSpacer} />
+
+          {/* Field 2: Assessment Year Bottom-Sheet Selector */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>
+              Assessment Year <Text style={styles.requiredStar}>*</Text>
+            </Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleOpenAyModal}
+              style={[styles.dropdownSelector, ayError ? styles.inputError : null]}
+            >
+              <Text
+                style={
+                  assessmentYear ? styles.dropdownValue : styles.dropdownPlaceholder
+                }
+              >
+                {assessmentYear || "Select Assessment Year"}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={18}
+                color="#0B1F3A"
+              />
+            </TouchableOpacity>
+            {ayError ? <Text style={styles.errorText}>{ayError}</Text> : null}
+          </View>
+        </View>
+
+        {/* Action Button — In Scroll Flow (Bottom of Screen via auto margin) */}
+        <View style={styles.buttonWrapper}>
+          {params.isEditing === "true" ? (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleUpdateAndContinue}
+              style={[styles.ctaButton, isContinueDisabled ? styles.ctaButtonDisabled : null]}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
                   <Text
                     style={[
-                      styles.dropdownItemText,
-                      assessmentYear === opt && styles.dropdownItemActive,
+                      styles.ctaButtonText,
+                      isContinueDisabled ? styles.ctaButtonTextDisabled : null,
                     ]}
                   >
-                    {opt}
+                    Update & Continue
                   </Text>
-                  {assessmentYear === opt && (
-                    <Ionicons name="checkmark" size={16} color="#F97316" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={18}
+                    color={isContinueDisabled ? "#64748B" : "#FFFFFF"}
+                  />
+                </>
+              )}
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleContinue}
+              style={[styles.ctaButton, isContinueDisabled ? styles.ctaButtonDisabled : null]}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text
+                    style={[
+                      styles.ctaButtonText,
+                      isContinueDisabled ? styles.ctaButtonTextDisabled : null,
+                    ]}
+                  >
+                    Continue
+                  </Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={18}
+                    color={isContinueDisabled ? "#64748B" : "#FFFFFF"}
+                  />
+                </>
+              )}
+            </TouchableOpacity>
           )}
         </View>
-
-        {/* Return Summary Card if Found */}
-        {foundReturn && <ReturnSummaryCard details={foundReturn} />}
       </ScrollView>
 
-      {/* Sticky Bottom Action Button */}
-      <View
-        style={[
-          styles.bottomBar,
-          getBottomBarInsetsStyle(insets.bottom),
-        ]}
-      >
-        {params.isEditing === "true" ? (
-          /* Separate Button 1: Update & Continue (PUT Method) */
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleUpdateAndContinue}
-            style={styles.ctaButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <>
-                <Text style={styles.ctaButtonText}>Update & Continue</Text>
-                <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-              </>
-            )}
-          </TouchableOpacity>
-        ) : (
-          /* Separate Button 2: Continue (POST Method) */
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={foundReturn ? handleContinue : handleFindReturn}
-            style={styles.ctaButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <>
-                <Text style={styles.ctaButtonText}>Continue</Text>
-                <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-              </>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <UniversalDraftModal
-        visible={showDraftModal}
-        onCancel={handleCancel}
-        onSaveAndExit={handleSaveAndExit}
-        onDiscardAndExit={handleDiscardAndExit}
+      {/* Assessment Year Modal — Bottom Sheet UI Matching GST Filing */}
+      <GstSelectModal
+        visible={showAyModal}
+        title="Select Assessment Year"
+        options={ayOptions}
+        selectedValue={assessmentYear}
+        onSelect={(val) => {
+          setAssessmentYear(val);
+          setShowAyModal(false);
+          setAyError(null);
+        }}
+        onClose={() => setShowAyModal(false)}
       />
     </View>
   );
 };
 
 export default FindOriginalReturnScreen;
-
-
-

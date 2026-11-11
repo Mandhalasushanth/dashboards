@@ -26,3 +26,4 @@ export * from "./BiometricPromptModal";
 export * from "./ServerConfigModal";
 export * from "./FocusAwareStatusBar";
 
+export * from "./AmountTextInput";

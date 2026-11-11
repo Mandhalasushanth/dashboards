@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity, KeyboardTypeOptions } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { UniversalDatePicker } from "@/shared/components/UniversalDatePicker";
+import { removeEmoji } from "@/modules/gst/utils/gstEmojiFilter";
 import { styles } from "./GstAmendmentFields.styles";
 
 interface InputFieldProps {
@@ -38,7 +39,7 @@ export const InputField: React.FC<InputFieldProps> = ({
       placeholder={placeholder}
       placeholderTextColor="#94A3B8"
       value={value}
-      onChangeText={onChangeText}
+      onChangeText={(text) => onChangeText(removeEmoji(text))}
       keyboardType={keyboardType}
       autoCapitalize={autoCapitalize}
       maxLength={maxLength}
@@ -151,7 +152,7 @@ export const PhoneField: React.FC<PhoneFieldProps> = ({
         placeholder={placeholder}
         placeholderTextColor="#94A3B8"
         value={value}
-        onChangeText={onChangeText}
+        onChangeText={(text) => onChangeText(removeEmoji(text))}
         keyboardType="phone-pad"
         maxLength={10}
       />

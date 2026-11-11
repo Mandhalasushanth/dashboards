@@ -1,0 +1,441 @@
+.tx-case-table-card {
+  overflow: hidden;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-case-table-scroll {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.tx-case-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  text-align: left;
+}
+
+.tx-case-table th {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--tx-border);
+  background: var(--tx-light-blue);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tx-primary-navy);
+  white-space: nowrap;
+}
+
+.tx-case-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+  color: var(--tx-primary-text);
+  vertical-align: middle;
+}
+
+.tx-case-table tbody tr:hover td {
+  background: var(--tx-unread-surface);
+}
+
+.tx-case-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tx-case-table__row--overdue td:first-child {
+  box-shadow: inset 3px 0 0 var(--tx-error);
+}
+
+.tx-case-table__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tx-case-table__ref {
+  font-family: var(--tx-font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+/* Ids and names are shown in full: long ones wrap onto a second line instead of being cut. */
+.tx-case-table__ref,
+.tx-case-table__clip {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Column widths add up to 100%, so the table always fits its card and never scrolls sideways. When the
+ * agent and due-date columns are hidden (agents), the others share the freed space.
+ */
+.tx-case-table__col-id { width: 15%; }
+.tx-case-table__col-client { width: 13%; }
+.tx-case-table__col-service { width: 14%; }
+.tx-case-table__col-status { width: 12%; }
+.tx-case-table__col-agent { width: 11%; }
+.tx-case-table__col-date { width: 10%; }
+.tx-case-table__col-action { width: 15%; }
+
+/* "Take application" is the main action of a manager's row, so it is filled rather than outlined. */
+.tx-case-table__take {
+  background: var(--tx-primary-navy);
+  border-color: var(--tx-primary-navy);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tx-case-table__take:hover {
+  background: var(--tx-primary-blue);
+  border-color: var(--tx-primary-blue);
+  color: #fff;
+}
+
+.tx-case-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tx-case-table__nowrap {
+  white-space: nowrap;
+}
+
+.tx-case-table__open:focus-visible {
+  outline: none;
+  border-radius: var(--tx-radius-sm);
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-case-table__strong {
+  font-weight: 600;
+}
+
+.tx-case-table__muted {
+  font-size: 0.76rem;
+  color: var(--tx-secondary-text);
+}
+
+.tx-case-table__unassigned {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--tx-warning-strong);
+}
+
+.tx-case-table__overdue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--tx-error);
+}
+
+.tx-case-table__empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--tx-muted-text);
+}
+
+.tx-case-table__actions-cell {
+  text-align: right;
+}
+
+.tx-case-table__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-sm);
+  background: var(--tx-surface);
+  max-width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--tx-primary-navy);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--tx-transition-fast);
+}
+
+.tx-case-table__open svg {
+  flex-shrink: 0;
+}
+
+.tx-case-table__open:hover {
+  border-color: var(--tx-primary-blue);
+  background: var(--tx-light-blue);
+  color: var(--tx-primary-blue);
+}
+
+/* Small screens: each row becomes a card; labels come from data-label. */
+@media (max-width: 768px) {
+  .tx-case-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .tx-case-table colgroup {
+    display: none;
+  }
+
+  .tx-case-table__ref,
+  .tx-case-table__clip {
+    min-width: 0;
+  }
+
+  .tx-case-table,
+  .tx-case-table tbody,
+  .tx-case-table tr,
+  .tx-case-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .tx-case-table tr {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--tx-border);
+  }
+
+  .tx-case-table tbody tr:hover td {
+    background: transparent;
+  }
+
+  .tx-case-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: none;
+    text-align: right;
+  }
+
+  .tx-case-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tx-muted-text);
+    text-align: left;
+  }
+
+  .tx-case-table__stack {
+    align-items: flex-end;
+  }
+
+  .tx-case-table__row--overdue td:first-child {
+    box-shadow: none;
+  }
+
+  .tx-case-table__row--overdue {
+    box-shadow: inset 3px 0 0 var(--tx-error);
+  }
+
+  .tx-case-table td.tx-case-table__empty {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .tx-case-table td.tx-case-table__empty::before {
+    content: none;
+  }
+
+  .tx-case-table td.tx-case-table__actions-cell::before {
+    content: none;
+  }
+
+  .tx-case-table__open {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
+}
+
+/* Long badges ("Waiting on Customer") wrap inside their column instead of widening the table. */
+.tx-case-table .tx-case-status,
+.tx-case-table .tx-service-badge {
+  max-width: 100%;
+  white-space: normal;
+}
+
+.tx-case-table__taken {
+  font-size: 0.78rem;
+  color: var(--tx-secondary-text);
+  overflow-wrap: anywhere;
+}
+
+.tx-case-table__taken strong {
+  color: var(--tx-primary-navy);
+}
+
+.tx-case-table__takeover {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Narrow desktop windows: tighter columns and no icons, so every column still fits without scrolling. */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .tx-case-table {
+    font-size: 0.8rem;
+  }
+
+  .tx-case-table th,
+  .tx-case-table td {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  .tx-case-table th {
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+  }
+
+  .tx-case-table__col-id { width: 15%; }
+  .tx-case-table__col-client { width: 11%; }
+  .tx-case-table__col-service { width: 12%; }
+  .tx-case-table__col-status { width: 10%; }
+  .tx-case-table__col-agent { width: 9%; }
+  .tx-case-table__col-date { width: 11%; }
+  .tx-case-table__col-action { width: 21%; }
+
+  .tx-case-table__overdue svg,
+  .tx-case-table__open svg {
+    display: none;
+  }
+
+  .tx-case-table__open {
+    padding: 5px 8px;
+  }
+}
+
+/* Desktop: the action cell is right-aligned, so "Taken by <name>" sits above a View button the same size as every other row's. */
+@media (min-width: 769px) {
+  .tx-case-table__actions-cell .tx-case-table__stack {
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .tx-case-table__actions-cell .tx-case-table__open {
+    width: auto;
+  }
+
+  .tx-case-table__actions-cell .tx-case-table__taken {
+    text-align: right;
+  }
+}
+
+/* Agents have no Agent column but have a Priority one, so the columns share the full width instead of bunching to the left. */
+.tx-case-table--no-agent .tx-case-table__col-id { width: 17%; }
+.tx-case-table--no-agent .tx-case-table__col-client { width: 13%; }
+.tx-case-table--no-agent .tx-case-table__col-service { width: 16%; }
+.tx-case-table--no-agent .tx-case-table__col-status { width: 13%; }
+.tx-case-table--no-agent .tx-case-table__col-priority { width: 10%; }
+.tx-case-table--no-agent .tx-case-table__col-date { width: 11%; }
+.tx-case-table--no-agent .tx-case-table__col-action { width: 9%; }
+
+.tx-case-table__priority {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tx-case-table__priority--urgent { background: var(--tx-error-light); color: var(--tx-error); }
+.tx-case-table__priority--high { background: #fff1e0; color: #b45309; }
+.tx-case-table__priority--normal { background: var(--tx-light-blue); color: var(--tx-primary-blue); }
+.tx-case-table__priority--low { background: #eef0f4; color: var(--tx-secondary-text); }
+
+/* Long application ids break evenly instead of leaving one character on the last line. */
+.tx-case-table__ref { word-break: break-all; line-height: 1.35; }
+@media (max-width: 720px) { .tx-case-table__ref { max-width: 62%; text-align: right; } }
+
+/* Manager "Cart" column: "Taken" with a bin button to put the application back. */
+.tx-case-table__cart { display: inline-flex; align-items: center; gap: 8px; }
+.tx-case-table__taken-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-success-light);
+  color: var(--tx-success-strong);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.tx-case-table__release {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--tx-error-border);
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-surface);
+  color: var(--tx-error);
+  cursor: pointer;
+  transition: background-color var(--tx-transition-fast);
+}
+.tx-case-table__release:hover { background: var(--tx-error-light); }
+.tx-case-table__release:focus-visible { outline: none; box-shadow: var(--tx-focus-ring); }
+
+/* Desktop columns, sized to what each holds: ids wrap on two lines, names get room, dates and status stay compact. */
+@media (min-width: 769px) {
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-id { width: 16%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-client { width: 13%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-service { width: 13%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-status { width: 12%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-agent { width: 11%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-date { width: 10%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-action { width: 15%; }
+
+  .tx-case-table th,
+  .tx-case-table td { padding-left: 12px; padding-right: 8px; }
+  .tx-case-table th:last-child,
+  .tx-case-table td:last-child { padding-right: 16px; text-align: right; }
+
+  /* The last column is as snug as its content: pill + bin, or "Taken by" over View. */
+  .tx-case-table__actions-cell .tx-case-table__open,
+  .tx-case-table__actions-cell .tx-case-table__take { padding: 6px 12px; font-size: 0.82rem; }
+  .tx-case-table__actions-cell .tx-case-table__stack { gap: 4px; }
+  .tx-case-table__cart { justify-content: flex-end; gap: 6px; }
+  .tx-case-table__taken-pill { padding: 4px 10px; font-size: 0.8rem; }
+  .tx-case-table__release { width: 30px; height: 30px; }
+}
+
+/* Narrower desktops (sidebar open): tighter type, headings wrap instead of being cut, status never splits. */
+@media (min-width: 769px) and (max-width: 1280px) {
+  .tx-case-table th { font-size: 0.66rem; letter-spacing: 0; white-space: normal; text-overflow: clip; }
+  .tx-case-table th,
+  .tx-case-table td { padding-left: 8px; padding-right: 6px; }
+  .tx-case-table { font-size: 0.82rem; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-id { width: 15%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-client { width: 12%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-service { width: 12%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-status { width: 14%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-agent { width: 11%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-date { width: 10%; }
+  .tx-case-table:not(.tx-case-table--no-agent) .tx-case-table__col-action { width: 16%; }
+  .tx-case-table td .tx-case-status { white-space: nowrap; }
+}

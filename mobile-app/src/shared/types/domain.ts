@@ -1,5 +1,5 @@
 /**
- * Domain types for TaxEdge application.
+ * Domain types for Finsolz application.
  * Centralized re-export to eliminate type duplication across shared/types and types.
  */
 

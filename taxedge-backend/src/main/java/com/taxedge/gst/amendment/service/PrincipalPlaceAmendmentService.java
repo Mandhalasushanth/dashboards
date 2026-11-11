@@ -13,12 +13,11 @@ public interface PrincipalPlaceAmendmentService {
                                                    String state, String pinCode, NatureOfPremises natureOfPremises,
                                                    MultipartFile file) throws IOException;
 
-    PrincipalPlaceAmendmentViewDto getAmendmentById(Long id);
+    PrincipalPlaceAmendmentViewDto getAmendmentById(String id);
 
-    PrincipalPlaceAmendmentViewDto updateAmendment(Long id, String address, String city, String district,
+    PrincipalPlaceAmendmentViewDto updateAmendment(String id, String address, String city, String district,
                                                    String state, String pinCode, NatureOfPremises natureOfPremises,
                                                    MultipartFile file) throws IOException;
 
-    String submitAmendment(Long id, String gstId, String pushToken);
-
+    String submitAmendment(String id, String gstId, String pushToken);
 }

@@ -1,0 +1,26 @@
+{
+  "version": "0.2",
+  "language": "en,en-GB",
+  "words": [
+    "TaxEdge",
+    "Finsolz",
+    "camanager",
+    "caagent",
+    "loanmanager",
+    "loanagent",
+    "GSTIN",
+    "GSTR",
+    "IFSC",
+    "LLPIN",
+    "Topbar",
+    "Aadhaar",
+    "SPICe",
+    "FOIR",
+    "NBFC",
+    "UTR",
+    "ITC",
+    "ARN",
+    "SRN"
+  ],
+  "ignorePaths": ["node_modules", "dist", "package-lock.json"]
+}

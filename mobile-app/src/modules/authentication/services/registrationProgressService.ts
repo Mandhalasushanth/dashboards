@@ -5,7 +5,7 @@ const KEY_REGISTRATION_PROGRESS = "registration_progress";
 
 /**
  * Upper bound on how long a verified-but-unregistered number may be resumed. The server's proof
- * (30 minutes by default, `taxedge.registration-proof.ttl`) normally ends it sooner; the proof's
+ * (30 minutes by default, `finsolz.registration-proof.ttl`) normally ends it sooner; the proof's
  * own expiry time is what decides.
  */
 export const REGISTRATION_RESUME_WINDOW_MS = 30 * 60 * 1000;

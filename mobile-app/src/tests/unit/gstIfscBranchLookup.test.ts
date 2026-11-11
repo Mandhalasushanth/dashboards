@@ -11,7 +11,7 @@ import { ifscService, IfscLookupError } from "@/shared/services/lookup/ifscServi
 import type { GstBusinessFormData } from "../../modules/gst/gst-registration/components/GstBusinessStep/GstBusinessStep";
 
 // ===============================================================================================
-// TaxEdge GST Registration — IFSC Branch Auto-Refresh Regression Tests
+// Finsolz GST Registration — IFSC Branch Auto-Refresh Regression Tests
 // ===============================================================================================
 
 const createInitialFormData = (overrides: Partial<GstBusinessFormData> = {}): GstBusinessFormData => ({

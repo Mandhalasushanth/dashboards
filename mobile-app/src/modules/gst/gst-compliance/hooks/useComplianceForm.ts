@@ -41,7 +41,7 @@ const initialFormData: ComplianceFormData = {
 };
 
 function getDraftKey(mobile: string): string {
-  return `@taxedge_draft_${mobile}_gst-compliance`;
+  return `@finsolz_draft_${mobile}_gst-compliance`;
 }
 
 function getCleanMobile(): string {
@@ -327,9 +327,9 @@ export function useComplianceForm(options?: UseComplianceFormOptions) {
         setIsSaving(false);
       }
     } else {
-      setShowConfirmModal(true);
+      void handleConfirmSubmit();
     }
-  }, [currentStep, isEditMode, formData, complianceId, errors, isSaving, options]);
+  }, [currentStep, isEditMode, formData, complianceId, errors, isSaving, options, handleConfirmSubmit]);
 
   const handleBack = useCallback(() => {
     if (isEditMode && currentStep === 0) {
@@ -420,7 +420,7 @@ export function useComplianceForm(options?: UseComplianceFormOptions) {
     if (currentStep === 0) {
       return "Continue to Review";
     }
-    return "Submit Compliance Request";
+    return "Submit";
   }, [currentStep, isEditMode]);
 
   const resetNavigationState = useCallback(() => {

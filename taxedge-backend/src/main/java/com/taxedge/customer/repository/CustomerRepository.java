@@ -1,15 +1,18 @@
 package com.taxedge.customer.repository;
 
-import com.taxedge.customer.entity.Customer;
-
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.taxedge.customer.entity.Customer;
+
+import jakarta.persistence.LockModeType;
 
 public interface CustomerRepository extends JpaRepository<Customer, String> {
 	
@@ -35,5 +38,8 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
     void clearPushToken(@Param("token") String token);
     
     
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Customer c WHERE c.custId = :custId")
+    Optional<Customer> findByCustIdForUpdate(@Param("custId") String custId);
  
 }

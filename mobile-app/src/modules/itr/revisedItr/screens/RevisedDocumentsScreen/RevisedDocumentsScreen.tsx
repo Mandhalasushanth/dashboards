@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,28 +11,24 @@ import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { useRevisedProgressStore } from "../../store/revisedProgressStore";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import * as DocumentPicker from "expo-document-picker";
-import * as ImagePicker from "expo-image-picker";
-import { pickDocumentFromDrive } from "@/shared/utils/driveDocumentUploader";
-import { DocumentPreviewModal } from "../../../itr-filing/components/DocumentPreviewModal/DocumentPreviewModal";
 import { SharedItrDocumentCard } from "@/modules/itr/components/documents/SharedItrDocumentCard/SharedItrDocumentCard";
-import { DocumentUploadBottomSheet } from "@/modules/itr/tds/components/upload/DocumentUploadBottomSheet/DocumentUploadBottomSheet";
 import { RevisedItrApiService } from "../../services/RevisedItrApiService";
 import { RevisedItrHeader } from "../../components/common";
 import { REVISED_SUPPORTING_DOCUMENTS } from "../../mock/revisedItrData";
 import { RevisedDocumentItem } from "../../types/revisedItr.types";
 import {
+  REVISED_ITR_ALLOWED_EXTENSIONS,
+  MAX_REVISED_DOCUMENT_SIZE_BYTES,
+  describeUploadError,
+} from "../../utils/revisedDocumentUploadHelper";
+import {
   styles,
   getContainerInsetsStyle,
   getScrollContentInsetsStyle,
-  getBottomBarInsetsStyle,
-  getProgressFillWidthStyle,
 } from "./RevisedDocumentsScreen.styles";
 
 export const RevisedDocumentsScreen: React.FC = () => {
   const router = useRouter();
-  const maxStepReached = useRevisedProgressStore((s) => s.maxStepReached);
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{
     acknowledgementNumber?: string;
@@ -60,16 +56,17 @@ export const RevisedDocumentsScreen: React.FC = () => {
 
   const setDocuments = (val: React.SetStateAction<RevisedDocumentItem[]>) => {
     setDocumentsState((prev) => {
-      const next = typeof val === 'function' ? val(prev) : val;
+      const next = typeof val === "function" ? val(prev) : val;
       setStoreDocuments(next);
       return next;
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!storeDocuments) {
       setStoreDocuments(documents);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isDocRequired = (docId: string, reason?: string): boolean => {
@@ -84,152 +81,33 @@ export const RevisedDocumentsScreen: React.FC = () => {
     (d) => d.status === "uploaded" || !!d.fileUri
   ).length;
   const totalCount = documents.length;
-  const isCompleted = uploadedCount === totalCount && totalCount > 0;
-  const percent = totalCount > 0 ? (uploadedCount / totalCount) * 100 : 0;
-
-  const [previewDoc, setPreviewDoc] = useState<any>(null);
-  const [selectedDocForUpload, setSelectedDocForUpload] = useState<RevisedDocumentItem | null>(null);
-
-  const handleFileSelected = (uri: string, name: string, size?: number) => {
-    if (!selectedDocForUpload) return;
-    if (size && size > 15 * 1024 * 1024) {
-      Alert.alert("File Too Large", "Maximum supported file size is 15 MB.");
-      return;
-    }
-
-    const sizeInMb = size
-      ? `${(size / (1024 * 1024)).toFixed(1)} MB`
-      : "2.1 MB";
-
-    const docId = selectedDocForUpload.id;
-    setDocuments((prev) =>
-      prev.map((d) =>
-        d.id === docId
-          ? {
-              ...d,
-              status: "uploaded",
-              fileUri: uri,
-              fileName: name,
-              fileSize: sizeInMb,
-            }
-          : d
-      )
-    );
-    setSelectedDocForUpload(null);
-  };
-
-  const handlePickFiles = async () => {
-    try {
-      const picked = await pickDocumentFromDrive({
-        allowedExtensions: ["pdf", "jpg", "jpeg", "png", "xls", "xlsx", "doc", "docx", "csv", "json"],
-      });
-
-      if (picked) {
-        handleFileSelected(picked.uri, picked.name, picked.sizeBytes);
-      }
-    } catch {
-      Alert.alert("Upload Error", "Could not open file picker.");
-    }
-  };
-
-  const handlePickGallery = async () => {
-    try {
-      const currentPerm = await ImagePicker.getMediaLibraryPermissionsAsync();
-      let granted = currentPerm.granted;
-
-      if (!granted && currentPerm.canAskAgain) {
-        const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        granted = req.granted;
-      }
-
-      if (!granted) {
-        Alert.alert("Permission Required", "Photo library permission is needed to upload documents.");
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing: false,
-        quality: 0.85,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        const fileName = asset.fileName || `revised_doc_${Date.now()}.jpg`;
-        handleFileSelected(asset.uri, fileName, (asset as any).fileSize);
-      }
-    } catch {
-      Alert.alert("Gallery Error", "Could not open photo gallery. Please try again.");
-    }
-  };
-
-  const handlePickCamera = async () => {
-    try {
-      const currentPerm = await ImagePicker.getCameraPermissionsAsync();
-      let granted = currentPerm.granted;
-
-      if (!granted && currentPerm.canAskAgain) {
-        const req = await ImagePicker.requestCameraPermissionsAsync();
-        granted = req.granted;
-      }
-
-      if (!granted) {
-        Alert.alert("Permission Required", "Camera permission is needed to photograph documents.");
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ["images"],
-        allowsEditing: false,
-        quality: 0.85,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        const fileName = asset.fileName || `revised_doc_${Date.now()}.jpg`;
-        handleFileSelected(asset.uri, fileName, (asset as any).fileSize);
-      }
-    } catch {
-      Alert.alert("Camera Error", "Could not open camera. Please try again.");
-    }
-  };
-
-  const handleDeleteDocument = (id: string) => {
-    setDocuments((prev) =>
-      prev.map((d) =>
-        d.id === id
-          ? {
-              ...d,
-              status: "not_uploaded",
-              fileUri: undefined,
-              fileName: undefined,
-              fileSize: undefined,
-            }
-          : d
-      )
-    );
-  };
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const isSubmittingRef = useRef(false);
   const { revisedItrId, documentId, setBackendIds, setMaxStepReached } = useRevisedProgressStore();
 
   // POST Method - Normal Flow (Continue)
   const handleContinue = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     const checkReq = documents.filter((d) => isDocRequired(d.id, params.revisionReason));
     const missing = checkReq.filter((d) => d.status !== "uploaded");
     if (missing.length > 0) {
+      isSubmittingRef.current = false;
       Alert.alert("Missing Documents", "Please upload all required documents before continuing.");
       return;
     }
 
     if (!revisedItrId) {
+      isSubmittingRef.current = false;
       Alert.alert("Error", "Missing revised ITR ID. Please start from Step 1.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
+
       const response = await RevisedItrApiService.saveRevisedDocuments(revisedItrId, documents);
       if (response && response.documentId) {
         setBackendIds({ documentId: response.documentId });
@@ -249,32 +127,40 @@ export const RevisedDocumentsScreen: React.FC = () => {
           revisedItrId,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error saving documents:", e);
-      Alert.alert("Error", "Failed to upload documents");
+      Alert.alert("Upload Failed", describeUploadError(e));
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
 
   // PUT Method - Editing Flow (Update & Continue)
   const handleUpdateAndContinue = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     const checkReq = documents.filter((d) => isDocRequired(d.id, params.revisionReason));
     const missing = checkReq.filter((d) => d.status !== "uploaded");
     if (missing.length > 0) {
+      isSubmittingRef.current = false;
       Alert.alert("Missing Documents", "Please upload all required documents before continuing.");
       return;
     }
 
     if (!documentId) {
+      isSubmittingRef.current = false;
       Alert.alert("Error", "No document ID found to update.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
+
       await RevisedItrApiService.updateRevisedDocuments(documentId, documents);
+
+      setMaxStepReached(5);
 
       // Redirect back to Review screen
       router.push({
@@ -289,10 +175,11 @@ export const RevisedDocumentsScreen: React.FC = () => {
           revisedItrId,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error updating documents:", e);
-      Alert.alert("Error", "Failed to update documents");
+      Alert.alert("Update Failed", describeUploadError(e));
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -304,6 +191,8 @@ export const RevisedDocumentsScreen: React.FC = () => {
     return (
       <SharedItrDocumentCard
         key={item.id}
+        allowedExtensions={REVISED_ITR_ALLOWED_EXTENSIONS as any}
+        maxSizeBytes={MAX_REVISED_DOCUMENT_SIZE_BYTES}
         item={{
           id: item.id,
           title: item.title,
@@ -313,6 +202,7 @@ export const RevisedDocumentsScreen: React.FC = () => {
           fileUri: item.fileUri,
           fileName: item.fileName,
           fileSize: item.fileSize,
+          mimeType: item.mimeType,
           iconType: "business_income",
         }}
         onUploadSuccess={(id, fileInfo) => {
@@ -325,6 +215,7 @@ export const RevisedDocumentsScreen: React.FC = () => {
                     fileUri: fileInfo.uri,
                     fileName: fileInfo.name,
                     fileSize: fileInfo.size,
+                    mimeType: fileInfo.mimeType,
                   }
                 : d
             )
@@ -340,6 +231,7 @@ export const RevisedDocumentsScreen: React.FC = () => {
                     fileUri: undefined,
                     fileName: undefined,
                     fileSize: undefined,
+                    mimeType: undefined,
                   }
                 : d
             )
@@ -353,7 +245,12 @@ export const RevisedDocumentsScreen: React.FC = () => {
     <View style={[styles.container, getContainerInsetsStyle(insets.top)]}>
       <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <RevisedItrHeader subtitle="Documents & Submission" hideBackButton={params.isEditing === "true"} />
+      <RevisedItrHeader
+        subtitle="Upload Documents"
+        currentStep={4}
+        totalSteps={5}
+        hideBackButton={params.isEditing === "true"}
+      />
 
       <ScrollView
         contentContainerStyle={[
@@ -364,28 +261,10 @@ export const RevisedDocumentsScreen: React.FC = () => {
       >
         {/* Title Section */}
         <View style={styles.titleSection}>
-          <Text style={styles.pageTitle}>Upload Documents</Text>
+          <Text style={styles.pageTitle}>Upload Supporting Documents</Text>
           <Text style={styles.pageSubtitle}>
             Upload proofs for the corrections made in your revised return.
           </Text>
-        </View>
-
-        {/* Upload Progress Header */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressRow}>
-            <Text style={styles.counterText}>
-              {uploadedCount} of {totalCount} documents uploaded
-            </Text>
-            <View style={styles.inProgressBadge}>
-              <Text style={styles.inProgressText}>
-                {isCompleted ? "Completed" : "In Progress"}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, getProgressFillWidthStyle(percent)]} />
-          </View>
         </View>
 
         {/* Required Documents Section */}
@@ -407,47 +286,40 @@ export const RevisedDocumentsScreen: React.FC = () => {
             {additionalDocs.map((item) => renderDocCard(item, false))}
           </View>
         )}
+
+        {/* Action Button — In Scroll Flow (Matching GST Filing) */}
+        <View style={styles.buttonWrapper}>
+          {params.isEditing === "true" ? (
+            /* Separate Button 1: Update & Continue (PUT Method) */
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleUpdateAndContinue}
+              style={styles.continueButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.continueButtonText}>Update & Continue</Text>
+              )}
+            </TouchableOpacity>
+          ) : (
+            /* Separate Button 2: Continue (POST Method) */
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleContinue}
+              style={styles.continueButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.continueButtonText}>Continue</Text>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
-
-      {/* Sticky Bottom Action Button */}
-      <View
-        style={[
-          styles.bottomBar,
-          getBottomBarInsetsStyle(insets.bottom),
-        ]}
-      >
-        {params.isEditing === "true" ? (
-          /* Separate Button 1: Update & Continue (PUT Method) */
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleUpdateAndContinue}
-            style={styles.continueButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.continueButtonText}>Update & Continue</Text>
-            )}
-          </TouchableOpacity>
-        ) : (
-          /* Separate Button 2: Continue (POST Method) */
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleContinue}
-            style={styles.continueButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.continueButtonText}>Continue</Text>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
-
-      
     </View>
   );
 };

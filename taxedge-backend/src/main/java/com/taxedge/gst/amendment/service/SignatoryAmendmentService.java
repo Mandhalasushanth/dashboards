@@ -1,9 +1,11 @@
 package com.taxedge.gst.amendment.service;
 
-import com.taxedge.gst.amendment.dto.SignatoryAmendmentViewDto;
-import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.taxedge.gst.amendment.dto.SignatoryAmendmentViewDto;
 
 public interface SignatoryAmendmentService {
 
@@ -13,12 +15,12 @@ public interface SignatoryAmendmentService {
                                                        LocalDate signatoryDob, String designation, String signatoryMobile,
                                                        String signatoryEmail, MultipartFile file) throws IOException;
 
-    SignatoryAmendmentViewDto getAmendmentById(Long id);
+    SignatoryAmendmentViewDto getAmendmentById(String id);
 
-    SignatoryAmendmentViewDto updateSignatoryAmendment(Long id, String signatoryName, String signatoryPan,
+    SignatoryAmendmentViewDto updateSignatoryAmendment(String id, String signatoryName, String signatoryPan,
                                                        LocalDate signatoryDob, String designation, String signatoryMobile,
                                                        String signatoryEmail, MultipartFile file) throws IOException;
 
-    String submitAmendment(Long id, String gstId, String pushToken);
+    String submitAmendment(String id, String gstId, String pushToken);
 
 }

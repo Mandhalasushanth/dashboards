@@ -3,16 +3,11 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    padding: 14,
   },
   labelRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   label: {
     fontSize: 13.5,
@@ -22,8 +17,17 @@ export const styles = StyleSheet.create({
   star: {
     color: "#DC2626",
   },
+  infoIconSpacing: {
+    marginLeft: 6,
+  },
+  helperText: {
+    fontSize: 11.5,
+    color: "#64748B",
+    marginBottom: 10,
+    lineHeight: 16,
+  },
   stackedBody: {
-    gap: 10,
+    gap: 8,
   },
   stackedRow: {
     flexDirection: "row",
@@ -51,7 +55,7 @@ export const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    height: 46,
+    height: 48,
     backgroundColor: "#F8FAFC",
     borderRadius: 10,
     borderWidth: 1,
@@ -70,23 +74,5 @@ export const styles = StyleSheet.create({
     color: "#DC2626",
     marginTop: 4,
     fontWeight: "500",
-  },
-  changeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
-  },
-  changeValueText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#EA580C",
-  },
-  neutralChangeText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#64748B",
   },
 });

@@ -19,7 +19,7 @@ function createMockApp(
     serviceName: "GST Registration",
     category: "GST",
     progress: 50,
-    assignedExecutive: "TaxEdge Executive",
+    assignedExecutive: "Finsolz Executive",
     paymentAmount: 0,
     paymentStatus: "Paid",
     createdAt: "2026-03-01T10:00:00Z",

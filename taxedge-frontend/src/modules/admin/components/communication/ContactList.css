@@ -1,0 +1,302 @@
+.tx-contacts {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--tx-border);
+  background-color: var(--tx-surface);
+}
+
+.tx-contacts__header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+  background-color: var(--tx-surface);
+}
+
+/* Search */
+.tx-contacts__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  background-color: var(--tx-background);
+  color: var(--tx-muted-text);
+  transition: border-color var(--tx-transition-fast), box-shadow var(--tx-transition-fast), background-color var(--tx-transition-fast);
+}
+
+.tx-contacts__search:focus-within {
+  border-color: var(--tx-primary-blue);
+  box-shadow: var(--tx-focus-ring);
+  background-color: var(--tx-surface);
+}
+
+.tx-contacts__search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--tx-primary-text);
+  outline: none;
+}
+
+.tx-contacts__search input::placeholder {
+  color: var(--tx-muted-text);
+}
+
+.tx-contacts__search-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-border);
+  font-size: 14px;
+  line-height: 1;
+  color: var(--tx-secondary-text);
+  cursor: pointer;
+  transition: background-color var(--tx-transition-fast), color var(--tx-transition-fast);
+}
+
+.tx-contacts__search-clear-btn:hover {
+  background-color: var(--tx-secondary-text);
+  color: var(--tx-on-dark-text);
+}
+
+/* Search and directory meta subtitle */
+.tx-contacts__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+  font-size: 12.5px;
+  color: var(--tx-secondary-text);
+}
+
+.tx-contacts__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.tx-contacts__count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-light-blue);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-contacts__reset-link {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-primary-blue);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tx-contacts__reset-link:hover {
+  color: var(--tx-primary-navy);
+}
+
+/* Conversation list items */
+.tx-contacts__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tx-contact {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-bottom: 1px solid var(--tx-subtle-border);
+  background-color: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--tx-transition-fast);
+}
+
+.tx-contact:hover {
+  background-color: var(--tx-background);
+}
+
+.tx-contact:focus-visible {
+  outline: none;
+  box-shadow: inset var(--tx-focus-ring);
+}
+
+.tx-contact--selected,
+.tx-contact--selected:hover {
+  background-color: var(--tx-unread-surface);
+}
+
+.tx-contact--selected::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--tx-primary-orange);
+}
+
+.tx-contact__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tx-contact__top,
+.tx-contact__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tx-contact__name {
+  overflow: hidden;
+  font-size: 14.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--tx-primary-text);
+}
+
+.tx-contact--selected .tx-contact__name {
+  color: var(--tx-primary-navy);
+  font-weight: 700;
+}
+
+.tx-contact__time {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: var(--tx-muted-text);
+}
+
+.tx-contact__role {
+  align-self: flex-start;
+  padding: 1px 7px;
+  border-radius: var(--tx-radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.tx-contact__role--navy {
+  background-color: var(--tx-light-navy);
+  color: var(--tx-primary-navy);
+}
+
+.tx-contact__role--blue {
+  background-color: var(--tx-light-blue);
+  color: var(--tx-primary-blue);
+}
+
+.tx-contact__role--orange {
+  background-color: var(--tx-light-orange);
+  color: var(--tx-feature-orange);
+}
+
+.tx-contact__role--green {
+  background-color: var(--tx-success-light);
+  color: var(--tx-success);
+}
+
+.tx-contact__preview {
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--tx-secondary-text);
+}
+
+.tx-contact--unread .tx-contact__preview {
+  font-weight: 600;
+  color: var(--tx-primary-text);
+}
+
+.tx-contact--unread .tx-contact__time {
+  font-weight: 700;
+  color: var(--tx-primary-orange);
+}
+
+.tx-contact__unread {
+  flex-shrink: 0;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-primary-orange);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 19px;
+  text-align: center;
+  color: var(--tx-on-dark-text);
+}
+
+/* Empty directory state */
+.tx-contacts__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.tx-contacts__empty-text {
+  font-size: 13.5px;
+  color: var(--tx-secondary-text);
+  margin: 0;
+}
+
+.tx-contacts__empty-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-surface);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tx-primary-blue);
+  cursor: pointer;
+}
+
+.tx-contacts__empty-btn:hover {
+  background-color: var(--tx-light-blue);
+}
+
+.tx-contact__role--purple {
+  background-color: var(--tx-accent-purple-light);
+  color: var(--tx-accent-purple);
+}

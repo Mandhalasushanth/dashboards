@@ -1,85 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Alert,
-  TextInput,
-  Modal,
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
-import {
-  ItrPersonalInfo,
-  ItrBankDetails,
-  ItrSelectableBank,
-  ItrPriorFilingAndNotice,
-  ResidentialStatus,
-  FilingType,
-} from "../../types/itrFiling.types";
+import { ItrSelectableBank } from "../../types/itrFiling.types";
 import { getSupportedAssessmentYears } from "../../../taxRules";
-import { BankSelectorModal } from "../../../components/BankSelectorModal";
-import { useITRStore } from "../../../store/itrStore";
+import { BankSelectorModal, isValidBankName } from "../../../components/BankSelectorModal";
 import { styles } from "./Step1PersonalInfo.styles";
 import { Step1PriorItrImport } from "./components/Step1PriorItrImport";
 import { Step1TaxpayerIdentityCard } from "./components/Step1TaxpayerIdentityCard";
-
-interface Step1PersonalInfoProps {
-  isLoading?: boolean;
-  isEditing?: boolean;
-  personalInfo: ItrPersonalInfo;
-  onUpdatePersonalInfo: (info: Partial<ItrPersonalInfo>) => void;
-  bankDetails: ItrBankDetails;
-  bankAccountsList: ItrSelectableBank[];
-  onSelectRefundBank: (bankId: string) => void;
-  onAddBankAccount: (bank: ItrSelectableBank) => void;
-  onUpdateBankAccount?: (bank: ItrSelectableBank) => void;
-  priorItrNotice: ItrPriorFilingAndNotice;
-  onUpdatePriorItrNotice: (data: Partial<ItrPriorFilingAndNotice>) => void;
-  onImportPriorItrData: (selectedKeys: {
-    income?: boolean;
-    deductions?: boolean;
-    losses?: boolean;
-    bank?: boolean;
-    filing?: boolean;
-  }) => void;
-  onContinue: () => void;
-  onUpdateAndContinue?: () => void;
-}
-
-const RESIDENTIAL_STATUS_OPTIONS: { id: ResidentialStatus; label: string }[] = [
-  { id: "Resident", label: "Resident" },
-  { id: "NRI", label: "Non-Resident (NRI)" },
-  { id: "RNOR", label: "Resident but NOR" },
-];
-
-const FILING_TYPES: { id: FilingType; title: string; section: string; sub: string }[] = [
-  {
-    id: "139_1_original",
-    title: "Original Return",
-    section: "u/s 139(1)",
-    sub: "Filing on or before statutory due date.",
-  },
-  {
-    id: "139_4_belated",
-    title: "Belated Return",
-    section: "u/s 139(4)",
-    sub: "Filing after statutory due date with applicable late fees.",
-  },
-  {
-    id: "139_5_revised",
-    title: "Revised Return",
-    section: "u/s 139(5)",
-    sub: "Correct omission or error in previously filed return.",
-  },
-  {
-    id: "139_8a_updated",
-    title: "Updated Return (ITR-U)",
-    section: "u/s 139(8A)",
-    sub: "Filing within 24 months from the end of relevant AY.",
-  },
-];
+import { validators } from "@/shared/validation/validators";
+import { isValidName } from "@/shared/validators/nameValidator";
+import { RESIDENTIAL_STATUS_OPTIONS, FILING_TYPES } from "./Step1PersonalInfo.constants";
+import { Step1PersonalInfoProps } from "./Step1PersonalInfo.types";
 
 export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
   isLoading = false,
@@ -96,6 +34,7 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
   onImportPriorItrData,
   onContinue,
   onUpdateAndContinue,
+  onSectionLayout,
 }) => {
   const [showBankModal, setShowBankModal] = useState(false);
   const [editingBank, setEditingBank] = useState<ItrSelectableBank | null>(null);
@@ -104,13 +43,25 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
   const [isCustomYearInputMode, setIsCustomYearInputMode] = useState(false);
   const [customYearText, setCustomYearText] = useState("");
 
-  useEffect(() => {
-    useITRStore.getState().fetchAndPopulateUserProfile();
-  }, []);
-
   const supportedAYs = getSupportedAssessmentYears();
 
   const handleValidateAndContinue = () => {
+    if (!personalInfo.name || !personalInfo.name.trim()) {
+      Alert.alert(
+        "Full Legal Name Required",
+        "Please provide your full legal name in your profile to proceed with ITR Filing."
+      );
+      return;
+    }
+
+    if (!isValidName(personalInfo.name.trim(), 2, 100)) {
+      Alert.alert(
+        "Invalid Full Legal Name",
+        "Full Legal Name in your profile contains invalid characters or punctuation. Please ensure it contains English letters and single spaces only."
+      );
+      return;
+    }
+
     if (!personalInfo.assessmentYear) {
       Alert.alert(
         "Assessment Year Required",
@@ -140,6 +91,34 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
         "Missing Refund Bank Account",
         "Please select or add a bank account to receive direct income tax refund credit."
       );
+      return;
+    }
+
+    if (!isValidBankName(bankDetails.bankName.trim())) {
+      Alert.alert(
+        "Invalid Bank Name",
+        "Please select or add a valid bank name (English letters and single spaces only, at least 2 characters long)."
+      );
+      return;
+    }
+
+    if (bankDetails.branchName && !isValidName(bankDetails.branchName.trim(), 2, 60)) {
+      Alert.alert(
+        "Invalid Branch Name",
+        "The selected branch name contains invalid characters. Please ensure it contains English letters and single spaces only."
+      );
+      return;
+    }
+
+    const accountError = validators.bankAccountNumber("Bank account number")(bankDetails.accountNumber);
+    if (accountError) {
+      Alert.alert("Invalid Account Number", accountError);
+      return;
+    }
+
+    const ifscError = validators.ifsc("IFSC code")(bankDetails.ifscCode);
+    if (ifscError) {
+      Alert.alert("Invalid IFSC Code", ifscError);
       return;
     }
 
@@ -174,8 +153,8 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
                 localAYs.push({
                   id: personalInfo.assessmentYear,
                   label: `AY ${personalInfo.assessmentYear}`,
-                  sub: `FY ${yr-1}-${String(yr).slice(-2)} (Custom)`,
-                  financialYear: `${yr-1}-${yr}`,
+                  sub: `FY ${yr - 1}-${String(yr).slice(-2)} (Custom)`,
+                  financialYear: `${yr - 1}-${yr}`,
                   isCurrent: false
                 });
               }
@@ -208,7 +187,7 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
                     >
                       FY {ay.financialYear}
                     </Text>
-                    
+
                     {ay.sub.includes("Custom") && (
                       <TouchableOpacity
                         style={styles.customAyDeleteBtn}
@@ -227,7 +206,7 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
         </View>
 
       </View>
-      
+
       {/* 3. Residential Status Confirmation */}
       <View style={styles.card}>
         <View style={styles.cardHeaderRow}>
@@ -256,11 +235,14 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
                   })
                 }
               >
+                {/* BUG_B26_003: "Non-Resident (NRI)" exceeds single-line pill width on narrow
+                    screens — allow up to 2 lines so the label wraps instead of clipping */}
                 <Text
                   style={[
                     styles.pickerPillText,
                     isSelected && styles.pickerPillTextSelected,
                   ]}
+                  numberOfLines={2}
                 >
                   {res.label}
                 </Text>
@@ -325,7 +307,10 @@ export const Step1PersonalInfo: React.FC<Step1PersonalInfoProps> = ({
       </View>
 
       {/* 5. Refund Bank Account */}
-      <View style={styles.card}>
+      <View
+        style={styles.card}
+        onLayout={(e) => onSectionLayout?.("bank", e.nativeEvent.layout.y)}
+      >
         <View style={styles.cardHeaderRow}>
           <View style={styles.cardHeaderLeft}>
             <Ionicons name="card-outline" size={18} color="#083B75" />

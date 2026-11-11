@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 import com.taxedge.gst.filing.enums.FilingFrequency;
 import com.taxedge.gst.filing.enums.FilingType;
 import com.taxedge.gst.filing.enums.ReturnType;
@@ -83,6 +84,10 @@ public class GstFiling {
 	
 	@OneToOne(mappedBy = "gstFiling", cascade = CascadeType.ALL, orphanRemoval = true)
 	private GstFilingDocuments documents;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assigned_agent_id")
+	private AgentLogin assignedAgent;
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)

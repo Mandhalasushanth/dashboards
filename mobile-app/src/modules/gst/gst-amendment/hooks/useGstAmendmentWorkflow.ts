@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, ElementRef } from "react";
 import { ScrollView, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import * as FileSystem from "expo-file-system";
+import { File as ExpoFile } from "expo-file-system";
+import * as FileSystemLegacy from "expo-file-system/legacy";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useApplicationStore } from "@/store/applicationStore";
@@ -14,8 +15,8 @@ import { pickDocumentFromDrive } from "@/shared/utils/driveDocumentUploader";
 import { logger } from "@/core/logging/logger";
 
 import {
-  AmendmentStep, SupportingDoc, PickerModalState,
-  SubmissionResult, AmendmentFormData, INITIAL_AMENDMENT_FORM_DATA,
+  AmendmentStep, SupportingDoc, PickerModalState, SubmissionResult, AmendmentFormData, INITIAL_AMENDMENT_FORM_DATA,
+
 } from "../types/gstAmendmentTypes";
 import { AMENDMENT_SECTIONS } from "../config/gstNonCoreAmendmentConfig";
 import {
@@ -27,6 +28,10 @@ import { useGstAmendmentDetails } from "./useGstAmendmentDetails";
 import { submitAmendmentService } from "../services/submitAmendmentService";
 import { persistAmendmentForReview } from "../services/persistAmendmentForReview";
 import { getErrorMessage } from "@/core/error-handling/errorMessage";
+import {
+  persistSupportingDocument,
+  verifyFileAccessible,
+} from "../utils/gstDocumentPersistence";
 
 const stripImageData = (data: any): any => {
   if (!data || typeof data !== "object") return data;
@@ -37,7 +42,7 @@ const stripImageData = (data: any): any => {
 export function useGstAmendmentWorkflow() {
   const router = useRouter();
   const params = useLocalSearchParams<{ gstin?: string; section?: string; step?: string; resume?: string }>();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<ElementRef<typeof ScrollView>>(null);
 
   const customer = useAuthStore((state) => state.customer);
   const gstDraft = useApplicationStore((state) => state.gstDraft);
@@ -60,7 +65,7 @@ export function useGstAmendmentWorkflow() {
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
   const [isProofsExpanded, setIsProofsExpanded] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [amendmentId, setAmendmentId] = useState<number | null>(null);
+  const [amendmentId, setAmendmentId] = useState<number | string | null>(null);
   const [dbReviewData, setDbReviewData] = useState<any>(null);
   const [isSavingRecord, setIsSavingRecord] = useState(false);
   const savedDraftStepRef = useRef<AmendmentStep | null>(null);
@@ -91,7 +96,7 @@ export function useGstAmendmentWorkflow() {
         let savedStep: AmendmentStep | undefined = gstAmendmentDraft?.step as AmendmentStep | undefined;
 
         if (!savedData.gstin && clean) {
-          const draftKey = `@taxedge_draft_${clean}_gst-amendment`;
+          const draftKey = `@finsolz_draft_${clean}_gst-amendment`;
           const raw = await AsyncStorage.getItem(draftKey);
           if (raw) {
             const parsed = JSON.parse(raw);
@@ -228,10 +233,12 @@ export function useGstAmendmentWorkflow() {
     }
   }, [clearError]);
 
-  const handleUploadSuccess = useCallback((doc: SupportingDoc) => {
+  const handleUploadSuccess = useCallback(async (doc: SupportingDoc) => {
+    // Persist document immediately into internal storage so it remains accessible
+    const persisted = await persistSupportingDocument(doc);
     setSectionDocs((prev) => ({
       ...prev,
-      [selectedSectionId]: doc,
+      [selectedSectionId]: persisted,
     }));
     clearError("supportingDoc");
   }, [clearError, selectedSectionId]);
@@ -252,13 +259,15 @@ export function useGstAmendmentWorkflow() {
       maxSizeBytes: 10 * 1024 * 1024,
     });
     if (doc) {
+      const persisted = await persistSupportingDocument({
+        uri: doc.uri,
+        name: doc.name,
+        size: doc.size,
+        mimeType: doc.mimeType,
+      });
       setSectionDocs((prev) => ({
         ...prev,
-        [selectedSectionId]: {
-          uri: doc.uri,
-          name: doc.name,
-          size: doc.size,
-        },
+        [selectedSectionId]: persisted,
       }));
       clearError("supportingDoc");
     }
@@ -267,13 +276,15 @@ export function useGstAmendmentWorkflow() {
   const handleScanFile = useCallback(async () => {
     const uri = await pickImageFromCamera(false);
     if (uri) {
+      const persisted = await persistSupportingDocument({
+        uri,
+        name: `Scan_${Date.now().toString().slice(-4)}.jpg`,
+        size: "1.4 MB",
+        mimeType: "image/jpeg",
+      });
       setSectionDocs((prev) => ({
         ...prev,
-        [selectedSectionId]: {
-          uri,
-          name: `Scan_${Date.now().toString().slice(-4)}.jpg`,
-          size: "1.4 MB",
-        },
+        [selectedSectionId]: persisted,
       }));
       clearError("supportingDoc");
     }
@@ -401,7 +412,7 @@ export function useGstAmendmentWorkflow() {
     if (!declared) {
       Alert.alert(
         "Declaration Required",
-        "Please tick the declaration checkbox to authorise TaxEdge to file your amendment."
+        "Please tick the declaration checkbox to authorise Finsolz to file your amendment."
       );
       return;
     }
@@ -416,12 +427,9 @@ export function useGstAmendmentWorkflow() {
 
     // Live FileSystem accessibility check immediately before submission
     try {
-      const fileInfo = await FileSystem.getInfoAsync(supportingDoc.uri);
-      if (!fileInfo.exists) {
-        setSectionDocs((prev) => ({
-          ...prev,
-          [selectedSectionId]: null,
-        }));
+      const isAccessible = await verifyFileAccessible(supportingDoc.uri);
+      if (!isAccessible) {
+        // Critical: Do NOT clear sectionDocs. Preserve the selected document so the user doesn't lose it.
         Alert.alert(
           "Document Unavailable",
           "The attached proof file is no longer accessible on this device. Please re-attach the document before submitting."
@@ -455,7 +463,7 @@ export function useGstAmendmentWorkflow() {
       const cleanMobile = customer?.mobile ? String(customer.mobile).replace(/\D/g, "") : "";
       if (cleanMobile) {
         removeDraftFromIndex(cleanMobile, "gst-amendment");
-        AsyncStorage.removeItem(`@taxedge_draft_${cleanMobile}_gst-amendment`).catch((e) => {
+        AsyncStorage.removeItem(`@finsolz_draft_${cleanMobile}_gst-amendment`).catch((e) => {
           logger.debug("[useGstAmendmentWorkflow] Failed to remove draft key", { error: e });
         });
       }

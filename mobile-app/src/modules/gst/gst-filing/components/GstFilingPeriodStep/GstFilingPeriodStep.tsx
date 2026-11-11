@@ -21,6 +21,7 @@ import {
   validateEstimatedAmount,
 } from "@/modules/gst/gst-filing/utils/gstFilingValidation";
 import { validateGstinLive } from "@/modules/gst/utils/gstValidation";
+import { GstinInfoIcon } from "@/modules/gst/components/common";
 import {
   FILING_PERIODS,
   FILING_NATURE_OPTIONS,
@@ -307,7 +308,12 @@ export const GstFilingPeriodStep: React.FC<GstFilingPeriodStepProps> = ({
 
         {/* 4. GSTIN (15-Character) */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.label}>GSTIN (15-Character) *</Text>
+          <View style={styles.labelRow}>
+            <Text style={[styles.label, { marginBottom: 0 }]}>
+              GSTIN (15-Character) <Text style={styles.star}>*</Text>
+            </Text>
+            <GstinInfoIcon />
+          </View>
           <TextInput
             style={[styles.input, errors.gstin && styles.inputError]}
             placeholder="Enter GSTIN"
@@ -418,14 +424,15 @@ export const GstFilingPeriodStep: React.FC<GstFilingPeriodStepProps> = ({
             onChange(fields);
           }}
           onBlurField={(field) => {
+            const isManual = data.calculationMethod === "manual_estimates";
             if (field === "taxableSales") {
-              const err = validateEstimatedAmount(data.taxableSales, "sales", false);
+              const err = validateEstimatedAmount(data.taxableSales, "sales", isManual);
               onError?.("taxableSales", err || "");
             } else if (field === "taxablePurchases") {
-              const err = validateEstimatedAmount(data.taxablePurchases, "purchases", false);
+              const err = validateEstimatedAmount(data.taxablePurchases, "purchases", isManual);
               onError?.("taxablePurchases", err || "");
             } else if (field === "eligibleItc") {
-              const err = validateEstimatedAmount(data.eligibleItc, "eligible ITC", false);
+              const err = validateEstimatedAmount(data.eligibleItc, "eligible ITC", isManual);
               onError?.("eligibleItc", err || "");
             }
           }}

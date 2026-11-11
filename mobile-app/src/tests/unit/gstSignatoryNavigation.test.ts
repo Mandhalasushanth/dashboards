@@ -15,7 +15,7 @@ import {
 } from "../../modules/gst/gst-registration/utils/gstDraftLifecycle";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Authorised Signatory Keyboard & Validation Navigation Tests
+// Finsolz GST Registration — Authorised Signatory Keyboard & Validation Navigation Tests
 // Bug 1: Signatory Email keyboard avoidance and scroll visibility
 // Bug 2: Aadhaar consent error message and targeted positioning
 // Bug 3: Required-field targeted validation navigation in canonical visual order

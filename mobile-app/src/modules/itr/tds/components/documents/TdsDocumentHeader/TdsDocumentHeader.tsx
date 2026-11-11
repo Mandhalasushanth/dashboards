@@ -6,9 +6,10 @@ import { styles } from "./TdsDocumentHeader.styles";
 
 interface TdsDocumentHeaderProps {
   onBack?: () => void;
+  hideBack?: boolean;
 }
 
-export const TdsDocumentHeader: React.FC<TdsDocumentHeaderProps> = ({ onBack }) => {
+export const TdsDocumentHeader: React.FC<TdsDocumentHeaderProps> = ({ onBack, hideBack }) => {
   const router = useRouter();
 
   const handleBack = () => {
@@ -23,15 +24,19 @@ export const TdsDocumentHeader: React.FC<TdsDocumentHeaderProps> = ({ onBack }) 
 
   return (
     <View style={styles.header}>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={handleBack}
-        style={styles.backButton}
-        accessibilityLabel="Go back"
-        accessibilityRole="button"
-      >
-        <Ionicons name="chevron-back" size={20} color="#0B1F3A" />
-      </TouchableOpacity>
+      {hideBack ? (
+        <View style={styles.backButton} />
+      ) : (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={handleBack}
+          style={styles.backButton}
+          accessibilityLabel="Go back"
+          accessibilityRole="button"
+        >
+          <Ionicons name="chevron-back" size={20} color="#0B1F3A" />
+        </TouchableOpacity>
+      )}
 
       <View style={styles.titleContainer}>
         <Text style={styles.headerTitle}>TDS Refund Documents</Text>

@@ -23,14 +23,14 @@ export const StepApplicationReceipt: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>TaxEdge Application & Payment Receipt</Text>
-      <Text style={styles.subheading}>This receipt confirms successful submission to TaxEdge and payment received for application processing.</Text>
+      <Text style={styles.heading}>Finsolz Application & Payment Receipt</Text>
+      <Text style={styles.subheading}>This receipt confirms successful submission to Finsolz and payment received for application processing.</Text>
 
       {/* Printable Receipt Paper Card */}
       <View style={styles.receiptPaper}>
         <View style={styles.logoRow}>
           <View>
-            <Text style={styles.brandName}>TaxEdge Finsolz</Text>
+            <Text style={styles.brandName}>Finsolz Finsolz</Text>
             <Text style={styles.brandSub}>Corporate Incorporation Desk</Text>
           </View>
           <Text style={styles.receiptTitle}>RECEIPT</Text>

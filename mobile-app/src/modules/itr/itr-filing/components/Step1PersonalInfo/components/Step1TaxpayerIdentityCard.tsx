@@ -40,7 +40,7 @@ export const Step1TaxpayerIdentityCard: React.FC<Step1TaxpayerIdentityCardProps>
       </View>
 
       <Text style={styles.cardDescription}>
-        Information verified from your TaxEdge profile. Please verify your legal PAN, Aadhaar, and registered details.
+        Information verified from your Finsolz profile. Please verify your legal PAN, Aadhaar, and registered details.
       </Text>
 
       <View style={styles.readOnlyGrid}>

@@ -12,7 +12,6 @@ import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ScreenLayout } from "../../../../shared/components/ScreenLayout/ScreenLayout";
 import { useTheme } from "../../../../hooks/use-theme";
-import { useThemeStore, type ThemeMode } from "../../../../design-system/theme/themeStore";
 import { useAuthStore } from "../../../authentication/store/authStore";
 import { biometricService } from "../../../authentication/services/biometricService";
 import { apiClient } from "../../../../core/api/apiClient";
@@ -20,18 +19,12 @@ import { ServerConfigModal } from "../../../../shared/components";
 import {
   styles,
   getCardThemedStyle,
-  getSegmentContainerStyle,
-  getSegmentOptionActiveStyle,
-  getSegmentTextStyle,
-  getActiveDotStyle,
   getLinkRowThemedStyle,
 } from "./SettingsScreen.styles";
 
 export function SettingsScreen() {
   const router = useRouter();
   const colors = useTheme();
-  const theme = useThemeStore((state) => state.theme);
-  const setTheme = useThemeStore((state) => state.setTheme);
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
@@ -130,7 +123,7 @@ export function SettingsScreen() {
   const handleLogout = () => {
     Alert.alert(
       "Confirm Logout",
-      "Are you sure you want to log out of your TaxEdge account?",
+      "Are you sure you want to log out of your Finsolz account?",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -145,13 +138,7 @@ export function SettingsScreen() {
     );
   };
 
-  const handleSelectTheme = (mode: ThemeMode) => {
-    if (mode === theme) return;
-    setTheme(mode);
-  };
-
   const cardStyle = getCardThemedStyle(colors);
-  const segmentContainerStyle = getSegmentContainerStyle(theme, colors);
   const linkRowThemedStyle = getLinkRowThemedStyle(colors.border);
 
   return (
@@ -160,93 +147,6 @@ export function SettingsScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {/* ---------- Appearance Section ---------- */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
-            <Ionicons name="color-palette-outline" size={18} color={colors.orange} />
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-              APPEARANCE
-            </Text>
-          </View>
-
-          <View style={[styles.card, cardStyle]}>
-            <View style={styles.themeHeaderRow}>
-              <View>
-                <Text style={[styles.label, { color: colors.text }]}>Theme</Text>
-                <Text style={[styles.subLabel, { color: colors.textSecondary }]}>
-                  Choose your preferred application appearance
-                </Text>
-              </View>
-            </View>
-
-            {/* Modern Segmented Control */}
-            <View style={[styles.segmentedContainer, segmentContainerStyle]}>
-              {/* Light Option */}
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => handleSelectTheme("light")}
-                style={[
-                  styles.segmentOption,
-                  getSegmentOptionActiveStyle("light", theme === "light"),
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="Light theme"
-                accessibilityState={{ selected: theme === "light" }}
-              >
-                <View style={styles.segmentContent}>
-                  <Ionicons
-                    name={theme === "light" ? "sunny" : "sunny-outline"}
-                    size={19}
-                    color={theme === "light" ? "#FF7A00" : colors.textSecondary}
-                  />
-                  <Text style={[styles.segmentText, getSegmentTextStyle("light", theme, colors)]}>
-                    Light
-                  </Text>
-                </View>
-                {theme === "light" && <View style={[styles.activeDot, getActiveDotStyle("light")]} />}
-              </TouchableOpacity>
-
-              {/* Dark Option */}
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => handleSelectTheme("dark")}
-                style={[
-                  styles.segmentOption,
-                  getSegmentOptionActiveStyle("dark", theme === "dark"),
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="Dark theme"
-                accessibilityState={{ selected: theme === "dark" }}
-              >
-                <View style={styles.segmentContent}>
-                  <Ionicons
-                    name={theme === "dark" ? "moon" : "moon-outline"}
-                    size={18}
-                    color={theme === "dark" ? "#38BDF8" : colors.textSecondary}
-                  />
-                  <Text style={[styles.segmentText, getSegmentTextStyle("dark", theme, colors)]}>
-                    Dark
-                  </Text>
-                </View>
-                {theme === "dark" && <View style={[styles.activeDot, getActiveDotStyle("dark")]} />}
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.themeInfoFooter}>
-              <Ionicons
-                name="information-circle-outline"
-                size={14}
-                color={colors.textSecondary}
-              />
-              <Text style={[styles.themeInfoText, { color: colors.textSecondary }]}>
-                {theme === "light"
-                  ? "Standard clean finance interface optimized for day use."
-                  : "Sleek low-light interface optimized for night and OLED screens."}
-              </Text>
-            </View>
-          </View>
-        </View>
-
         {/* ---------- Preferences Section ---------- */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
@@ -342,7 +242,7 @@ export function SettingsScreen() {
             activeOpacity={0.7}
           >
             <Text style={[styles.appInfoText, { color: colors.textSecondary }]}>
-              TaxEdge Finsolz • v1.0.0
+              Finsolz Finsolz • v1.0.0
             </Text>
             <Text style={[styles.backendStatusText, { color: colors.primary }]}>
               Backend: {currentServerUrl}
@@ -351,7 +251,7 @@ export function SettingsScreen() {
         ) : (
           <View style={styles.appInfoContainer}>
             <Text style={[styles.appInfoText, { color: colors.textSecondary }]}>
-              TaxEdge Finsolz • v1.0.0
+              Finsolz Finsolz • v1.0.0
             </Text>
           </View>
         )}

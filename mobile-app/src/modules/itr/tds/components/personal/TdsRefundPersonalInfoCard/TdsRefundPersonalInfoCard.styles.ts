@@ -71,6 +71,26 @@ export const styles = StyleSheet.create({
     color: BrandColors.PRIMARY_ORANGE_DARK,
   },
 
+  // BUG_B23_004: error banner shown in read-only mode when personal validation fails
+  personalErrorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FEF2F2",
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+  },
+  personalErrorBannerText: {
+    fontSize: 12,
+    color: "#DC2626",
+    flex: 1,
+    lineHeight: 16,
+  },
+
   // Info Rows (Read-Only)
   infoRowsList: {
     gap: 0,

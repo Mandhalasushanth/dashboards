@@ -6,9 +6,10 @@ export function HeroSection() {
   return (
     <View style={landingStyles.heroContainer}>
       <Image
-        source={require("../../../assets/images/taxedge-hero.png")}
+        source={require("../../../assets/images/finsolz-welcome.png")}
         style={landingStyles.heroImage}
         resizeMode="cover"
+        accessibilityLabel="Financial advisor and customer collaborating"
       />
     </View>
   );

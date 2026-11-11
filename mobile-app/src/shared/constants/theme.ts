@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 
-export type ThemeName = "light" | "dark";
+/** The app has one light theme; there is no dark mode. */
+export type ThemeName = "light";
 
 /** Loose colour bag accepted by screen-level themed style helpers. */
 export type ThemeTokens = Record<string, any>;
@@ -36,21 +37,6 @@ export const Colors: Record<ThemeName, ThemeColors> = {
     success: "#16A34A",
     warning: "#F59E0B",
     error: "#DC2626",
-  },
-  dark: {
-    text: "#F8FAFC",
-    background: "#0F172A",
-    backgroundElement: "#1E293B",
-    backgroundSelected: "#334155",
-    textSecondary: "#94A3B8",
-    primary: "#38BDF8",
-    primaryDark: "#0369A1",
-    orange: "#FB923C",
-    orangeLight: "#2C1D11",
-    border: "#334155",
-    success: "#22C55E",
-    warning: "#FBBF24",
-    error: "#EF4444",
   },
 };
 
@@ -105,3 +91,4 @@ export const Spacing: SpacingScale = {
 export const BottomTabInset: number =
   Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+

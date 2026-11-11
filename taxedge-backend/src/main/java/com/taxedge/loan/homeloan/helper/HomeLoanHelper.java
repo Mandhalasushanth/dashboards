@@ -1,25 +1,25 @@
 package com.taxedge.loan.homeloan.helper;
 
-
-import java.security.SecureRandom;
+import java.time.Year;
+import java.util.Locale;
 
 public final class HomeLoanHelper {
 
-    private static final String PREFIX = "HLN-";
-    private static final String ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private static final int RANDOM_LENGTH = 8;
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String PREFIX = "LOAN-HOM";
 
     private HomeLoanHelper() {
         throw new AssertionError("Utility class — do not instantiate");
     }
 
+    /**
+     * Formats next Home Loan application ID as LOAN-HOM-YYYY-XXXXX
+     * Example: LOAN-HOM-2026-00001
+     */
+    public static String formatLoanApplicationId(int year, long sequenceNumber) {
+        return String.format(Locale.ROOT, "%s-%d-%05d", PREFIX, year, sequenceNumber);
+    }
+
     public static String generateHomeLoanApplicationId() {
-        StringBuilder sb = new StringBuilder(PREFIX.length() + RANDOM_LENGTH);
-        sb.append(PREFIX);
-        for (int i = 0; i < RANDOM_LENGTH; i++) {
-            sb.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
-        }
-        return sb.toString();
+        return formatLoanApplicationId(Year.now().getValue(), 1);
     }
 }

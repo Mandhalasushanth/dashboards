@@ -1,0 +1,42 @@
+/* The manager's note to the agent. */
+.tx-case-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--tx-primary-blue);
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-light-blue);
+}
+
+.tx-case-note-title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-case-note-priority {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--tx-surface);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--tx-primary-blue);
+}
+
+.tx-case-note-text {
+  margin: 0;
+  color: var(--tx-primary-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tx-case-note-meta {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--tx-secondary-text);
+}

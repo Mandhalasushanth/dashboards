@@ -10,11 +10,9 @@ public interface LegalNameAmendmentService {
 
     LegalNameAmendmentViewDto submitLegalNameAmendment(String gstId, String customerId, String newLegalName, MultipartFile file) throws IOException;
 
-    LegalNameAmendmentViewDto getAmendmentById(Long id);
+    LegalNameAmendmentViewDto getAmendmentById(String id);
 
-    LegalNameAmendmentViewDto updateLegalNameAmendment(Long id, String newLegalName, MultipartFile file) throws IOException;
+    LegalNameAmendmentViewDto updateLegalNameAmendment(String id, String newLegalName, MultipartFile file) throws IOException;
 
-    String submitAmendment(Long id, String gstId, String pushToken);
-
-    
+    String submitAmendment(String id, String gstId, String pushToken);
 }

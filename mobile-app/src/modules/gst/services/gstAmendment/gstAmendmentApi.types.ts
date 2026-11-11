@@ -3,7 +3,7 @@ export type AmendmentFileInput = { uri?: string; name?: string } | null | undefi
 
 /** An amendment record as stored by the backend; `id` is assigned on save. */
 export interface AmendmentRecord {
-  id?: number;
+  id?: number | string;
   [field: string]: unknown;
 }
 

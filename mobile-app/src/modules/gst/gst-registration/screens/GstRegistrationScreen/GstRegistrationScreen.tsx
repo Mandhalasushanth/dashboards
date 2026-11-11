@@ -73,6 +73,7 @@ export const GstRegistrationScreen: React.FC = () => {
     handleSectionLayout,
     handleFieldLayout,
     focusedField,
+    appliedDate,
   } = useGstRegistrationFlow(scrollViewRef);
 
   const handleRequestScrollToSection = useCallback((_section: "bank" | "signatory", y?: number) => {
@@ -171,7 +172,7 @@ export const GstRegistrationScreen: React.FC = () => {
           <GstApplicationStatusStep
             appId={createdGstId || createdAppId || businessData.gstId}
             businessName={businessData.businessName || "Your Business"}
-            appliedDate="Today"
+            appliedDate={appliedDate}
             serviceName="GST Registration"
           />
         )}

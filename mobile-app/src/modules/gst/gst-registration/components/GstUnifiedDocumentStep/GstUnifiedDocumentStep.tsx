@@ -127,7 +127,7 @@ export const GstUnifiedDocumentStep: React.FC<Props> = ({
         </View>
         {selectedCount > 0 && (
           <Text style={styles.progressSubtitle}>
-            {uploadedCount} of {selectedCount} sent to TaxEdge. Remaining
+            {uploadedCount} of {selectedCount} sent to Finsolz. Remaining
             documents upload when you tap Continue.
           </Text>
         )}

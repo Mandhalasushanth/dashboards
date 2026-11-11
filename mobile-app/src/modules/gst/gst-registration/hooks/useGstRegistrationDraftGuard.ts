@@ -4,7 +4,7 @@ import { useApplicationStore } from "@/store/applicationStore";
 import { getActiveCustomerMobile } from "@/store/applicationStorage";
 import { useUniversalDraftGuard } from "@/shared/hooks/useUniversalDraftGuard";
 import { gstApi } from "@/modules/gst/services/gstApi";
-import { mapDtoToGstBusinessFormData } from "@/modules/gst/gst-registration/utils/gstRegistrationMapper";
+import { mapDtoToGstBusinessFormData, formatUiDate } from "@/modules/gst/gst-registration/utils/gstRegistrationMapper";
 import type { GstBusinessFormData } from "@/modules/gst/gst-registration/components/GstBusinessStep/GstBusinessStep";
 import type { DocumentItem } from "@/modules/gst/gst-registration/components/GstUnifiedDocumentStep/GstUnifiedDocumentStep.types";
 import {
@@ -53,6 +53,7 @@ export function useGstRegistrationDraftGuard({
             ...prev, ...gstDraft.businessData,
             businessName: gstDraft.businessData.businessName || (gstDraft.businessData as Record<string, unknown>).registeredBusinessName as string || "",
             businessType: gstDraft.businessData.businessType || "",
+            signatoryDob: formatUiDate(gstDraft.businessData.signatoryDob || prev.signatoryDob),
           }));
         }
         if (Array.isArray(gstDraft.documents) && gstDraft.documents.length > 0) {
@@ -67,7 +68,7 @@ export function useGstRegistrationDraftGuard({
         void (async () => {
           const clean = getActiveCustomerMobile();
           try {
-            const raw = await AsyncStorage.getItem(`@taxedge_draft_${clean}_gst-registration`);
+            const raw = await AsyncStorage.getItem(`@finsolz_draft_${clean}_gst-registration`);
             if (!raw) return;
             const parsed = JSON.parse(raw) as { formData?: Partial<GstBusinessFormData>; documents?: DocumentItem[]; step?: number };
             if (parsed.formData) {
@@ -75,6 +76,7 @@ export function useGstRegistrationDraftGuard({
                 ...prev, ...parsed.formData,
                 businessName: (parsed.formData as Record<string, unknown>).businessName as string || "",
                 businessType: (parsed.formData as Record<string, unknown>).businessType as string || "",
+                signatoryDob: formatUiDate(parsed.formData?.signatoryDob || prev.signatoryDob),
               }));
             }
             if (Array.isArray(parsed.documents) && parsed.documents.length > 0) {
@@ -90,7 +92,20 @@ export function useGstRegistrationDraftGuard({
         setCreatedGstId(routeGstId);
         setBusinessData((prev) => ({ ...prev, gstId: routeGstId }));
         gstApi.getBusiness(routeGstId)
-          .then((dto) => dto && setBusinessData((p) => ({ ...p, ...mapDtoToGstBusinessFormData(dto), gstId: routeGstId })))
+          .then((dto) => {
+            if (!dto) return;
+            const mapped = mapDtoToGstBusinessFormData(dto);
+            setBusinessData((p) => {
+              const activeDob = typeof p.signatoryDob === "string" ? p.signatoryDob.trim() : "";
+              const mappedDob = typeof mapped.signatoryDob === "string" ? mapped.signatoryDob.trim() : "";
+              return {
+                ...p,
+                ...mapped,
+                signatoryDob: activeDob ? activeDob : mappedDob,
+                gstId: routeGstId,
+              };
+            });
+          })
           .catch((e) => logger.warn("[useGstRegistrationDraftGuard] Could not fetch business details:", { error: e }));
       }
     } catch (err) { logger.warn("[useGstRegistrationDraftGuard] Failed to restore GST draft/params:", { error: err }); }
@@ -108,7 +123,11 @@ export function useGstRegistrationDraftGuard({
           id: "draft-gst",
           stepIndex: stepOverride ?? screenIndex,
           personalData: {},
-          businessData: { ...businessData, ...(targetGstId ? { gstId: targetGstId } : {}) } as never,
+          businessData: {
+            ...businessData,
+            signatoryDob: formatUiDate(businessData.signatoryDob),
+            ...(targetGstId ? { gstId: targetGstId } : {}),
+          } as never,
           createdGstId: targetGstId,
           documents: (docsOverride ?? documents) as never,
           updatedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),

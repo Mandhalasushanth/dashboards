@@ -27,7 +27,7 @@ export async function runAllAuthIntegrationTests(): Promise<{
   };
 
   console.log("\n==================================================");
-  console.log("RUNNING TAXEDGE AUTH INTEGRATION TESTS (12 SCENARIOS)");
+  console.log("RUNNING FINSOLZ AUTH INTEGRATION TESTS (12 SCENARIOS)");
   console.log("==================================================\n");
 
   await runScenarios1to6(record);

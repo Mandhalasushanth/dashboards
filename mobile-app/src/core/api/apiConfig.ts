@@ -2,9 +2,9 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const SERVER_IP = "192.168.88.6";
+export const SERVER_IP = "192.168.88.30";
 export const SERVER_PORT = 8086;
-export const STORAGE_KEY_SERVER_URL = "@taxedge_server_url";
+export const STORAGE_KEY_SERVER_URL = "@finsolz_server_url";
 
 export function getDefaultBaseUrl(): string {
   const configuredUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
@@ -25,7 +25,7 @@ export function getDefaultBaseUrl(): string {
     const manifest = ("manifest" in Constants ? Constants.manifest : undefined) as Record<string, unknown> | undefined;
     const manifest2 = ("manifest2" in Constants ? Constants.manifest2 : undefined) as Record<string, unknown> | undefined;
     const expoGo = manifest2?.extra && typeof manifest2.extra === "object" ? (manifest2.extra as Record<string, unknown>).expoGo as Record<string, unknown> | undefined : undefined;
-    
+
     const hostUri =
       Constants.expoConfig?.hostUri ||
       (typeof manifest?.debuggerHost === "string" ? manifest.debuggerHost : "") ||

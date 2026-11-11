@@ -1,0 +1,33 @@
+/* Same single-column layout on every screen size; only spacing scales. */
+.tx-login-page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 4vw, 28px);
+  width: 100%;
+  padding: clamp(28px, 6vw, 40px) clamp(20px, 5vw, 36px);
+  border: 1px solid var(--tx-on-dark-field-border);
+  border-radius: var(--tx-radius-xl);
+  background-color: var(--tx-on-dark-panel);
+  box-shadow: var(--tx-shadow-dark);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: tx-login-enter 0.35s ease-out;
+}
+
+.tx-login-page__footnote {
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--tx-on-dark-muted);
+}
+
+@keyframes tx-login-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

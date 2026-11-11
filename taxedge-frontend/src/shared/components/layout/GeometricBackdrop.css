@@ -1,0 +1,38 @@
+.tx-backdrop {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: max(24px, env(safe-area-inset-top)) var(--tx-gutter) max(24px, env(safe-area-inset-bottom));
+  overflow: hidden;
+  background-color: var(--tx-deep-navy);
+  background-image: url('/assets/backgrounds/geometric-navy.svg');
+  background-size: cover;
+  background-position: center;
+  color: var(--tx-on-dark-text);
+  isolation: isolate;
+}
+
+/* Soft brand-blue and orange light behind the content for depth. */
+.tx-backdrop__glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(11, 94, 215, 0.28), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(249, 115, 22, 0.14), transparent 40%),
+    linear-gradient(180deg, rgba(6, 21, 45, 0.15) 0%, rgba(6, 21, 45, 0.55) 100%);
+  pointer-events: none;
+}
+
+.tx-backdrop__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 440px;
+}

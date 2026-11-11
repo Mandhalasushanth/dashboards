@@ -115,7 +115,7 @@ public class GstFilingServiceImpl implements GstFilingService {
 					filing.setEstimatedEligibleItc(dto.getEstimatedEligibleItc());
 				}
 				break;
-			case TAXEDGE_CA_CALCULATION:
+			case FINSOLZ_CA_CALCULATION:
 				filing.setEstimatedTaxableSales(null);
 				filing.setEstimatedTaxablePurchases(null);
 				filing.setEstimatedEligibleItc(null);
@@ -191,7 +191,7 @@ public class GstFilingServiceImpl implements GstFilingService {
 								"Estimated taxable sales, estimated taxable purchases and estimated eligible ITC are required");
 					}
 					break;
-				case TAXEDGE_CA_CALCULATION:
+				case FINSOLZ_CA_CALCULATION:
 				default:
 					break;
 				}

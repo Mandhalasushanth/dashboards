@@ -5,6 +5,7 @@ import { BusinessDetails } from "../../types/customerIncome.types";
 import { styles } from "./TdsRefundFormScreen.styles";
 import { SectionHeader } from "./TdsRefundFormSections.types";
 import { TdsDocumentCard } from "../../components/documents";
+import { sanitizeNameInput, sanitizeNameOnBlur } from "@/shared/validators/nameValidator";
 
 interface BusinessDetailsSectionProps {
   business: BusinessDetails;
@@ -14,6 +15,7 @@ interface BusinessDetailsSectionProps {
   onUploadSuccess?: (id: string, payload: any) => void;
   onUploadError?: (id: string, errorMessage: string) => void;
   onRemove?: (id: string) => void;
+  onBlurField?: (key: string) => void;
 }
 
 export const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
@@ -24,9 +26,10 @@ export const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
   onUploadSuccess,
   onUploadError,
   onRemove,
+  onBlurField,
 }) => (
   <View style={styles.sectionCard}>
-    <SectionHeader number={2} title="Business Details" />
+    <SectionHeader number={1} title="Business Details" />
 
     {/* Legal Name */}
     <View style={styles.fieldGroup}>
@@ -38,7 +41,13 @@ export const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
         placeholder="Enter Legal Name"
         placeholderTextColor="#94A3B8"
         value={business.legalName}
-        onChangeText={(t) => updateBusiness("legalName", t.replace(/[^a-zA-Z0-9\s.\-&']/g, ""))}
+        onChangeText={(t) => updateBusiness("legalName", sanitizeNameInput(t))}
+        onBlur={() => {
+          if (business.legalName) {
+            updateBusiness("legalName", sanitizeNameOnBlur(business.legalName));
+          }
+          onBlurField?.("business.legalName");
+        }}
         maxLength={100}
       />
       {errors["business.legalName"] && (
@@ -58,6 +67,7 @@ export const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
           autoCapitalize="characters"
           value={business.pan}
           onChangeText={(t) => updateBusiness("pan", t.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+          onBlur={() => onBlurField?.("business.pan")}
           maxLength={10}
         />
         {documents && documents.length > 0 && onUploadSuccess && onUploadError && onRemove && (
@@ -90,6 +100,7 @@ export const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
           keyboardType="number-pad"
           value={business.aadhaar}
           onChangeText={(t) => updateBusiness("aadhaar", t.replace(/[^0-9]/g, ""))}
+          onBlur={() => onBlurField?.("business.aadhaar")}
           maxLength={12}
         />
         {documents && documents.length > 1 && onUploadSuccess && onUploadError && onRemove && (
@@ -121,6 +132,7 @@ export const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
         keyboardType="number-pad"
         value={business.mobileNumber}
         onChangeText={(t) => updateBusiness("mobileNumber", t.replace(/[^0-9]/g, ""))}
+        onBlur={() => onBlurField?.("business.mobileNumber")}
         maxLength={10}
       />
       {errors["business.mobileNumber"] && (

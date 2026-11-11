@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TextInput,
+  type TextInputInstance,
   TouchableOpacity,
   Keyboard,
 } from "react-native";
@@ -36,8 +37,8 @@ export function ResetPasscodeSection({
 }: ResetPasscodeSectionProps) {
   const themed = getThemedStyles(false);
 
-  const newPasscodeRef = useRef<TextInput>(null);
-  const confirmPasscodeRef = useRef<TextInput>(null);
+  const newPasscodeRef = useRef<TextInputInstance>(null);
+  const confirmPasscodeRef = useRef<TextInputInstance>(null);
   const [activeSection, setActiveSection] = useState<"new" | "confirm">("new");
   const [showPasscode, setShowPasscode] = useState(false);
   const [showConfirmPasscode, setShowConfirmPasscode] = useState(false);
@@ -76,19 +77,29 @@ export function ResetPasscodeSection({
   const showMismatchError = isConfirmComplete && !doPasscodesMatch;
 
   const renderBoxes = (
+    inputRef: React.RefObject<TextInputInstance | null>,
     value: string,
     isActive: boolean,
     hasError: boolean,
     showCode: boolean,
-    onPress: () => void
+    onChangeText: (text: string) => void,
+    onFocus: () => void,
+    accessibilityLabel: string
   ) => {
     return (
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={onPress}
-        style={styles.otpTouchable}
-      >
-        <View style={styles.otpGrid}>
+      <View style={styles.boxesWrapper}>
+        <TextInput
+          ref={inputRef}
+          value={value}
+          onChangeText={onChangeText}
+          onFocus={onFocus}
+          keyboardType="number-pad"
+          maxLength={6}
+          caretHidden={true}
+          style={styles.overlayInput}
+          accessibilityLabel={accessibilityLabel}
+        />
+        <View style={styles.otpGrid} pointerEvents="none">
           {Array.from({ length: 6 }).map((_, i) => {
             const isFilled = i < value.length;
             const isCurrent = isActive && i === value.length;
@@ -119,7 +130,7 @@ export function ResetPasscodeSection({
             );
           })}
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -133,7 +144,10 @@ export function ResetPasscodeSection({
           </Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setShowPasscode((prev) => !prev)}
+            onPress={() => {
+              setShowPasscode((prev) => !prev);
+              newPasscodeRef.current?.focus();
+            }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={styles.eyeToggleBtn}
             accessibilityLabel={showPasscode ? "Hide passcode" : "Show passcode"}
@@ -145,10 +159,16 @@ export function ResetPasscodeSection({
             />
           </TouchableOpacity>
         </View>
-        {renderBoxes(passcode, activeSection === "new", false, showPasscode, () => {
-          newPasscodeRef.current?.focus();
-          setActiveSection("new");
-        })}
+        {renderBoxes(
+          newPasscodeRef,
+          passcode,
+          activeSection === "new",
+          false,
+          showPasscode,
+          handleNewPasscodeChange,
+          () => setActiveSection("new"),
+          "New Passcode, 6 digits"
+        )}
       </View>
 
       {/* 2. Confirm Passcode Section */}
@@ -159,7 +179,10 @@ export function ResetPasscodeSection({
           </Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setShowConfirmPasscode((prev) => !prev)}
+            onPress={() => {
+              setShowConfirmPasscode((prev) => !prev);
+              confirmPasscodeRef.current?.focus();
+            }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={styles.eyeToggleBtn}
             accessibilityLabel={showConfirmPasscode ? "Hide confirm passcode" : "Show confirm passcode"}
@@ -172,39 +195,16 @@ export function ResetPasscodeSection({
           </TouchableOpacity>
         </View>
         {renderBoxes(
+          confirmPasscodeRef,
           confirmPasscode,
           activeSection === "confirm",
           showMismatchError,
           showConfirmPasscode,
-          () => {
-            confirmPasscodeRef.current?.focus();
-            setActiveSection("confirm");
-          }
+          handleConfirmPasscodeChange,
+          () => setActiveSection("confirm"),
+          "Confirm Passcode, 6 digits"
         )}
       </View>
-
-      {/* Hidden Inputs for keyboard management */}
-      <TextInput
-        ref={newPasscodeRef}
-        value={passcode}
-        onChangeText={handleNewPasscodeChange}
-        onFocus={() => setActiveSection("new")}
-        keyboardType="number-pad"
-        maxLength={6}
-        secureTextEntry={!showPasscode}
-        style={styles.hiddenInput}
-      />
-
-      <TextInput
-        ref={confirmPasscodeRef}
-        value={confirmPasscode}
-        onChangeText={handleConfirmPasscodeChange}
-        onFocus={() => setActiveSection("confirm")}
-        keyboardType="number-pad"
-        maxLength={6}
-        secureTextEntry={!showConfirmPasscode}
-        style={styles.hiddenInput}
-      />
 
       {/* Inline Validation Error Message */}
       {showMismatchError ? (

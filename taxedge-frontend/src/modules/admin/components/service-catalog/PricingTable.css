@@ -1,0 +1,196 @@
+.tx-pricing {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tx-pricing__group {
+  overflow: hidden;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-pricing__group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--tx-border);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-pricing__count {
+  padding: 1px 8px;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-background);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+}
+
+.tx-pricing__scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tx-pricing__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  text-align: left;
+}
+
+.tx-pricing__table th {
+  padding: 10px 12px;
+  background: var(--tx-light-blue);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tx-primary-navy);
+  white-space: nowrap;
+}
+
+.tx-pricing__table td {
+  padding: 12px;
+  border-top: 1px solid var(--tx-subtle-border);
+  color: var(--tx-primary-text);
+  vertical-align: middle;
+}
+
+.tx-pricing__row--paused td {
+  opacity: 0.6;
+}
+
+.tx-pricing__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tx-pricing__name,
+.tx-pricing__strong {
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-pricing__price {
+  font-weight: 600;
+}
+
+.tx-pricing__muted {
+  font-size: 0.76rem;
+  color: var(--tx-secondary-text);
+}
+
+.tx-pricing__offer {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--tx-primary-orange);
+}
+
+.tx-pricing__status {
+  padding: 2px 8px;
+  border-radius: var(--tx-radius-full);
+  background: var(--tx-background);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--tx-secondary-text);
+}
+
+.tx-pricing__status--on {
+  background: var(--tx-success-light);
+  color: var(--tx-success-strong);
+}
+
+.tx-pricing__actions {
+  text-align: right;
+}
+
+.tx-pricing__edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-sm);
+  background: var(--tx-surface);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+  cursor: pointer;
+}
+
+.tx-pricing__edit:hover {
+  border-color: var(--tx-primary-blue);
+  background: var(--tx-light-blue);
+  color: var(--tx-primary-blue);
+}
+
+.tx-pricing__edit:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring);
+}
+
+/* Small screens: each service becomes a card; labels come from data-label. */
+@media (max-width: 768px) {
+  .tx-pricing__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .tx-pricing__table,
+  .tx-pricing__table tbody,
+  .tx-pricing__table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .tx-pricing__table tr {
+    padding: 10px 14px;
+    border-top: 1px solid var(--tx-border);
+  }
+
+  .tx-pricing__table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border-top: none;
+    text-align: right;
+  }
+
+  .tx-pricing__table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tx-muted-text);
+    text-align: left;
+  }
+
+  .tx-pricing__stack {
+    align-items: flex-end;
+  }
+
+  .tx-pricing__table td.tx-pricing__actions::before {
+    content: none;
+  }
+
+  .tx-pricing__edit {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
+}

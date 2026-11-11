@@ -29,7 +29,7 @@ const TECHNICAL_ERROR_MARKERS = [
   "table ",
   "column ",
   "org.",
-  "com.taxedge",
+  "com.finsolz",
   "\\tat ",
   "traceback",
 ];

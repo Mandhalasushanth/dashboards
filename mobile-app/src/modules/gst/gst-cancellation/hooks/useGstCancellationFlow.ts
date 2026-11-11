@@ -100,7 +100,7 @@ export function useGstCancellationFlow() {
       }
       const clean = getActiveCustomerMobile();
       try {
-        const raw = await AsyncStorage.getItem(`@taxedge_draft_${clean}_gst-cancellation`);
+        const raw = await AsyncStorage.getItem(`@finsolz_draft_${clean}_gst-cancellation`);
         if (!raw) return;
         const parsed = JSON.parse(raw) as { formData?: Partial<CancellationFormData>; step?: unknown };
         if (parsed.formData) {

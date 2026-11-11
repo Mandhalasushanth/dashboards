@@ -28,23 +28,33 @@ public class HomeLoanRequirementApplicationServiceImpl
             homeLoanRequirementApplicationRepository;
 
     private final CustomerRepository customerRepository;
-
+    
 
     @Override
     public HomeLoanRequirementApplicationDto createApplication(
             HomeLoanRequirementApplicationDto dto) {
 
-        // Step 1: Find the existing customer
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Customer not found: " + dto.getCustomerId()
+        // Step 1: Find the existing customer (supports DTO or authenticated customer)
+        String effectiveCustId = dto.getCustomerId();
+        if (!org.springframework.util.StringUtils.hasText(effectiveCustId)) {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof com.taxedge.security.jwt.JwtPrincipal principal) {
+                effectiveCustId = principal.custId();
+            }
+        }
+        if (!org.springframework.util.StringUtils.hasText(effectiveCustId)) {
+            throw new IllegalArgumentException("Customer ID is required");
+        }
+        final String finalCustId = effectiveCustId;
+        Customer customer = customerRepository.findById(finalCustId)
+                .orElseThrow(() -> new com.taxedge.exception.ResourceNotFoundException(
+                        "Customer not found: " + finalCustId
                 ));
 
-        // Step 2: Generate the home loan ID in the service
-        String homeLoanId = "HL" + UUID.randomUUID()
-                .toString()
-                .replace("-", "");
+        // Step 2: Generate sequential loan ID (HL-YYYY-XXXXX) using HomeLoanHelper
+        int year = java.time.Year.now().getValue();
+        long seq = homeLoanRequirementApplicationRepository.getNextSequenceValue();
+        String homeLoanId = com.taxedge.loan.homeloan.helper.HomeLoanHelper.formatLoanApplicationId(year, seq);
 
         // Step 3: Convert request DTO into an entity
         HomeLoanRequirementApplication application =
@@ -87,7 +97,17 @@ public class HomeLoanRequirementApplicationServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<HomeLoanRequirementApplicationDto> getAllApplications() {
-
+        String custId = null;
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.taxedge.security.jwt.JwtPrincipal principal) {
+            custId = principal.custId();
+        }
+        if (org.springframework.util.StringUtils.hasText(custId)) {
+            return homeLoanRequirementApplicationRepository.findByCustomer_CustId(custId)
+                    .stream()
+                    .map(this::convertToDto)
+                    .toList();
+        }
         return homeLoanRequirementApplicationRepository.findAll()
                 .stream()
                 .map(this::convertToDto)

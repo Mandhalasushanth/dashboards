@@ -179,5 +179,8 @@ export function generateDynamicDocumentChecklist(
     ),
   ];
 
-  return allCandidates.filter((doc) => doc.tier !== "NOT_REQUIRED");
+  // Preserve docs with uploaded files even when their income source is deselected.
+  // If we strip them out here, the existingMap built on the next call will not
+  // find them, and the uploaded file info is permanently lost.
+  return allCandidates.filter((doc) => doc.tier !== "NOT_REQUIRED" || Boolean(doc.fileUri));
 }

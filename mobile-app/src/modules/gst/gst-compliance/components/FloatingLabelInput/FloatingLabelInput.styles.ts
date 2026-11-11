@@ -5,6 +5,21 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     width: "100%",
   },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
+  },
+  labelAboveText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#334155",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
+  },
+  labelAboveTextDark: {
+    color: "#E2E8F0",
+  },
   inputContainer: {
     borderRadius: 14,
     paddingHorizontal: 14,
@@ -20,6 +35,9 @@ export const styles = StyleSheet.create({
   },
   floatingLabelText: {
     letterSpacing: 0.1,
+  },
+  star: {
+    color: "#EF4444",
   },
   textInput: {
     flex: 1,

@@ -33,7 +33,7 @@ export const StepFeesPayment: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Fees & Payment Breakdown</Text>
-      <Text style={styles.subheading}>Review itemized MCA government filing fees and TaxEdge professional charges.</Text>
+      <Text style={styles.subheading}>Review itemized MCA government filing fees and Finsolz professional charges.</Text>
 
       {/* Fee Itemization Card */}
       <CompanySectionCard
@@ -42,7 +42,7 @@ export const StepFeesPayment: React.FC = () => {
         subtitle="Itemized government and professional charges"
       >
         <View style={styles.row}>
-          <Text style={styles.label}>TaxEdge Professional Fee</Text>
+          <Text style={styles.label}>Finsolz Professional Fee</Text>
           <Text style={styles.value}>₹{feeBreakdown.professionalFee.toLocaleString('en-IN')}</Text>
         </View>
         <View style={styles.row}>

@@ -17,6 +17,7 @@ import {
 } from "../../types/itrFiling.types";
 import { BrandColors } from "@/shared/theme";
 import { RegimeComparisonTable } from "../../../components/RegimeComparisonTable";
+import { AmountTextInput } from "@/shared/components/AmountTextInput";
 import { styles } from "./Step3RegimeAndDeductions.styles";
 
 interface Step3RegimeAndDeductionsProps {
@@ -225,9 +226,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                       <Text style={styles.inputLabel}>EPF (Employee Provident)</Text>
                       <View style={styles.inputBox}>
                         <Text style={styles.currencyPrefix}>₹</Text>
-                        <TextInput
+                        <AmountTextInput
                           style={styles.textInput}
-                          keyboardType="numeric"
                           placeholder="e.g. 45,000"
                           placeholderTextColor="#94A3B8"
                           value={deductions.sec80c.epf}
@@ -240,9 +240,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                       <Text style={styles.inputLabel}>PPF (Public Provident)</Text>
                       <View style={styles.inputBox}>
                         <Text style={styles.currencyPrefix}>₹</Text>
-                        <TextInput
+                        <AmountTextInput
                           style={styles.textInput}
-                          keyboardType="numeric"
                           placeholder="e.g. 50,000"
                           placeholderTextColor="#94A3B8"
                           value={deductions.sec80c.ppf}
@@ -257,9 +256,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                       <Text style={styles.inputLabel}>Life Insurance (LIC)</Text>
                       <View style={styles.inputBox}>
                         <Text style={styles.currencyPrefix}>₹</Text>
-                        <TextInput
+                        <AmountTextInput
                           style={styles.textInput}
-                          keyboardType="numeric"
                           placeholder="e.g. 25,000"
                           placeholderTextColor="#94A3B8"
                           value={deductions.sec80c.lic}
@@ -272,9 +270,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                       <Text style={styles.inputLabel}>ELSS Tax-Saving Funds</Text>
                       <View style={styles.inputBox}>
                         <Text style={styles.currencyPrefix}>₹</Text>
-                        <TextInput
+                        <AmountTextInput
                           style={styles.textInput}
-                          keyboardType="numeric"
                           placeholder="Mutual fund ELSS"
                           placeholderTextColor="#94A3B8"
                           value={deductions.sec80c.elss}
@@ -289,9 +286,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                       <Text style={styles.inputLabel}>Children Tuition Fees</Text>
                       <View style={styles.inputBox}>
                         <Text style={styles.currencyPrefix}>₹</Text>
-                        <TextInput
+                        <AmountTextInput
                           style={styles.textInput}
-                          keyboardType="numeric"
                           placeholder="School fees"
                           placeholderTextColor="#94A3B8"
                           value={deductions.sec80c.tuitionFees}
@@ -304,9 +300,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                       <Text style={styles.inputLabel}>Housing Loan Principal</Text>
                       <View style={styles.inputBox}>
                         <Text style={styles.currencyPrefix}>₹</Text>
-                        <TextInput
+                        <AmountTextInput
                           style={styles.textInput}
-                          keyboardType="numeric"
                           placeholder="Principal repaid"
                           placeholderTextColor="#94A3B8"
                           value={deductions.sec80c.housingPrincipal}
@@ -332,13 +327,12 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                     <Text style={styles.inputLabel}>Self, Spouse & Dependent Children</Text>
                     <View style={styles.inputBox}>
                       <Text style={styles.currencyPrefix}>₹</Text>
-                      <TextInput
+                      <AmountTextInput
                         style={styles.textInput}
-                        keyboardType="numeric"
                         placeholder="Max 25,000"
                         placeholderTextColor="#94A3B8"
                         value={deductions.sec80d.selfSpouseChildren}
-                        onChangeText={(val) => update80d("selfSpouseChildren", val.replace(/[^0-9]/g, ""))}
+                        onChangeText={(val) => update80d("selfSpouseChildren", val)}
                       />
                     </View>
                   </View>
@@ -347,13 +341,12 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                     <Text style={styles.inputLabel}>Parents Health Insurance</Text>
                     <View style={styles.inputBox}>
                       <Text style={styles.currencyPrefix}>₹</Text>
-                      <TextInput
+                      <AmountTextInput
                         style={styles.textInput}
-                        keyboardType="numeric"
                         placeholder="Max 25,000 (50k for senior)"
                         placeholderTextColor="#94A3B8"
                         value={deductions.sec80d.parents}
-                        onChangeText={(val) => update80d("parents", val.replace(/[^0-9]/g, ""))}
+                        onChangeText={(val) => update80d("parents", val)}
                       />
                     </View>
                   </View>
@@ -382,13 +375,12 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
                 <View style={styles.inputGroup}>
                   <View style={styles.inputBox}>
                     <Text style={styles.currencyPrefix}>₹</Text>
-                    <TextInput
+                    <AmountTextInput
                       style={styles.textInput}
-                      keyboardType="numeric"
                       placeholder="Interest paid on self-occupied property"
                       placeholderTextColor="#94A3B8"
                       value={deductions.sec24b}
-                      onChangeText={(val) => onChangeDeductions({ sec24b: val.replace(/[^0-9]/g, "") })}
+                      onChangeText={(val) => onChangeDeductions({ sec24b: val })}
                     />
                   </View>
                 </View>
@@ -460,9 +452,8 @@ export const Step3RegimeAndDeductions: React.FC<Step3RegimeAndDeductionsProps> =
               <Text style={styles.inputLabel}>Amount Claimed</Text>
               <View style={styles.inputBox}>
                 <Text style={styles.currencyPrefix}>₹</Text>
-                <TextInput
+                <AmountTextInput
                   style={styles.textInput}
-                  keyboardType="numeric"
                   placeholder="Enter amount"
                   placeholderTextColor="#94A3B8"
                   value={newDeductionAmount}

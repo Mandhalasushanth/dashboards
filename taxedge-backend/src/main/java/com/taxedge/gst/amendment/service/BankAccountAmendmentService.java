@@ -12,12 +12,10 @@ public interface BankAccountAmendmentService {
     BankAccountAmendmentViewDto submitBankAccountAmendment(String gstId, String customerId, String bankName, String accountNumber,
                                                            String ifscCode, AccountType accountType, MultipartFile file) throws IOException;
 
-    BankAccountAmendmentViewDto getAmendmentById(Long id);
+    BankAccountAmendmentViewDto getAmendmentById(String id);
 
-    BankAccountAmendmentViewDto updateBankAccountAmendment(Long id, String bankName, String accountNumber,
+    BankAccountAmendmentViewDto updateBankAccountAmendment(String id, String bankName, String accountNumber,
                                                            String ifscCode, AccountType accountType, MultipartFile file) throws IOException;
 
-    String submitAmendment(Long id, String gstId, String pushToken);
-
-    
+    String submitAmendment(String id, String gstId, String pushToken);
 }

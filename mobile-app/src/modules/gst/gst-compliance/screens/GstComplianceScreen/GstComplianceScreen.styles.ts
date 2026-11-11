@@ -11,6 +11,12 @@ export const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollViewLight: {
+    backgroundColor: "#F8FAFC",
+  },
+  scrollViewDark: {
+    backgroundColor: "#0F172A",
+  },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -334,6 +340,10 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     color: BrandColors.WHITE,
   },
+});
+
+export const getScrollContentStyle = (bottomInset: number) => ({
+  paddingBottom: Math.max(bottomInset, 16) + 32,
 });
 
 export const getRootBgStyle = (isDark: boolean) => ({

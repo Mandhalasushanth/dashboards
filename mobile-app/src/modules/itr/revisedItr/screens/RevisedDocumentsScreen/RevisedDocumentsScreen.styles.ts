@@ -13,6 +13,7 @@ export const styles = StyleSheet.create({
     backgroundColor: BrandColors.BACKGROUND,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
   },
@@ -31,44 +32,6 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     lineHeight: 18,
     fontWeight: Typography.fontWeight.regular,
-  },
-  progressContainer: {
-    marginBottom: 14,
-  },
-  progressRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  counterText: {
-    fontSize: Typography.fontSize.sm + 1,
-    fontWeight: Typography.fontWeight.bold,
-    color: "#0B1F3A",
-  },
-  inProgressBadge: {
-    backgroundColor: "#FFF7ED",
-    borderWidth: BorderWidth.thin,
-    borderColor: "#FED7AA",
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 3.5,
-  },
-  inProgressText: {
-    fontSize: Typography.fontSize.xs + 1.5,
-    fontWeight: Typography.fontWeight.bold,
-    color: "#EA580C",
-  },
-  progressTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#E2E8F0",
-    marginTop: Spacing.sm,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: BrandColors.PRIMARY_ORANGE,
-    borderRadius: 3,
   },
   sectionHeader: {
     marginTop: 10,
@@ -186,28 +149,10 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#DC2626",
   },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: BrandColors.WHITE,
-    paddingHorizontal: Spacing.base,
-    paddingTop: 10,
-    borderTopWidth: BorderWidth.thin,
-    borderTopColor: "#F1F5F9",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0B1F3A",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.04,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 6,
-      },
-      default: {},
-    }),
+  buttonWrapper: {
+    marginTop: "auto",
+    paddingTop: 24,
+    marginBottom: 20,
   },
   continueButton: {
     height: 52,
@@ -241,11 +186,7 @@ export const getContainerInsetsStyle = (top: number): ViewStyle => ({
 });
 
 export const getScrollContentInsetsStyle = (bottom: number): ViewStyle => ({
-  paddingBottom: bottom + 90,
-});
-
-export const getBottomBarInsetsStyle = (bottom: number): ViewStyle => ({
-  paddingBottom: Math.max(bottom, 12),
+  paddingBottom: Math.max(bottom, 24) + 16,
 });
 
 export const getProgressFillWidthStyle = (percent: number): ViewStyle => ({

@@ -4,8 +4,8 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StatusBar,
 } from "react-native";
+import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
 import {
@@ -81,7 +81,7 @@ export const GstAmendmentReview: React.FC<GstAmendmentReviewProps> = ({
 
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+      <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
 
       {/* Header (No back arrow: edits are accessed via the dedicated Edit button) */}
       <View style={[styles.headerBar, getHeaderBarStyle(insets.top)]}>
@@ -165,7 +165,7 @@ export const GstAmendmentReview: React.FC<GstAmendmentReviewProps> = ({
           </View>
           <Text style={styles.declarationText}>
             I hereby declare that the information provided above is true and correct to the best
-            of my knowledge, and I authorise TaxEdge to submit this amendment request on my behalf.
+            of my knowledge, and I authorise Finsolz to submit this amendment request on my behalf.
           </Text>
         </TouchableOpacity>
       </ScrollView>

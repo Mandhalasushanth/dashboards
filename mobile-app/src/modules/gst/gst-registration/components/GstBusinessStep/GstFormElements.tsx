@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
+import { removeEmoji } from "@/modules/gst/utils/gstEmojiFilter";
 import { styles } from "./GstBusinessStep.styles";
  
 interface InputProps {
@@ -29,6 +30,7 @@ interface InputProps {
   accessibilityLabel?: string;
   accessibilityHint?: string;
   inputRef?: (node: TextInput | null) => void;
+  infoIcon?: React.ReactNode;
 }
  
 export const FormInput: React.FC<InputProps> = React.memo(({
@@ -47,10 +49,12 @@ export const FormInput: React.FC<InputProps> = React.memo(({
   accessibilityLabel,
   accessibilityHint,
   inputRef,
+  infoIcon,
 }) => {
   const handleChangeText = (text: string) => {
-    if (onChangeField && field) onChangeField(field, text);
-    else onChange?.(text);
+    const cleaned = removeEmoji(text);
+    if (onChangeField && field) onChangeField(field, cleaned);
+    else onChange?.(cleaned);
   };
   const handleBlur = () => {
     if (onBlurField && field) onBlurField(field);
@@ -59,7 +63,26 @@ export const FormInput: React.FC<InputProps> = React.memo(({
 
   return (
     <View style={styles.fieldGroup}>
-      <Text style={styles.label}>{label}</Text>
+      {infoIcon ? (
+        <View style={styles.labelRow}>
+          <Text style={[styles.label, { marginBottom: 0 }]}>
+            {label.endsWith(" *") ? (
+              <>
+                {label.slice(0, -2)} <Text style={styles.star}>*</Text>
+              </>
+            ) : label.endsWith("*") ? (
+              <>
+                {label.slice(0, -1).trim()} <Text style={styles.star}>*</Text>
+              </>
+            ) : (
+              label
+            )}
+          </Text>
+          {infoIcon}
+        </View>
+      ) : (
+        <Text style={styles.label}>{label}</Text>
+      )}
       <TextInput
         ref={inputRef}
         style={[styles.input, error && styles.inputError]}
@@ -182,7 +205,7 @@ export const FormSelect: React.FC<SelectProps> = React.memo(({
                   placeholder={searchPlaceholder}
                   placeholderTextColor="#94A3B8"
                   value={searchQuery}
-                  onChangeText={setSearchQuery}
+                  onChangeText={(val) => setSearchQuery(removeEmoji(val))}
                   autoCapitalize="words"
                   autoCorrect={false}
                   clearButtonMode="while-editing"

@@ -91,7 +91,7 @@ export async function runScenarios7to12(record: RecordFunction): Promise<void> {
       customerId: "CUST_A",
       mobileNumber: mobileA,
       name: "User Alice",
-      email: "alice@taxedge.in",
+      email: "alice@finsolz.in",
       registrationCompleted: true,
     });
 
@@ -102,7 +102,7 @@ export async function runScenarios7to12(record: RecordFunction): Promise<void> {
       customerId: "CUST_B",
       mobileNumber: mobileB,
       name: "User Bob",
-      email: "bob@taxedge.in",
+      email: "bob@finsolz.in",
       registrationCompleted: true,
     });
 

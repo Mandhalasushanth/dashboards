@@ -89,32 +89,59 @@ const PLACE_MAP: Record<string, string> = {
 };
 
 /**
- * Exception-safe Date Formatter
+ * Safely extracts date parts { year, month, day } from string without timezone shifts.
+ * Handles DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD, and ISO 8601 strings.
  */
-const formatBackendDate = (dateStr: string): string => {
-  try {
-    if (!dateStr || dateStr.trim() === "")
-      return new Date().toISOString().split("T")[0];
+export const extractDateParts = (
+  dateStr?: string | null,
+): { year: string; month: string; day: string } | null => {
+  if (!dateStr || typeof dateStr !== "string") return null;
+  const str = dateStr.trim();
+  if (!str) return null;
 
-    // Handles DD/MM/YYYY
-    if (dateStr.includes("/")) {
-      const parts = dateStr.split("/");
-      if (parts.length === 3)
-        return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
-    }
-
-    // Handles DD-MM-YYYY
-    if (dateStr.includes("-")) {
-      const parts = dateStr.split("-");
-      if (parts[0].length === 2 && parts[2].length === 4) {
-        return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
-      }
-    }
-    return dateStr; // Return as-is if already in YYYY-MM-DD
-  } catch (error) {
-    logger.warn("[gstRegistrationMapper] Date formatting failed, defaulting to today", { error });
-    return new Date().toISOString().split("T")[0]; // Safe Fallback
+  // YYYY-MM-DD or YYYY/MM/DD or YYYY-MM-DDTHH:mm:ss...
+  const ymdMatch = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/.exec(str);
+  if (ymdMatch) {
+    return {
+      year: ymdMatch[1],
+      month: ymdMatch[2].padStart(2, "0"),
+      day: ymdMatch[3].padStart(2, "0"),
+    };
   }
+
+  // DD-MM-YYYY or DD/MM/YYYY
+  const dmyMatch = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/.exec(str);
+  if (dmyMatch) {
+    return {
+      year: dmyMatch[3],
+      month: dmyMatch[2].padStart(2, "0"),
+      day: dmyMatch[1].padStart(2, "0"),
+    };
+  }
+
+  return null;
+};
+
+/**
+ * Exception-safe Date Formatter for Backend (YYYY-MM-DD)
+ * Guarantees zero timezone shifts. Returns empty string if missing.
+ */
+export const formatBackendDate = (dateStr?: string | null): string => {
+  if (!dateStr || typeof dateStr !== "string" || !dateStr.trim()) return "";
+  const parts = extractDateParts(dateStr);
+  if (parts) return `${parts.year}-${parts.month}-${parts.day}`;
+  return dateStr.trim();
+};
+
+/**
+ * Exception-safe Date Formatter for UI (DD-MM-YYYY)
+ * Guarantees zero timezone shifts. Returns empty string if missing.
+ */
+export const formatUiDate = (dateStr?: string | null): string => {
+  if (!dateStr || typeof dateStr !== "string" || !dateStr.trim()) return "";
+  const parts = extractDateParts(dateStr);
+  if (parts) return `${parts.day}-${parts.month}-${parts.year}`;
+  return dateStr.trim();
 };
 
 /**
@@ -244,7 +271,7 @@ const REVERSE_PLACE_MAP: Record<string, string> = {
  * Reverse maps backend BusinessDto to frontend form fields.
  */
 export const mapDtoToGstBusinessFormData = (
-  dto: any,
+  dto?: Record<string, unknown> | null,
 ): Partial<GstBusinessFormData> => {
   if (!dto) return {};
   const rawConst = String(dto.constitutionOfBusiness || "").toUpperCase();
@@ -253,59 +280,50 @@ export const mapDtoToGstBusinessFormData = (
   const rawAcc = String(dto.accountType || "").toUpperCase();
   const rawPlace = String(dto.placeOfBusiness || "").toUpperCase();
 
-  const formatUiDate = (d?: string) => {
-    if (!d) return "";
-    const p = String(d).split("-");
-    if (p.length === 3 && p[0].length === 4) {
-      return `${p[2]}-${p[1]}-${p[0]}`;
-    }
-    return d;
-  };
-
   return {
-    gstId: dto.gstId || undefined,
-    customerId: dto.customerId || undefined,
-    legalName: dto.legalName || "",
-    businessName: dto.tradeName || "",
-    businessType: REVERSE_CONSTITUTION_MAP[rawConst] || dto.constitutionOfBusiness || "",
-    natureOfBusiness: REVERSE_NATURE_MAP[rawNat] || dto.natureOfBusiness || "",
-    placeOfBusiness: REVERSE_PLACE_MAP[rawPlace] || dto.placeOfBusiness || "Principal place of business",
-    businessStartDate: formatUiDate(dto.dateOfCommencement),
-    reasonForRegistration: REVERSE_REASON_MAP[rawReason] || dto.reasonForRegistration || "",
+    gstId: (dto.gstId as string) || undefined,
+    customerId: (dto.customerId as string) || undefined,
+    legalName: (dto.legalName as string) || "",
+    businessName: (dto.tradeName as string) || "",
+    businessType: REVERSE_CONSTITUTION_MAP[rawConst] || (dto.constitutionOfBusiness as string) || "",
+    natureOfBusiness: REVERSE_NATURE_MAP[rawNat] || (dto.natureOfBusiness as string) || "",
+    placeOfBusiness: REVERSE_PLACE_MAP[rawPlace] || (dto.placeOfBusiness as string) || "Principal place of business",
+    businessStartDate: formatUiDate(dto.dateOfCommencement as string),
+    reasonForRegistration: REVERSE_REASON_MAP[rawReason] || (dto.reasonForRegistration as string) || "",
     compositionScheme:
       dto.compositionScheme === "YES_COMPOSITION_SCHEME"
         ? "Yes - composition scheme"
         : "No - regular scheme",
-    businessAddress: dto.businessAddress || "",
-    city: dto.city || "",
-    district: dto.district || "",
-    state: dto.state || "",
-    pinCode: dto.pinCode || "",
-    hsnCode: dto.hsnSac || "",
-    accountHolderName: dto.accountHolderName || "",
-    bankAccountNumber: dto.bankAccountNumber || "",
-    confirmBankAccountNumber: dto.bankAccountNumber || "",
-    ifscCode: dto.ifscCode || "",
-    bankName: dto.bankName || "",
-    branchName: dto.branchName || "",
-    accountType: REVERSE_ACCOUNT_TYPE_MAP[rawAcc] || dto.accountType || "Current",
-    businessPan: dto.businessPan || "",
-    signatoryName: dto.signatoryName || "",
-    signatoryPan: dto.signatoryPan || "",
-    signatoryDob: formatUiDate(dto.signatoryDob),
-    signatoryDesignation: dto.designation || "Owner",
-    signatoryMobile: dto.signatoryMobile || "",
-    signatoryEmail: dto.signatoryEmail || "",
+    businessAddress: (dto.businessAddress as string) || "",
+    city: (dto.city as string) || "",
+    district: (dto.district as string) || "",
+    state: (dto.state as string) || "",
+    pinCode: (dto.pinCode as string) || "",
+    hsnCode: (dto.hsnSac as string) || "",
+    accountHolderName: (dto.accountHolderName as string) || "",
+    bankAccountNumber: (dto.bankAccountNumber as string) || "",
+    confirmBankAccountNumber: (dto.bankAccountNumber as string) || "",
+    ifscCode: (dto.ifscCode as string) || "",
+    bankName: (dto.bankName as string) || "",
+    branchName: (dto.branchName as string) || "",
+    accountType: REVERSE_ACCOUNT_TYPE_MAP[rawAcc] || (dto.accountType as string) || "Current",
+    businessPan: (dto.businessPan as string) || "",
+    signatoryName: (dto.signatoryName as string) || "",
+    signatoryPan: (dto.signatoryPan as string) || "",
+    signatoryDob: formatUiDate(dto.signatoryDob as string),
+    signatoryDesignation: (dto.designation as string) || "Owner",
+    signatoryMobile: (dto.signatoryMobile as string) || "",
+    signatoryEmail: (dto.signatoryEmail as string) || "",
   };
 };
 
 /**
  * Maps backend DocumentsDto onto DocumentItem array
  */
-export const mapDtoToDocuments = (
-  dto: any,
-  currentDocs: any[],
-): any[] => {
+export const mapDtoToDocuments = <T extends { id: string; name?: string; fileUri?: string; fileName?: string }>(
+  dto: Record<string, unknown> | null | undefined,
+  currentDocs: T[],
+): T[] => {
   if (!dto || !Array.isArray(currentDocs)) return currentDocs;
   return currentDocs.map((doc) => {
     const key = `${doc.id} ${doc.name || ""}`.toLowerCase();

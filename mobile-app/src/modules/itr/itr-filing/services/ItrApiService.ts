@@ -1,5 +1,11 @@
 import { ItrFilingFormData } from "../types/itrFiling.types";
+import {
+  resolveItrMimeType,
+  getFileExtension,
+  resolveExtensionFromMime,
+} from "@/modules/itr/utils/itrDocumentUploadHelper";
 import { useAuthStore } from "@/modules/authentication/store/authStore";
+import { validateBankAccountNumber, validateIfsc } from "@/shared/validators/indianTaxValidators";
 import { tokenManager } from "@/core/authentication/tokenManager";
 import { getActiveBaseUrl, getDefaultBaseUrl } from "@/core/api/apiConfig";
 import { apiClient } from "@/core/api/apiClient";
@@ -53,13 +59,27 @@ const mapToFilingDto = (data: ItrFilingFormData) => {
   const authState = useAuthStore.getState();
   const customerId =
     authState.customer?.customerId ||
-    authState.customer?.mobile ||
-    authState.authenticatedUser?.customerId ||
-    authState.authenticatedUser?.mobileNumber ||
-    authState.mobileNumber ||
-    "CUST-12345";
+    (authState.authenticatedUser as any)?.customerId ||
+    (authState.authenticatedUser as any)?.custId ||
+    "";
+  if (!customerId) {
+    throw new Error(
+      "Customer account not found. Please complete your registration before filing.",
+    );
+  }
   const accountNumber = String(data.bankDetails?.accountNumber || "").trim();
   const ifscCode = String(data.bankDetails?.ifscCode || "").trim();
+
+  if (!validateBankAccountNumber(accountNumber)) {
+    throw new Error(
+      "Bank account number is invalid. Please go back to Step 1 and provide a valid 9–18 digit account number."
+    );
+  }
+  if (!validateIfsc(ifscCode)) {
+    throw new Error(
+      "IFSC code is invalid. Please go back to Step 1 and provide a valid 11-character IFSC code."
+    );
+  }
 
   return {
     customerId,
@@ -67,12 +87,8 @@ const mapToFilingDto = (data: ItrFilingFormData) => {
     residentialStatus: data.personalInfo.residentialStatus,
     filingType: data.personalInfo.filingType,
     bankName: data.bankDetails?.bankName || "Pending",
-    accountNumber: /^[0-9]{9,18}$/.test(accountNumber)
-      ? accountNumber
-      : "000000000",
-    ifscCode: /^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)
-      ? ifscCode
-      : "ABCD0123456",
+    accountNumber,
+    ifscCode,
   };
 };
 
@@ -233,7 +249,7 @@ export const ItrApiService = {
       // Try via apiClient first
       try {
         return await apiClient.post<string>("/api/v1/itr/submit", undefined, { headers, params });
-      } catch (clientErr) {
+      } catch {
         // Fallback to fetchApi directly
         const baseUrl = await getBaseUrl();
         let url = `${baseUrl}/submit?itrId=${encodeURIComponent(cleanItrId)}`;
@@ -259,30 +275,21 @@ const populateFormDataWithDocuments = async (
     "doc-ais-tis": "aisTis",
     "doc-bank": "bankAccountStatement",
     "doc-salary-slips": "salaryPayslips",
+    "doc-capital-gains": "capitalGainsStatement",
+    "doc-business-turnover": "businessTurnover",
   };
 
   let hasUploadedAny = false;
 
   for (const doc of documents) {
-    if (doc.fileUri && fieldMapping[doc.id]) {
+    if (doc.fileUri && fieldMapping[doc.id] && doc.tier !== "NOT_REQUIRED") {
       const paramName = fieldMapping[doc.id];
       try {
         const response = await fetch(doc.fileUri);
         const rawBlob = await response.blob();
 
-        let mimeType = doc.mimeType;
-        let extension = "pdf";
-
-        const lowerName = (doc.fileName || "").toLowerCase();
-        if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-          mimeType = "image/jpeg";
-          extension = "jpg";
-        } else if (lowerName.endsWith(".png")) {
-          mimeType = "image/png";
-          extension = "png";
-        } else {
-          mimeType = mimeType || "application/pdf";
-        }
+        const extension = getFileExtension(doc.fileName) || resolveExtensionFromMime(doc.mimeType);
+        const mimeType = resolveItrMimeType(doc.fileName, doc.mimeType);
 
         const fileBlob = new Blob([rawBlob], { type: mimeType });
         const finalFileName = doc.fileName || `${doc.id}.${extension}`;

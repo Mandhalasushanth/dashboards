@@ -115,7 +115,7 @@ export const DocumentUploadBottomSheet: React.FC<DocumentUploadBottomSheetProps>
                     </View>
                     <View style={styles.optionTextBox}>
                       <Text style={styles.optionTitle}>Choose from Files / Drive</Text>
-                      <Text style={styles.optionDesc}>PDF, JPG or PNG (Recommended)</Text>
+                      <Text style={styles.optionDesc}>PDF, JPG or PNG</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
                   </TouchableOpacity>

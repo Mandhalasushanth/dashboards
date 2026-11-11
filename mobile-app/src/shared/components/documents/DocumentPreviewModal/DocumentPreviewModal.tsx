@@ -71,6 +71,18 @@ export const DocumentPreviewModal = <T extends PreviewDocumentItem = PreviewDocu
       document.fileUri.endsWith(".png") ||
       Boolean(document.mimeType && document.mimeType.startsWith("image/"));
 
+    const handleOpenPdf = async () => {
+      try {
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(document.fileUri!);
+        } else {
+          Alert.alert("Viewer", `Unable to open an external viewer for ${document.fileName || "this file"}`);
+        }
+      } catch {
+        Alert.alert("Viewer", `Unable to open ${document.fileName || "the file"}`);
+      }
+    };
+
     return (
       <Modal
         visible={visible}
@@ -128,6 +140,14 @@ export const DocumentPreviewModal = <T extends PreviewDocumentItem = PreviewDocu
                           Ready for CA verification
                         </Text>
                       </View>
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={styles.changeBtn}
+                        onPress={handleOpenPdf}
+                      >
+                        <Ionicons name="open-outline" size={16} color="#083B75" />
+                        <Text style={styles.changeBtnText}>Open PDF Viewer</Text>
+                      </TouchableOpacity>
                     </View>
                   )}
                 </View>

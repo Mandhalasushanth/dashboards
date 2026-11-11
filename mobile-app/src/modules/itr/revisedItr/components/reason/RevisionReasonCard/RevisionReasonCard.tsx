@@ -31,7 +31,7 @@ export const RevisionReasonCard: React.FC<RevisionReasonCardProps> = ({
         <Ionicons
           name={item.iconName}
           size={22}
-          color={isSelected ? "#EA580C" : "#0B1F3A"}
+          color={isSelected ? "#EA580C" : "#083B75"}
         />
       </View>
 

@@ -16,7 +16,6 @@ import com.taxedge.security.api.service.SandboxAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,7 +28,6 @@ public class SandboxHttpExecutor {
 
     private final SandboxAuthService sandboxAuthService;
 
-    
     public String execute(Function<String, HttpRequest> requestFactory, String operation) {
         return execute(requestFactory, sandboxAuthService.getAccessToken(), operation, true);
     }
@@ -38,8 +36,10 @@ public class SandboxHttpExecutor {
                            String operation, boolean allowRefresh) {
 
         try {
-            HttpResponse<String> response = HTTP_CLIENT.send(
-                    requestFactory.apply(token), HttpResponse.BodyHandlers.ofString());
+            HttpRequest request = requestFactory.apply(token);
+            log.info("Sending {} to {}", operation, request.uri());
+
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
             int status = response.statusCode();
 
@@ -53,11 +53,14 @@ public class SandboxHttpExecutor {
 
             if (status >= 400 && status < 500) {
                 log.warn("{} rejected with status {}: {}", operation, status, response.body());
-                throw new IllegalArgumentException(operation + " rejected with status " + status);
+                String errorMsg = response.body() != null && !response.body().isBlank()
+                        ? response.body()
+                        : (operation + " rejected with status " + status);
+                throw new IllegalArgumentException(errorMsg);
             }
 
             log.error("{} failed with status {}: {}", operation, status, response.body());
-            throw new ExternalServiceException(operation + " failed with status " + status);
+            throw new ExternalServiceException(operation + " failed with status " + status + ": " + response.body());
 
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();

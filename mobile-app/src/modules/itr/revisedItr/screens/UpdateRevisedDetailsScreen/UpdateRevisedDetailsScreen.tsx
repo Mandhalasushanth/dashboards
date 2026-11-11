@@ -1,130 +1,89 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
+  ScrollView,
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareFormLayout";
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { useRevisedProgressStore } from "../../store/revisedProgressStore";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { RevisedItrApiService } from "../../services/RevisedItrApiService";
-import { RevisedItrHeader } from "../../components/common";
+import { RevisedItrHeader, RevisedItrAckInfoIcon } from "../../components/common";
 import { RevisedFormField } from "../../components/update";
 import { DEFAULT_REVISED_FORM_FIELDS } from "../../mock/revisedItrData";
 import { RevisedFormFields } from "../../types/revisedItr.types";
+import { formatIndianAmount } from "@/shared/formatters/currencyFormatter";
+import {
+  validateSingleField,
+  validateAllRevisedFields,
+} from "../../utils/revisedFieldValidation";
 import {
   styles,
   getContainerInsetsStyle,
   getScrollContentInsetsStyle,
-  getBottomBarInsetsStyle,
 } from "./UpdateRevisedDetailsScreen.styles";
 
 export const UpdateRevisedDetailsScreen: React.FC = () => {
   const router = useRouter();
-  const maxStepReached = useRevisedProgressStore((s) => s.maxStepReached);
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{
-      acknowledgementNumber?: string;
-      assessmentYear?: string;
-      revisionReason?: string;
-      otherReasonText?: string;
-      revisedDetails?: string;
-      isEditing?: string;
-    }>();
+    acknowledgementNumber?: string;
+    assessmentYear?: string;
+    revisionReason?: string;
+    otherReasonText?: string;
+    revisedDetails?: string;
+    isEditing?: string;
+  }>();
 
   const reason = params.revisionReason || "missed_income";
   const originalValues: RevisedFormFields = DEFAULT_REVISED_FORM_FIELDS;
 
   const storeFormData = useRevisedProgressStore((s) => s.formData);
   const setStoreFormData = useRevisedProgressStore((s) => s.setFormData);
-  
-  const getInitialForm = () => {
+
+  const getInitialForm = (): RevisedFormFields => {
     if (params.revisedDetails) {
       try {
-        return JSON.parse(params.revisedDetails);
-      } catch (e) {}
+        const parsed: unknown = JSON.parse(params.revisedDetails);
+        if (parsed && typeof parsed === "object") {
+          return { ...DEFAULT_REVISED_FORM_FIELDS, ...(parsed as Partial<RevisedFormFields>) };
+        }
+      } catch { }
     }
-    return storeFormData || DEFAULT_REVISED_FORM_FIELDS;
+    if (storeFormData) {
+      return { ...DEFAULT_REVISED_FORM_FIELDS, ...storeFormData };
+    }
+    return DEFAULT_REVISED_FORM_FIELDS;
   };
-  
+
   const [form, setForm] = useState<RevisedFormFields>(getInitialForm());
-  
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (!storeFormData) {
       setStoreFormData(DEFAULT_REVISED_FORM_FIELDS);
     }
-  }, []);
-  
+  }, [setStoreFormData, storeFormData]);
+
   // Update store when form changes
-  React.useEffect(() => {
+  useEffect(() => {
     setStoreFormData(form);
-  }, [form]);
+  }, [form, setStoreFormData]);
+
   const [errors, setErrors] = useState<Partial<Record<keyof RevisedFormFields, string>>>({});
-
-  const parseNum = (str: string): number => {
-    const cleaned = (str || "").replace(/[^\d.-]/g, "");
-    const val = parseFloat(cleaned);
-    return isNaN(val) ? 0 : val;
-  };
-
-  const formatRupee = (amount: number): string => {
-    const abs = Math.abs(amount).toLocaleString("en-IN");
-    if (amount > 0) return `+₹${abs}`;
-    if (amount < 0) return `-₹${abs}`;
-    return "—";
-  };
-
-  const getChange = (orig: string, rev: string): string => {
-    if (!rev || rev.trim() === "") return "—";
-    const o = parseNum(orig);
-    const r = parseNum(rev);
-    const diff = r - o;
-    if (diff === 0) return "—";
-    return formatRupee(diff);
-  };
 
   const handleChange = (field: keyof RevisedFormFields, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    const fieldError = validateSingleField(field, value, reason);
+    setErrors((prev) => ({ ...prev, [field]: fieldError }));
   };
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof RevisedFormFields, string>> = {};
-
-    if (reason === "missed_income" || reason === "other") {
-      if (!form.salaryBusinessIncome.trim()) {
-        newErrors.salaryBusinessIncome = "Salary / Business income is required.";
-      }
-      if (!form.taxableIncome.trim()) {
-        newErrors.taxableIncome = "Taxable income is required.";
-      }
-    }
-
-    if (reason === "wrong_deduction") {
-      if (!form.taxableIncome.trim()) {
-        newErrors.taxableIncome = "Taxable income is required.";
-      }
-    }
-
-    if (reason === "incorrect_bank") {
-      const cleanBank = form.bankAccount.replace(/[^\w]/g, "");
-      if (!cleanBank || cleanBank.length < 4) {
-        newErrors.bankAccount = "Enter a valid bank account number.";
-      }
-      const cleanIfsc = form.ifsc.trim().toUpperCase();
-      if (!cleanIfsc) {
-        newErrors.ifsc = "IFSC code is required.";
-      } else if (cleanIfsc.length !== 11) {
-        newErrors.ifsc = "IFSC must be 11 characters.";
-      }
-    }
-
+    const newErrors = validateAllRevisedFields(form, reason);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -152,7 +111,7 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
         homeLoanInterest: form.homeLoanInterest || "0",
         taxableIncome: form.taxableIncome || "0",
         bankAccountForRefund: form.bankAccount || "1234567890",
-        ifscCode: form.ifsc || "SBIN0001234"
+        ifscCode: form.ifsc || "SBIN0001234",
       };
 
       const response = await RevisedItrApiService.saveRevisedDetails(payload);
@@ -166,7 +125,7 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
         pathname: "/service/revised-itr-documents" as any,
         params: {
           acknowledgementNumber: params.acknowledgementNumber,
-          assessmentYear: params.assessmentYear || "AY 2025—26",
+          assessmentYear: params.assessmentYear || "AY 2026-27",
           revisionReason: params.revisionReason,
           revisedDetails: JSON.stringify(form),
         },
@@ -199,20 +158,20 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
         homeLoanInterest: form.homeLoanInterest || "0",
         taxableIncome: form.taxableIncome || "0",
         bankAccountForRefund: form.bankAccount || "1234567890",
-        ifscCode: form.ifsc || "SBIN0001234"
+        ifscCode: form.ifsc || "SBIN0001234",
       };
 
       await RevisedItrApiService.updateRevisedDetails(detailsId, payload);
-      
+
       // Redirect back to Review screen
       router.push({
         pathname: "/service/revised-itr-review" as any,
         params: {
           acknowledgementNumber: params.acknowledgementNumber,
-          assessmentYear: params.assessmentYear || "AY 2025—26",
+          assessmentYear: params.assessmentYear || "AY 2026-27",
           revisionReason: params.revisionReason,
           revisedDetails: JSON.stringify(form),
-        }
+        },
       });
     } catch (e) {
       console.error("Error updating revised details:", e);
@@ -227,10 +186,15 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
       <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Screen Header */}
-      <RevisedItrHeader subtitle="Update Details" hideBackButton={params.isEditing === "true"} />
+      <RevisedItrHeader
+        subtitle="Update Revised Details"
+        currentStep={3}
+        totalSteps={5}
+        hideBackButton={params.isEditing === "true"}
+      />
 
       {/* Main Content */}
-      <KeyboardAwareScrollView
+      <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
           getScrollContentInsetsStyle(insets.bottom),
@@ -240,9 +204,9 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
       >
         {/* Title Section */}
         <View style={styles.titleSection}>
-          <Text style={styles.pageTitle}>Update only what changed</Text>
+          <Text style={styles.pageTitle}>Update Revised Details</Text>
           <Text style={styles.pageSubtitle}>
-            Edit only the figures that need correcting.
+            Enter the updated figures that require correction in your return.
           </Text>
         </View>
 
@@ -254,95 +218,197 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
           </View>
         ) : null}
 
-        {/* 1. Missed Income Fields */}
+        {/* 1. Missed Income Fields Card */}
         {(reason === "missed_income" || reason === "other") && (
-          <View>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Income Correction</Text>
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={styles.cardHeaderLeft}>
+                <Ionicons name="cash-outline" size={18} color="#083B75" />
+                <Text style={styles.cardTitle}>Income Correction</Text>
+                <RevisedItrAckInfoIcon
+                  title="Income Correction Info"
+                  text="Update your corrected salary, business, or other income figures. Taxable income will be recomputed accordingly."
+                  style={styles.infoIconSpacing}
+                />
+              </View>
             </View>
+            <Text style={styles.cardDescription}>
+              Update the corrected income amounts for this assessment year.
+            </Text>
 
+            {/* Field 1: Salary / Business Income */}
             <RevisedFormField
               label="Salary / Business income"
               value={form.salaryBusinessIncome}
-              originalValue={`₹${originalValues.salaryBusinessIncome}`}
-              changeValue={getChange(originalValues.salaryBusinessIncome, form.salaryBusinessIncome)}
-              onChangeText={(val) => handleChange("salaryBusinessIncome", val.replace(/[^0-9]/g, ""))}
-                maxLength={12}
-                keyboardType="numeric"
+              originalValue={
+                originalValues.salaryBusinessIncome
+                  ? `₹${formatIndianAmount(originalValues.salaryBusinessIncome)}`
+                  : undefined
+              }
+              onChangeText={(val) => handleChange("salaryBusinessIncome", val)}
+              maxLength={12}
               isMandatory
+              isAmount
               placeholder="Enter revised income"
               error={errors.salaryBusinessIncome}
             />
 
+            {/* Field 2: Taxable Income (Placed above Other Income as requested) */}
+            <RevisedFormField
+              label="Taxable income"
+              value={form.taxableIncome}
+              originalValue={
+                originalValues.taxableIncome
+                  ? `₹${formatIndianAmount(originalValues.taxableIncome)}`
+                  : undefined
+              }
+              onChangeText={(val) => handleChange("taxableIncome", val)}
+              maxLength={12}
+              isMandatory
+              isAmount
+              placeholder="Enter taxable income"
+              error={errors.taxableIncome}
+            />
+
+            {/* Field 3: Other Income with Helper Description */}
             <RevisedFormField
               label="Other income"
               value={form.otherIncome}
-              originalValue={`₹${originalValues.otherIncome}`}
-              changeValue={getChange(originalValues.otherIncome, form.otherIncome)}
-              onChangeText={(val) => handleChange("otherIncome", val.replace(/[^0-9]/g, ""))}
-                maxLength={12}
-                keyboardType="numeric"
-              placeholder="Enter revised income"
+              originalValue={
+                originalValues.otherIncome
+                  ? `₹${formatIndianAmount(originalValues.otherIncome)}`
+                  : undefined
+              }
+              onChangeText={(val) => handleChange("otherIncome", val)}
+              maxLength={12}
+              isAmount
+              placeholder="Enter revised other income"
               error={errors.otherIncome}
+              helperText="Includes interest from savings/FD, dividend income, capital gains, gifts, or freelance income."
             />
           </View>
         )}
 
-        {/* 2. Wrong Deduction Fields */}
+        {/* 2. Wrong Deduction Fields Card */}
         {(reason === "wrong_deduction" || reason === "other") && (
-          <View>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Deduction Correction</Text>
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={styles.cardHeaderLeft}>
+                <Ionicons name="document-text-outline" size={18} color="#083B75" />
+                <Text style={styles.cardTitle}>Deduction Correction</Text>
+                <RevisedItrAckInfoIcon
+                  title="Deduction Correction Info"
+                  text="Enter revised deductions under Chapter VI-A (80C, 80D, home loan interest) that were missed or wrongly claimed."
+                  style={styles.infoIconSpacing}
+                />
+              </View>
             </View>
+            <Text style={styles.cardDescription}>
+              Enter the revised eligible deduction amounts under Chapter VI-A and Section 24.
+            </Text>
 
             <RevisedFormField
               label="80C deduction"
               value={form.sec80c}
-              originalValue={`₹${originalValues.sec80c}`}
-              changeValue={getChange(originalValues.sec80c, form.sec80c)}
-              onChangeText={(val) => handleChange("sec80c", val.replace(/[^0-9]/g, ""))}
-                maxLength={12}
-                keyboardType="numeric"
+              originalValue={
+                originalValues.sec80c
+                  ? `₹${formatIndianAmount(originalValues.sec80c)}`
+                  : undefined
+              }
+              onChangeText={(val) => handleChange("sec80c", val)}
+              maxLength={12}
+              isAmount
               placeholder="Enter amount"
+              error={errors.sec80c}
+              infoTooltip={{
+                title: "80C Deduction Info",
+                text: "Tax deductions up to ₹1,50,000 for investments in PPF, EPF, ELSS mutual funds, life insurance premiums, and NSC.",
+              }}
             />
 
             <RevisedFormField
               label="80D deduction"
               value={form.sec80d}
-              originalValue={`₹${originalValues.sec80d}`}
-              changeValue={getChange(originalValues.sec80d, form.sec80d)}
-              onChangeText={(val) => handleChange("sec80d", val.replace(/[^0-9]/g, ""))}
-                maxLength={12}
-                keyboardType="numeric"
+              originalValue={
+                originalValues.sec80d
+                  ? `₹${formatIndianAmount(originalValues.sec80d)}`
+                  : undefined
+              }
+              onChangeText={(val) => handleChange("sec80d", val)}
+              maxLength={12}
+              isAmount
               placeholder="Enter amount"
+              error={errors.sec80d}
+              infoTooltip={{
+                title: "80D Deduction Info",
+                text: "Tax deductions for medical insurance premiums paid for self, family (up to ₹25,000/₹50,000) and senior citizen parents.",
+              }}
             />
 
             <RevisedFormField
               label="Home loan interest"
               value={form.homeLoanInterest}
-              originalValue={`₹${originalValues.homeLoanInterest}`}
-              changeValue={getChange(originalValues.homeLoanInterest, form.homeLoanInterest)}
-              onChangeText={(val) => handleChange("homeLoanInterest", val.replace(/[^0-9]/g, ""))}
-                maxLength={12}
-                keyboardType="numeric"
+              originalValue={
+                originalValues.homeLoanInterest
+                  ? `₹${formatIndianAmount(originalValues.homeLoanInterest)}`
+                  : undefined
+              }
+              onChangeText={(val) => handleChange("homeLoanInterest", val)}
+              maxLength={12}
+              isAmount
               placeholder="Enter amount"
+              error={errors.homeLoanInterest}
+              infoTooltip={{
+                title: "Home Loan Interest Info",
+                text: "Tax deduction up to ₹2,00,000 for interest paid on home loan for a self-occupied property.",
+              }}
             />
+
+            {/* Taxable Income for Wrong Deduction */}
+            {reason === "wrong_deduction" && (
+              <RevisedFormField
+                label="Taxable income"
+                value={form.taxableIncome}
+                originalValue={
+                  originalValues.taxableIncome
+                    ? `₹${formatIndianAmount(originalValues.taxableIncome)}`
+                    : undefined
+                }
+                onChangeText={(val) => handleChange("taxableIncome", val)}
+                maxLength={12}
+                isMandatory
+                isAmount
+                placeholder="Enter taxable income"
+                error={errors.taxableIncome}
+              />
+            )}
           </View>
         )}
 
-        {/* 3. Incorrect Bank Fields */}
+        {/* 3. Incorrect Bank Fields Card */}
         {(reason === "incorrect_bank" || reason === "other") && (
-          <View>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Bank Details Correction</Text>
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={styles.cardHeaderLeft}>
+                <Ionicons name="business-outline" size={18} color="#083B75" />
+                <Text style={styles.cardTitle}>Bank Details Correction</Text>
+                <RevisedItrAckInfoIcon
+                  title="Bank Details Correction Info"
+                  text="Provide the updated bank account number and IFSC where you wish to receive any approved income tax refund."
+                  style={styles.infoIconSpacing}
+                />
+              </View>
             </View>
+            <Text style={styles.cardDescription}>
+              Provide the correct bank account details to receive your income tax refund.
+            </Text>
 
             <RevisedFormField
               label="Bank account for refund"
               value={form.bankAccount}
               originalValue={originalValues.bankAccount}
               onChangeText={(val) => handleChange("bankAccount", val)}
-                maxLength={18}
+              maxLength={18}
               isMandatory
               placeholder="Enter bank account number"
               error={errors.bankAccount}
@@ -353,7 +419,7 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
               value={form.ifsc}
               originalValue={originalValues.ifsc}
               onChangeText={(val) => handleChange("ifsc", val.toUpperCase())}
-                maxLength={11}
+              maxLength={11}
               isMandatory
               autoCapitalize="characters"
               placeholder="Enter 11-digit IFSC"
@@ -362,62 +428,37 @@ export const UpdateRevisedDetailsScreen: React.FC = () => {
           </View>
         )}
 
-        {/* 4. Taxable Income (for income, deduction, or other revisions) */}
-        {reason !== "incorrect_bank" && (
-          <View>
-            <RevisedFormField
-              label="Taxable income"
-              value={form.taxableIncome}
-              originalValue={`₹${originalValues.taxableIncome}`}
-              changeValue={getChange(originalValues.taxableIncome, form.taxableIncome)}
-              onChangeText={(val) => handleChange("taxableIncome", val.replace(/[^0-9]/g, ""))}
-                maxLength={12}
-                keyboardType="numeric"
-              isMandatory
-              placeholder="Enter taxable income"
-              error={errors.taxableIncome}
-            />
-          </View>
-        )}
-      </KeyboardAwareScrollView>
-
-      {/* Sticky Bottom Action Button */}
-      <View
-        style={[
-          styles.bottomBar,
-          getBottomBarInsetsStyle(insets.bottom),
-        ]}
-      >
-        {params.isEditing === "true" ? (
-          /* Separate Button 1: Update & Continue (PUT Method) */
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleUpdateAndContinue}
-            style={styles.continueButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.continueButtonText}>Update & Continue</Text>
-            )}
-          </TouchableOpacity>
-        ) : (
-          /* Separate Button 2: Continue (POST Method) */
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleContinue}
-            style={styles.continueButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.continueButtonText}>Continue</Text>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
+        {/* Action Button — In Scroll Flow (Matching GST Filing) */}
+        <View style={styles.buttonWrapper}>
+          {params.isEditing === "true" ? (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleUpdateAndContinue}
+              style={styles.continueButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.continueButtonText}>Update & Continue</Text>
+              )}
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleContinue}
+              style={styles.continueButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.continueButtonText}>Continue</Text>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
     </View>
   );
 };

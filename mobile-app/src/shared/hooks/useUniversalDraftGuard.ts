@@ -5,10 +5,10 @@ import { toHref } from "@/shared/utils/navigation";
 export interface UseUniversalDraftGuardOptions {
   /** Return true if the user has unsaved input/dirty state that should trigger draft confirmation */
   isDirty: () => boolean;
-  /** Callback executed when user chooses "Save as Draft & Exit" */
-  onSaveDraft: () => void;
-  /** Callback executed when user chooses "Discard & Exit" */
-  onDiscardDraft: () => void;
+  /** Callback executed when user chooses "Save as Draft & Exit" — may be async */
+  onSaveDraft: () => void | Promise<void>;
+  /** Callback executed when user chooses "Discard & Exit" — may be async */
+  onDiscardDraft: () => void | Promise<void>;
   /** Return true if screen is in final success/completed state where user can navigate away freely */
   isSubmitted?: () => boolean;
   /** Optional explicit route to navigate to when discarding, overriding the original back action */
@@ -71,8 +71,9 @@ export const useUniversalDraftGuard = ({
     disablePreventionRef.current = disablePrevention;
   }, [disablePrevention]);
 
-  const handleSaveAndExit = useCallback(() => {
-    onSaveDraftRef.current();
+  // BUG_B24_001: both handlers must await async onSaveDraft/onDiscardDraft before navigating
+  const handleSaveAndExit = useCallback(async () => {
+    await onSaveDraftRef.current();
     setShowDraftModal(false);
     isModalShownRef.current = false;
     setHasExited(true);
@@ -93,8 +94,8 @@ export const useUniversalDraftGuard = ({
     }
   }, [router]);
 
-  const handleDiscardAndExit = useCallback(() => {
-    onDiscardDraftRef.current();
+  const handleDiscardAndExit = useCallback(async () => {
+    await onDiscardDraftRef.current();
     setShowDraftModal(false);
     isModalShownRef.current = false;
     setHasExited(true);

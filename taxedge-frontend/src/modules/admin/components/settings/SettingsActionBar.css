@@ -1,0 +1,60 @@
+.tx-settings-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px clamp(18px, 3vw, 28px);
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  border: 1px solid var(--tx-border);
+  border-top: none;
+  border-radius: 0 0 var(--tx-radius-lg) var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: 0 -6px 16px -12px rgba(15, 23, 42, 0.25);
+}
+
+.tx-settings-actions__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.tx-settings-actions__status--idle {
+  color: var(--tx-secondary-text);
+}
+
+.tx-settings-actions__status--pending {
+  font-weight: 600;
+  color: var(--tx-primary-orange);
+}
+
+.tx-settings-actions__status--success {
+  font-weight: 600;
+  color: var(--tx-success);
+}
+
+.tx-settings-actions__status--error {
+  font-weight: 600;
+  color: var(--tx-error);
+}
+
+.tx-settings-actions__buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+@media (max-width: 480px) {
+  .tx-settings-actions__buttons {
+    width: 100%;
+  }
+
+  .tx-settings-actions__buttons .tx-button {
+    flex: 1;
+  }
+}

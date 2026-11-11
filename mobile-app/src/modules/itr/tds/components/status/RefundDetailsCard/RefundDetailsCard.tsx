@@ -43,7 +43,7 @@ export const RefundDetailsCard: React.FC<RefundDetailsCardProps> = ({ details })
     },
     {
       id: "time",
-      label: "Indicative TaxEdge processing timeline",
+      label: "Indicative Finsolz processing timeline",
       value: details.indicativeTimeline || "10–20 Business Days",
       iconName: "time-outline" as const,
       isHighlight: false,

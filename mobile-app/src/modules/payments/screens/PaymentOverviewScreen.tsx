@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Image,
   Alert,
   BackHandler,
 } from "react-native";
@@ -15,10 +14,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { useTheme } from "@/hooks/use-theme";
 import { useApplicationStore } from "@/store/applicationStore";
-import { useNotificationStore } from "@/store/notificationStore";
 import { SCREEN_BOTTOM_PADDING } from "@/shared/components/ScreenLayout";
-import { Spacing } from "@/shared/theme";
-import { styles } from "./PaymentOverviewScreen.styles";
+import { styles, getPaymentHeaderThemedStyle } from "./PaymentOverviewScreen.styles";
+import { HeaderGradientBackground } from "@/shared/components/HeaderGradientBackground/HeaderGradientBackground";
 import type { Application } from "@/types/domain";
 
 export function PaymentOverviewScreen() {
@@ -28,7 +26,6 @@ export function PaymentOverviewScreen() {
 
   const applications = useApplicationStore((s) => s.applications);
   const loadApplications = useApplicationStore((s) => s.loadApplications);
-  const unreadCount = useNotificationStore((s) => s.unreadCount);
 
   useFocusEffect(
     useCallback(() => {
@@ -112,54 +109,53 @@ export function PaymentOverviewScreen() {
         backgroundColor={colors.primaryDark}
       />
 
-      {/* Header bar matching branding */}
-      <View
-        style={[
-          styles.heroHeader,
-          {
-            backgroundColor: colors.primaryDark,
-            paddingTop: insets.top + Spacing.sm,
-          },
-        ]}
-      >
-        <View style={styles.topHeaderRow}>
-          <View style={styles.brandContainer}>
-            <View style={styles.logoBox}>
-              <Image
-                source={require("@/../assets/images/icon.png")}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-            <View>
-              <Text style={styles.brandText}>TAXEDGE</Text>
-              <Text style={styles.brandSubText}>FIN SOLUTIONS</Text>
-            </View>
+      {/* ── Navy Curved Header Matching My Applications ── */}
+      <View style={[styles.navyHeader, getPaymentHeaderThemedStyle(insets.top)]}>
+        <HeaderGradientBackground />
+        <View style={styles.headerTopRow}>
+          <View style={styles.headerTitleWrap}>
+            <Text style={styles.headerTitle}>Payments</Text>
+            <Text style={styles.headerSubtitle}>
+              View dues, payments and receipts in one place.
+            </Text>
           </View>
+        </View>
 
-          <Text style={styles.screenTitle}>Payments</Text>
+        {/* ── Payment Overview Card (Inside Navy Header) ── */}
+        <View style={styles.overviewCardWrapper}>
+          <View style={styles.overviewCard}>
+            <View style={styles.overviewHeaderRow}>
+              <View style={styles.overviewIconBox}>
+                <Ionicons name="card" size={18} color="#0284C7" />
+              </View>
+              <Text style={styles.overviewTitle}>Payment Overview</Text>
+            </View>
 
-          <View style={styles.headerIcons}>
-            <TouchableOpacity
-              onPress={() => router.push("/notifications")}
-              style={styles.iconBtn}
-              hitSlop={6}
-            >
-              <Ionicons
-                name="notifications-outline"
-                size={22}
-                color="#FFFFFF"
-              />
-              {unreadCount > 0 && (
-                <View
-                  style={[styles.badge, { backgroundColor: colors.orange }]}
+            <View style={styles.statsRow}>
+              <View style={styles.statCol}>
+                <Text style={styles.statLabel}>Total Paid</Text>
+                <Text style={styles.statValue}>
+                  ₹{totalPaid.toLocaleString("en-IN")}
+                </Text>
+              </View>
+
+              <View style={[styles.statCol, styles.statColDivider]}>
+                <Text style={styles.statLabel}>Pending</Text>
+                <Text
+                  style={[
+                    styles.statValue,
+                    pendingAmount > 0 ? styles.statValuePending : null,
+                  ]}
                 >
-                  <Text style={styles.badgeText}>
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
+                  ₹{pendingAmount.toLocaleString("en-IN")}
+                </Text>
+              </View>
+
+              <View style={[styles.statCol, styles.statColDivider]}>
+                <Text style={styles.statLabel}>Transactions</Text>
+                <Text style={styles.statValue}>{totalTransactions}</Text>
+              </View>
+            </View>
           </View>
         </View>
       </View>
@@ -179,50 +175,6 @@ export function PaymentOverviewScreen() {
           />
         }
       >
-        {/* Page Heading */}
-        <View style={styles.pageHeading}>
-          <Text style={styles.mainTitle}>Manage your payments</Text>
-          <Text style={styles.subTitle}>
-            View dues, payments and receipts in one place.
-          </Text>
-        </View>
-
-        {/* 1. Payment Overview Card */}
-        <View style={styles.overviewCard}>
-          <View style={styles.overviewHeaderRow}>
-            <View style={styles.overviewIconBox}>
-              <Ionicons name="card" size={18} color="#0284C7" />
-            </View>
-            <Text style={styles.overviewTitle}>Payment Overview</Text>
-          </View>
-
-          <View style={styles.statsRow}>
-            <View style={styles.statCol}>
-              <Text style={styles.statLabel}>Total Paid</Text>
-              <Text style={styles.statValue}>
-                ₹{totalPaid.toLocaleString("en-IN")}
-              </Text>
-            </View>
-
-            <View style={[styles.statCol, styles.statColDivider]}>
-              <Text style={styles.statLabel}>Pending</Text>
-              <Text
-                style={[
-                  styles.statValue,
-                  pendingAmount > 0 ? { color: "#EA580C" } : null,
-                ]}
-              >
-                ₹{pendingAmount.toLocaleString("en-IN")}
-              </Text>
-            </View>
-
-            <View style={[styles.statCol, styles.statColDivider]}>
-              <Text style={styles.statLabel}>Transactions</Text>
-              <Text style={styles.statValue}>{totalTransactions}</Text>
-            </View>
-          </View>
-        </View>
-
         {/* 2. Dues Section: Pending Applications or "No payments yet" */}
         {pendingApps.length === 0 ? (
           <View style={styles.emptyDuesCard}>
@@ -250,7 +202,7 @@ export function PaymentOverviewScreen() {
             </View>
           </View>
         ) : (
-          <View style={{ marginBottom: Spacing.lg }}>
+          <View style={styles.pendingContainer}>
             <View style={styles.pendingSectionHeader}>
               <Text style={styles.sectionHeading}>Pending Payments</Text>
             </View>
@@ -314,7 +266,7 @@ export function PaymentOverviewScreen() {
               <View key={app.id} style={styles.activityCard}>
                 <View style={styles.activityLeft}>
                   <Text style={styles.activityTitle}>
-                    {app.serviceName || "TaxEdge Service"}
+                    {app.serviceName || "Finsolz Service"}
                   </Text>
                   <Text style={styles.activityDate}>
                     App #{app.id} • {app.createdAt || "Paid"}

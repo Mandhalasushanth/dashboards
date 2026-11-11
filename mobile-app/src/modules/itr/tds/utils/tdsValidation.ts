@@ -11,6 +11,13 @@ export const PINCODE_REGEX = /^[1-9][0-9]{5}$/;
 export const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 export const ACCOUNT_NUMBER_REGEX = /^[0-9]{9,18}$/;
 
+export {
+  sanitizeNameInput,
+  sanitizeNameOnBlur,
+  isValidName,
+  getNameValidationError,
+} from "@/shared/validators/nameValidator";
+
 export const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB standard
 export const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png"];
 

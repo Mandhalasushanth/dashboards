@@ -1,0 +1,97 @@
+.tx-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--tx-radius-md);
+  font-weight: 600;
+  white-space: nowrap;
+  user-select: none;
+  transition: background-color var(--tx-transition-fast), border-color var(--tx-transition-fast),
+    box-shadow var(--tx-transition-fast), transform var(--tx-transition-fast), opacity var(--tx-transition-fast);
+}
+
+.tx-button:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring-orange);
+}
+
+.tx-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.tx-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.tx-button--md {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.tx-button--lg {
+  min-height: 50px;
+  padding: 12px 22px;
+  font-size: 16px;
+}
+
+.tx-button--full {
+  width: 100%;
+}
+
+.tx-button--primary {
+  background: var(--tx-orange-gradient);
+  color: var(--tx-on-dark-text);
+  box-shadow: 0 10px 24px -10px rgba(249, 115, 22, 0.7);
+}
+
+.tx-button--primary:hover:not(:disabled) {
+  background: var(--tx-feature-orange);
+}
+
+.tx-button--secondary {
+  background-color: var(--tx-surface);
+  color: var(--tx-primary-navy);
+  border-color: var(--tx-border);
+}
+
+.tx-button--secondary:hover:not(:disabled) {
+  background-color: var(--tx-light-blue);
+  border-color: var(--tx-primary-blue);
+}
+
+.tx-button--secondary:focus-visible {
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-button--ghost {
+  background-color: transparent;
+  color: var(--tx-on-dark-text);
+  border-color: var(--tx-on-dark-field-border);
+}
+
+.tx-button--ghost:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.tx-button--danger {
+  background-color: var(--tx-error);
+  color: var(--tx-on-dark-text);
+  box-shadow: 0 4px 14px -3px rgba(220, 38, 38, 0.45);
+}
+
+.tx-button--danger:hover:not(:disabled) {
+  background-color: var(--tx-error-strong);
+}
+
+.tx-button--danger:focus-visible {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35);
+}
+
+.tx-button__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

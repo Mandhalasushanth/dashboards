@@ -7,7 +7,7 @@ export interface GstFilingPayload {
   filingFrequency: "MONTHLY" | "QUARTERLY" | "ANNUAL_FINANCIAL_YEAR";
   returnType: "GSTR_1" | "GSTR_3B";
   filingType: "NIL_RETURN" | "REGULAR";
-  taxCalculationMethod: "ESTIMATION_FIGURES" | "TAXEDGE_CA_CALCULATION";
+  taxCalculationMethod: "ESTIMATION_FIGURES" | "FINSOLZ_CA_CALCULATION";
   estimatedTaxableSales: number | null;
   estimatedTaxablePurchases: number | null;
   estimatedEligibleItc: number | null;

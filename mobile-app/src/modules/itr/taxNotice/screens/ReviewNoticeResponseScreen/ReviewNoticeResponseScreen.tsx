@@ -74,7 +74,7 @@ The proposed adjustment relates to interest income reflected in the Annual Infor
 We request that the return be processed accordingly.
 
 Yours faithfully,
-For TaxEdge Finsolz
+For Finsolz Finsolz
 Meera Iyer, Tax Executive`;
 
   const handleSendEditRequest = () => {

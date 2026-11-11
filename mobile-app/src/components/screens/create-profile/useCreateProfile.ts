@@ -7,8 +7,11 @@ import {
   Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { Keyboard } from "react-native";
 import { useAuthStore } from "@/store/authStore";
 import { biometricService } from "@/modules/authentication/services/biometricService";
+import { validatePan } from "@/shared/validators/indianTaxValidators";
+import { useAadhaarOtp } from "./useAadhaarOtp";
 import {
   sanitizePanInput,
   formatDobInput,
@@ -108,7 +111,7 @@ export function useCreateProfile(
     state: "",
     password: "",
     confirmPassword: "",
-    customerType: params.customerType || "Individual",
+    customerType: params.customerType || "",
   });
 
   useEffect(() => {
@@ -124,9 +127,49 @@ export function useCreateProfile(
       setForm((p) => ({ ...p, mobileNumber: storeMobileNumber }));
   }, [storeMobileNumber]);
 
-  // ─── PAN Keyboard Type ───────────────────────────────────────────────────────
-  const panKeyboardType: "default" | "number-pad" =
-    form.pan.length >= 5 && form.pan.length < 9 ? "number-pad" : "default";
+  // ─── PAN Validity ────────────────────────────────────────────────────────────
+  const isPanValid = useMemo(() => validatePan(form.pan), [form.pan]);
+
+  // ─── Aadhaar OTP Hook ────────────────────────────────────────────────────────
+  const {
+    isAadhaarValid,
+    isOtpButtonEnabled,
+    isAadhaarOtpSent,
+    isAadhaarVerified,
+    aadhaarOtp,
+    aadhaarOtpTimer,
+    aadhaarOtpError,
+    handleSendAadhaarOtp,
+    handleResendAadhaarOtp,
+    handleVerifyAadhaarOtp,
+    handleAadhaarOtpChange,
+    resetAadhaarVerification,
+    formatOtpTime,
+  } = useAadhaarOtp({
+    aadhaarNumber: form.aadhaar,
+    onVerificationSuccess: () => {
+      setProfileErrors((prev) => {
+        const next = { ...prev };
+        delete next.aadhaar;
+        return next;
+      });
+    },
+    onClearAadhaarError: () => {
+      setProfileErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.aadhaar;
+        return copy;
+      });
+    },
+    onSetAadhaarError: (error: string) => {
+      setProfileErrors((prev) => ({ ...prev, aadhaar: error }));
+    },
+  });
+
+  const handleResetAadhaarVerification = () => {
+    resetAadhaarVerification();
+    setTimeout(() => aadhaarRef.current?.focus(), 150);
+  };
 
   // ─── PAN Sanitizer (functional, zero loops) ──────────────────────────────────
   const handlePanChange = (text: string) => {
@@ -135,6 +178,11 @@ export function useCreateProfile(
 
   // ─── Form Update with Real-Time Validation ──────────────────────────────────
   const updateForm = (key: keyof SignupForm, rawVal: string) => {
+    // If Aadhaar changes, reset verification status
+    if (key === "aadhaar" && rawVal !== form.aadhaar) {
+      resetAadhaarVerification();
+    }
+
     // No leading or doubled spaces while typing (email: no spaces at all).
     const val = cleanFieldWhileTyping(key, rawVal);
     setForm((p) => ({ ...p, [key]: val }));
@@ -203,18 +251,23 @@ export function useCreateProfile(
 
   // ─── Form Validity (memoized) ────────────────────────────────────────────────
   const isFormValid = useMemo(() => {
-    return checkFormValidity(
-      form,
-      agreedToTerms,
-      form.mobileNumber || storeMobileNumber
+    return (
+      checkFormValidity(
+        form,
+        agreedToTerms,
+        form.mobileNumber || storeMobileNumber
+      ) && isAadhaarVerified
     );
-  }, [form, agreedToTerms, storeMobileNumber]);
+  }, [form, agreedToTerms, storeMobileNumber, isAadhaarVerified]);
 
   // ─── Step Navigation ─────────────────────────────────────────────────────────
   const handleProceedToRegistration = () => {
-    !form.customerType
-      ? Alert.alert("Account Type Required", "Please select an account type.")
-      : (setCurrentStep(2), scrollRef.current?.scrollTo({ y: 0, animated: true }));
+    if (!form.customerType) {
+      Alert.alert("Account Type Required", "Please select an account type to continue.");
+      return;
+    }
+    setCurrentStep(2);
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
 
   const handleBack = () => {
@@ -239,27 +292,27 @@ export function useCreateProfile(
       setProfileLoading(false);
       res.success
         ? (async () => {
-            const pendingRoute = useAuthStore.getState().pendingServiceRoute;
-            useAuthStore.getState().setPendingServiceRoute(null);
-            const destination = pendingRoute || "/(main)/home";
-            try {
-              const hasHardware = await biometricService.checkHardwareSupport();
-              const isEnrolled = await biometricService.checkEnrollment();
-              const isAlreadyEnabled = await biometricService.isBiometricEnabled();
-              hasHardware && isEnrolled && !isAlreadyEnabled
-                ? (async () => {
-                    const typeLabel = await biometricService.getBiometricTypeLabel();
-                    setBiometricType(typeLabel);
-                    setPendingPostRegistrationRoute(destination);
-                    setShowBiometricModal(true);
-                  })()
-                : router.replace(toHref(destination));
-              return;
-            } catch (bioCheckErr) {
-              logger.warn("Biometric check error during registration", { error: getErrorMessage(bioCheckErr) });
-            }
-            router.replace(toHref(destination));
-          })()
+          const pendingRoute = useAuthStore.getState().pendingServiceRoute;
+          useAuthStore.getState().setPendingServiceRoute(null);
+          const destination = pendingRoute || "/(main)/home";
+          try {
+            const hasHardware = await biometricService.checkHardwareSupport();
+            const isEnrolled = await biometricService.checkEnrollment();
+            const isAlreadyEnabled = await biometricService.isBiometricEnabled();
+            hasHardware && isEnrolled && !isAlreadyEnabled
+              ? (async () => {
+                const typeLabel = await biometricService.getBiometricTypeLabel();
+                setBiometricType(typeLabel);
+                setPendingPostRegistrationRoute(destination);
+                setShowBiometricModal(true);
+              })()
+              : router.replace(toHref(destination));
+            return;
+          } catch (bioCheckErr) {
+            logger.warn("Biometric check error during registration", { error: getErrorMessage(bioCheckErr) });
+          }
+          router.replace(toHref(destination));
+        })()
         : res.requiresReverification
           ? (Alert.alert("Verification expired", res.error || "Please verify your mobile number again."),
             router.replace("/(auth)/login"))
@@ -308,23 +361,34 @@ export function useCreateProfile(
     const addressTooLong = validateFormAddressLength(form);
     if (addressTooLong && !errs.addressLine1) errs.addressLine1 = addressTooLong;
 
+    // Aadhaar OTP Verification enforcement
+    if (!isAadhaarVerified) {
+      if (!form.aadhaar.trim()) {
+        errs.aadhaar = "Required";
+      } else if (!isAadhaarOtpSent) {
+        errs.aadhaar = "Please send OTP and verify your Aadhaar number";
+      } else {
+        errs.aadhaar = "Please complete Aadhaar OTP verification to continue";
+      }
+    }
+
     const hasErrors = Object.keys(errs).length > 0;
     hasErrors
       ? (() => {
-          setProfileErrors(errs);
-          const firstInvalid = fieldOrder.find((item) => Boolean(errs[item.key]));
-          firstInvalid
-            ? (() => {
-                const y = fieldYOffsets.current[firstInvalid.key];
-                y !== undefined &&
-                  scrollRef.current?.scrollTo({ y: Math.max(0, y - 70), animated: true });
-                firstInvalid.ref?.current &&
-                  setTimeout(() => firstInvalid.ref?.current?.focus(), 150);
-              })()
-            : errs.terms
-              ? scrollRef.current?.scrollToEnd({ animated: true })
-              : undefined;
-        })()
+        setProfileErrors(errs);
+        const firstInvalid = fieldOrder.find((item) => Boolean(errs[item.key]));
+        firstInvalid
+          ? (() => {
+            const y = fieldYOffsets.current[firstInvalid.key];
+            y !== undefined &&
+              scrollRef.current?.scrollTo({ y: Math.max(0, y - 70), animated: true });
+            firstInvalid.ref?.current &&
+              setTimeout(() => firstInvalid.ref?.current?.focus(), 150);
+          })()
+          : errs.terms
+            ? scrollRef.current?.scrollToEnd({ animated: true })
+            : undefined;
+      })()
       : executeRegistrationRequest();
   };
 
@@ -369,7 +433,6 @@ export function useCreateProfile(
     handleProceedToRegistration,
     handleFinalRegistration,
     handleBack,
-    panKeyboardType,
     showPassword,
     setShowPassword,
     showConfirmPassword,
@@ -402,5 +465,19 @@ export function useCreateProfile(
     biometricType,
     handleEnableBiometric,
     handleNotNowBiometric,
+    isPanValid,
+    isAadhaarValid,
+    isOtpButtonEnabled,
+    isAadhaarOtpSent,
+    isAadhaarVerified,
+    aadhaarOtp,
+    aadhaarOtpTimer,
+    aadhaarOtpError,
+    handleSendAadhaarOtp,
+    handleResendAadhaarOtp,
+    handleVerifyAadhaarOtp,
+    handleAadhaarOtpChange,
+    handleResetAadhaarVerification,
+    formatOtpTime,
   };
 }

@@ -1,0 +1,71 @@
+.tx-case-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: var(--tx-radius-full);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tx-case-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.tx-case-status--new,
+.tx-case-status--info {
+  background: var(--tx-light-blue);
+  color: var(--tx-primary-blue);
+}
+
+.tx-case-status--navy,
+.tx-case-status--review {
+  background: var(--tx-light-navy);
+  color: var(--tx-primary-navy);
+}
+
+.tx-case-status--warning {
+  background: var(--tx-warning-light);
+  color: var(--tx-warning-strong);
+}
+
+.tx-case-status--success {
+  background: var(--tx-success-light);
+  color: var(--tx-success);
+}
+
+.tx-case-status--danger {
+  background: var(--tx-error-light);
+  color: var(--tx-error);
+}
+
+.tx-case-status--neutral {
+  background: var(--tx-subtle-border);
+  color: var(--tx-secondary-text);
+}
+
+.tx-service-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--tx-radius-sm);
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tx-service-badge--ca {
+  background: var(--tx-light-navy);
+  color: var(--tx-primary-navy);
+}
+
+.tx-service-badge--loan {
+  background: var(--tx-light-orange);
+  color: var(--tx-primary-orange);
+}
+

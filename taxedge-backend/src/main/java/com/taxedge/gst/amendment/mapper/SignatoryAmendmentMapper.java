@@ -18,6 +18,7 @@ public interface SignatoryAmendmentMapper {
     SignatoryAmendmentViewDto toDto(SignatoryAmendmentEntity entity);
 
     @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "submittedAt", ignore = true)
@@ -26,6 +27,7 @@ public interface SignatoryAmendmentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "submittedAt", ignore = true)

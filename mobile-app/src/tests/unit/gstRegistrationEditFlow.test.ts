@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Edit Mode Navigation & Back Button Visibility Unit Tests
+// Finsolz GST Registration — Edit Mode Navigation & Back Button Visibility Unit Tests
 // - Normal registration: Back buttons are visible on steps before and on Review.
 // - Clicking Edit from Review: Back button is hidden on the selected editing screen.
 // - Throughout edit flow: Back button remains hidden while isEditMode is active.

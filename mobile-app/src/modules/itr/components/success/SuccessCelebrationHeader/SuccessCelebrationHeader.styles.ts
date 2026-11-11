@@ -64,16 +64,19 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 7,
     marginTop: 14,
+    maxWidth: "90%",
   },
   idLabel: {
     fontSize: 12.5,
     fontWeight: "600",
     color: "#0B1F3A",
+    flexShrink: 0,
   },
   idValue: {
     fontSize: 13,
     fontWeight: "800",
     color: "#16A34A",
     letterSpacing: 0.3,
+    flexShrink: 1,
   },
 });

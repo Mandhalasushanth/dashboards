@@ -61,6 +61,7 @@ export interface SubmissionResult {
   isCore: boolean;
   gstin: string;
   estCompletion: string;
+  businessName?: string;
 }
 
 export interface AmendmentFormData {

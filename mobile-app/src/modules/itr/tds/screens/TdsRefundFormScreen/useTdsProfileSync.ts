@@ -82,6 +82,15 @@ export function useTdsProfileSync(
       const rawPan = apiRes?.pan || currentCustomer?.pan || (currentAuthUser as any)?.pan || "";
       const rawAadhaar = apiRes?.aadhaar || currentCustomer?.aadhaar || (currentAuthUser as any)?.aadhaar || "";
       const rawDob = apiRes?.dob || apiRes?.dateOfBirth || currentCustomer?.dob || (currentAuthUser as any)?.dob || "";
+      // BUG_B25_002: API returns YYYY-MM-DD; normalize to DD-MM-YYYY so the edit form and
+      // validation (which expect DD-MM-YYYY) see the correct format
+      let normalizedDob = rawDob;
+      if (rawDob) {
+        const apiFormat = /^(\d{4})-(\d{2})-(\d{2})$/.exec(rawDob.trim());
+        if (apiFormat) {
+          normalizedDob = `${apiFormat[3]}-${apiFormat[2]}-${apiFormat[1]}`;
+        }
+      }
       const rawMobile = apiRes?.mobileNumber || apiRes?.mobile || currentCustomer?.mobile || (currentAuthUser as any)?.mobileNumber || "";
       const rawEmail = apiRes?.email || currentCustomer?.email || (currentAuthUser as any)?.email || "";
       const rawName = apiRes?.name || apiRes?.fullName || currentCustomer?.name || (currentAuthUser as any)?.name || "";
@@ -100,7 +109,7 @@ export function useTdsProfileSync(
         fullName: rawName,
         pan: rawPan,
         aadhaar: rawAadhaar,
-        dob: rawDob,
+        dob: normalizedDob,
         mobileNumber: rawMobile,
         email: rawEmail,
         residentialAddress: rawAddress,

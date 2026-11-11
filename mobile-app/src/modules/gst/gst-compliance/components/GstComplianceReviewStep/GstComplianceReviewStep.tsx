@@ -67,7 +67,7 @@ export const GstComplianceReviewStep: React.FC<GstComplianceReviewStepProps> = (
       if (/^(blob:|https?:|data:)/i.test(previewDoc.uri)) {
         const opened = window.open(previewDoc.uri, "_blank", "noopener,noreferrer");
         if (!opened) {
-          setShareError("Pop-up was blocked. Please allow pop-ups for TaxEdge to open the document.");
+          setShareError("Pop-up was blocked. Please allow pop-ups for Finsolz to open the document.");
         }
       } else {
         setShareError("Direct browser opening is not supported for this file scheme.");
@@ -88,7 +88,7 @@ export const GstComplianceReviewStep: React.FC<GstComplianceReviewStepProps> = (
           if (/^(blob:|https?:|data:)/i.test(previewDoc.uri)) {
             const opened = window.open(previewDoc.uri, "_blank", "noopener,noreferrer");
             if (!opened) {
-              setShareError("Pop-up was blocked. Please allow pop-ups for TaxEdge to open the document.");
+              setShareError("Pop-up was blocked. Please allow pop-ups for Finsolz to open the document.");
             }
           } else {
             setShareError("Direct browser opening is not supported for this file scheme.");
@@ -227,7 +227,7 @@ export const GstComplianceReviewStep: React.FC<GstComplianceReviewStepProps> = (
             Ready for CA Review & Filing
           </Text>
           <Text style={[styles.readySub, isDark && styles.readySubDark]}>
-            TaxEdge CA compliance desk will verify your records and prepare the official response.
+            Finsolz CA compliance desk will verify your records and prepare the official response.
           </Text>
         </View>
       </View>

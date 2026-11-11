@@ -13,6 +13,7 @@ export const styles = StyleSheet.create({
     backgroundColor: BrandColors.BACKGROUND,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
   },
@@ -142,28 +143,61 @@ export const styles = StyleSheet.create({
     lineHeight: 16,
     fontWeight: Typography.fontWeight.regular,
   },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: BrandColors.WHITE,
-    paddingHorizontal: Spacing.base,
-    paddingTop: 10,
-    borderTopWidth: BorderWidth.thin,
-    borderTopColor: "#F1F5F9",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0B1F3A",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.04,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 6,
-      },
-      default: {},
-    }),
+  docItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: BorderWidth.thin,
+    borderBottomColor: "#F1F5F9",
+  },
+  docItemRowLast: {
+    borderBottomWidth: 0,
+  },
+  docLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    gap: 8,
+    marginRight: 10,
+  },
+  docTextGroup: {
+    flex: 1,
+  },
+  docName: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#0F172A",
+  },
+  docMeta: {
+    fontSize: 11,
+    color: "#64748B",
+    marginTop: 2,
+  },
+  uploadedBadge: {
+    backgroundColor: "#DCFCE7",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  uploadedBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#166534",
+  },
+  emptyDocsText: {
+    fontSize: 12,
+    color: "#94A3B8",
+    fontStyle: "italic",
+    paddingVertical: 6,
+  },
+  buttonWrapper: {
+    marginTop: "auto",
+    paddingTop: 24,
+    marginBottom: 20,
   },
   proceedButton: {
     height: 52,
@@ -199,9 +233,5 @@ export const getContainerInsetsStyle = (top: number): ViewStyle => ({
 });
 
 export const getScrollContentInsetsStyle = (bottom: number): ViewStyle => ({
-  paddingBottom: bottom + 90,
-});
-
-export const getBottomBarInsetsStyle = (bottom: number): ViewStyle => ({
-  paddingBottom: Math.max(bottom, 12),
+  paddingBottom: Math.max(bottom, 24) + 16,
 });

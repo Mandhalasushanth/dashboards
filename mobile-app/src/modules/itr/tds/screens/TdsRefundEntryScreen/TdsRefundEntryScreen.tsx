@@ -89,7 +89,7 @@ export const TdsRefundEntryScreen: React.FC = () => {
         {/* Navy Hero Card */}
         <TdsHeroCard />
 
-        {/* Why choose TaxEdge? 2x2 Grid */}
+        {/* Why choose Finsolz? 2x2 Grid */}
         <TdsBenefitsGrid />
 
 

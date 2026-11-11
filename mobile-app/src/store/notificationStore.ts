@@ -7,7 +7,7 @@ import { getErrorMessage } from "@/core/error-handling/errorMessage";
 
 const getNotificationsStorageKey = (): string => {
   const activeMobile = String(authStorage.getSession()?.activeMobile || "").replace(/\D/g, "");
-  return activeMobile ? `@taxedge_notifications_${activeMobile}` : "@taxedge_notifications_anonymous";
+  return activeMobile ? `@finsolz_notifications_${activeMobile}` : "@finsolz_notifications_anonymous";
 };
 
 /**

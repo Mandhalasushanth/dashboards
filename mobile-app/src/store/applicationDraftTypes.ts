@@ -99,7 +99,7 @@ export interface TdsDraftDocument {
 
 export interface TdsDraft {
   id?: string;
-  formData?: Record<string, unknown>;
+  formData?: Record<string, any>;
   documents?: TdsDraftDocument[];
   step?: "FORM" | "DOCUMENTS" | string;
   updatedAt?: string;

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getInitialFormData } from "./itrInitialState";
-import { recalculateItrForm } from "./itrStoreHelpers";
+import { recalculateItrForm, deepMergeItrFormData, buildApplicationDraftPayload } from "./itrStoreHelpers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuthStore } from "@/store/authStore";
 import { useApplicationStore } from "@/store/applicationStore";
@@ -20,21 +20,24 @@ import {
   ItrStructuredDeductions,
   TaxesPaidDetails,
   TaxRegimeType,
-  ItrDocumentItem,
   GstReconciliationSummary,
   ItrCategoryType,
   IncomeSourcesState,
 } from "../itr-filing/types/itrFiling.types";
-import { determineApplicableItrForm } from "../itr-filing/engine/itrFormEngine";
-import { calculateItrTax } from "../itr-filing/engine/itrTaxCalculator";
-import { generateDynamicDocumentChecklist } from "../itr-filing/engine/itrDocumentEngine";
-import { getCurrentAssessmentYear } from "../taxRules";
+import { logger } from "@/core/logging/logger";
 export interface ItrDraftState {
   id: string;
   stepIndex: number;
+  maxStepReached?: number;
   formData: ItrFilingFormData;
   updatedAt: string;
 }
+
+const getCleanMobile = (): string => {
+  const auth = useAuthStore.getState();
+  const rawMobile = auth.customer?.mobile || auth.authenticatedUser?.mobileNumber || auth.mobileNumber || "user";
+  return String(rawMobile).replace(/\D/g, "") || "user";
+};
 interface ITRState {
   currentStep: number;
   maxStepReached: number;
@@ -69,15 +72,23 @@ interface ITRState {
   setBackendIds: (ids: { itrId?: string; incomeId?: string; documentId?: string }) => void;
   // Draft handling
   itrDraft: ItrDraftState | null;
-  saveItrDraft: () => void;
+  /** True between clearItrDraft() and the next saveItrDraft(). Blocks restoreItrDraft() so
+   *  a stale AsyncStorage entry left by an in-flight removal cannot pollute a new application. */
+  _draftCleared: boolean;
+  /** True when AsyncStorage.removeItem failed in clearItrDraft(). resetForm() propagates this
+   *  into _draftCleared so restoration is blocked until saveItrDraft() overwrites the stale key. */
+  _storageCleanFailed: boolean;
+  saveItrDraft: () => Promise<void>;
   restoreItrDraft: () => Promise<boolean>;
-  clearItrDraft: () => void;
+  clearItrDraft: () => Promise<void>;
   resetForm: () => void;
   fetchAndPopulateUserProfile: () => Promise<void>;
 }
 export const useITRStore = create<ITRState>((set, get) => ({
   currentStep: 0,
   maxStepReached: 0,
+  _draftCleared: false,
+  _storageCleanFailed: false,
   setStep: (step) => set((state) => ({
     currentStep: step,
     maxStepReached: Math.max(state.maxStepReached, step)
@@ -98,22 +109,29 @@ export const useITRStore = create<ITRState>((set, get) => ({
         otherSources: { ...prevSources.otherSources, enabled: false },
       };
       if (category === "salaried") newSources.salary.enabled = true;
-    else if (category === "business") { newSources.business.enabled = true; newSources.business.businessType = "presumptive_44ad"; }
-    else if (category === "professional" || category === "freelancer") { newSources.business.enabled = true; newSources.business.businessType = "presumptive_44ada"; }
-    else if (category === "trader_investor") { newSources.capitalGains.enabled = true; newSources.capitalGains.hasFnoIntraday = true; }
-    else if (category === "rental") { newSources.houseProperty.enabled = true; newSources.houseProperty.propertyType = "let_out"; }
-    else if (category === "capital_gains") { newSources.capitalGains.enabled = true; }
-    else if (category === "multiple") { newSources.salary.enabled = true; newSources.business.enabled = true; }
-      return { formData: recalculateItrForm({ ...state.formData,
+      else if (category === "business") { newSources.business.enabled = true; newSources.business.businessType = "presumptive_44ad"; }
+      else if (category === "professional" || category === "freelancer") { newSources.business.enabled = true; newSources.business.businessType = "presumptive_44ada"; }
+      else if (category === "trader_investor") { newSources.capitalGains.enabled = true; newSources.capitalGains.hasFnoIntraday = true; }
+      else if (category === "rental") { newSources.houseProperty.enabled = true; newSources.houseProperty.propertyType = "let_out"; }
+      else if (category === "capital_gains") { newSources.capitalGains.enabled = true; }
+      else if (category === "multiple") { newSources.salary.enabled = true; newSources.business.enabled = true; }
+      return {
+        formData: recalculateItrForm({
+          ...state.formData,
           category,
-          incomeSources: newSources, }) };
+          incomeSources: newSources,
+        })
+      };
     }),
   setPersonalInfo: (info) =>
     set((state) => {
       const personalInfo = { ...state.formData.personalInfo, ...info };
-      return { formData: recalculateItrForm({ ...state.formData,
+      return {
+        formData: recalculateItrForm({
+          ...state.formData,
           personalInfo,
-           }) };
+        })
+      };
     }),
   selectRefundBank: (bankId) =>
     set((state) => {
@@ -158,14 +176,14 @@ export const useITRStore = create<ITRState>((set, get) => ({
           bankAccountsList: updatedList,
           ...(isSelected
             ? {
-                bankDetails: {
-                  ...state.formData.bankDetails,
-                  bankName: updatedBank.bankName,
-                  accountNumber: updatedBank.accountNumber,
-                  ifscCode: updatedBank.ifscCode,
-                  accountType: updatedBank.accountType,
-                },
-              }
+              bankDetails: {
+                ...state.formData.bankDetails,
+                bankName: updatedBank.bankName,
+                accountNumber: updatedBank.accountNumber,
+                ifscCode: updatedBank.ifscCode,
+                accountType: updatedBank.accountType,
+              },
+            }
             : {}),
         },
       };
@@ -178,25 +196,12 @@ export const useITRStore = create<ITRState>((set, get) => ({
       },
     })),
   setPriorItrNotice: (data) =>
-    set((state) => {
-      const priorItrNotice = { ...state.formData.priorItrNotice, ...data };
-      const documents = generateDynamicDocumentChecklist(
-        state.formData.incomeSources,
-        priorItrNotice,
-        state.formData.deductions,
-        state.formData.taxesPaid,
-        state.formData.regime,
-        state.formData.personalInfo,
-        state.formData.documents
-      );
-      return {
-        formData: {
-          ...state.formData,
-          priorItrNotice,
-          documents,
-        },
-      };
-    }),
+    set((state) => ({
+      formData: recalculateItrForm({
+        ...state.formData,
+        priorItrNotice: { ...state.formData.priorItrNotice, ...data },
+      }),
+    })),
   importPriorItrData: (selectedKeys) =>
     set((state) => {
       const prior = state.formData.priorItrNotice;
@@ -218,8 +223,12 @@ export const useITRStore = create<ITRState>((set, get) => ({
     set((state) => {
       const salary = { ...state.formData.incomeSources.salary, ...data };
       const incomeSources = { ...state.formData.incomeSources, salary };
-      return { formData: recalculateItrForm({ ...state.formData,
-          incomeSources, }) };
+      return {
+        formData: recalculateItrForm({
+          ...state.formData,
+          incomeSources,
+        })
+      };
     }),
   setIncomeHouseProperty: (data) =>
     set((state) => {
@@ -228,15 +237,23 @@ export const useITRStore = create<ITRState>((set, get) => ({
         ...data,
       };
       const incomeSources = { ...state.formData.incomeSources, houseProperty };
-      return { formData: recalculateItrForm({ ...state.formData,
-          incomeSources, }) };
+      return {
+        formData: recalculateItrForm({
+          ...state.formData,
+          incomeSources,
+        })
+      };
     }),
   setIncomeBusiness: (data) =>
     set((state) => {
       const business = { ...state.formData.incomeSources.business, ...data };
       const incomeSources = { ...state.formData.incomeSources, business };
-      return { formData: recalculateItrForm({ ...state.formData,
-          incomeSources, }) };
+      return {
+        formData: recalculateItrForm({
+          ...state.formData,
+          incomeSources,
+        })
+      };
     }),
   setIncomeCapitalGains: (data) =>
     set((state) => {
@@ -245,8 +262,12 @@ export const useITRStore = create<ITRState>((set, get) => ({
         ...data,
       };
       const incomeSources = { ...state.formData.incomeSources, capitalGains };
-      return { formData: recalculateItrForm({ ...state.formData,
-          incomeSources, }) };
+      return {
+        formData: recalculateItrForm({
+          ...state.formData,
+          incomeSources,
+        })
+      };
     }),
   setIncomeOtherSources: (data) =>
     set((state) => {
@@ -257,72 +278,31 @@ export const useITRStore = create<ITRState>((set, get) => ({
       const incomeSources = { ...state.formData.incomeSources, otherSources };
       return { formData: recalculateItrForm({ ...state.formData, incomeSources }) };
     }),
-    setRegime: (regime) =>
+  setRegime: (regime) =>
     set((state) => {
       return { formData: recalculateItrForm({ ...state.formData, regime }) };
     }),
 
   setDeductions: (deductionsPartial) =>
-    set((state) => {
-      const deductions = {
-        ...state.formData.deductions,
-        ...deductionsPartial,
-      };
-      const ay = state.formData.personalInfo.assessmentYear;
-      const calculation = calculateItrTax(
-        state.formData.incomeSources,
-        deductions,
-        state.formData.taxesPaid,
-        state.formData.regime,
-        ay
-      );
-      const documents = generateDynamicDocumentChecklist(
-        state.formData.incomeSources,
-        state.formData.priorItrNotice,
-        deductions,
-        state.formData.taxesPaid,
-        state.formData.regime,
-        state.formData.personalInfo,
-        state.formData.documents
-      );
-      return {
-        formData: {
-          ...state.formData,
-          deductions,
-          calculation,
-          documents,
+    set((state) => ({
+      formData: recalculateItrForm({
+        ...state.formData,
+        deductions: {
+          ...state.formData.deductions,
+          ...deductionsPartial,
         },
-      };
-    }),
+      }),
+    })),
   setTaxesPaid: (taxesPartial) =>
-    set((state) => {
-      const taxesPaid = { ...state.formData.taxesPaid, ...taxesPartial };
-      const ay = state.formData.personalInfo.assessmentYear;
-      const calculation = calculateItrTax(
-        state.formData.incomeSources,
-        state.formData.deductions,
-        taxesPaid,
-        state.formData.regime,
-        ay
-      );
-      const documents = generateDynamicDocumentChecklist(
-        state.formData.incomeSources,
-        state.formData.priorItrNotice,
-        state.formData.deductions,
-        taxesPaid,
-        state.formData.regime,
-        state.formData.personalInfo,
-        state.formData.documents
-      );
-      return {
-        formData: {
-          ...state.formData,
-          taxesPaid,
-          calculation,
-          documents,
+    set((state) => ({
+      formData: recalculateItrForm({
+        ...state.formData,
+        taxesPaid: {
+          ...state.formData.taxesPaid,
+          ...taxesPartial,
         },
-      };
-    }),
+      }),
+    })),
   setDeclarationAccepted: (declarationAccepted) =>
     set((state) => ({
       formData: { ...state.formData, declarationAccepted },
@@ -355,71 +335,56 @@ export const useITRStore = create<ITRState>((set, get) => ({
       };
     }),
   itrDraft: null,
-  saveItrDraft: () => {
-    const { currentStep, formData } = get();
+  saveItrDraft: async (): Promise<void> => {
+    const { currentStep, maxStepReached, formData } = get();
     const draft: ItrDraftState = {
       id: `itr-draft-${Date.now()}`,
       stepIndex: currentStep,
+      maxStepReached,
       formData,
       updatedAt: new Date().toISOString(),
     };
-    set({ itrDraft: draft });
-    const auth = useAuthStore.getState();
-    const rawMobile = auth.customer?.mobile || auth.authenticatedUser?.mobileNumber || auth.mobileNumber || "user";
-    const clean = String(rawMobile).replace(/\D/g, "") || "user";
-    addDraftToIndex(clean, "itr-filing");
-    useApplicationStore.getState().saveItrDraft({
-      id: draft.id,
+    set({ itrDraft: draft, _draftCleared: false, _storageCleanFailed: false });
+    const clean = getCleanMobile();
+
+    const storagePayload = {
+      serviceKey: "itr-filing",
+      serviceName: "ITR Filing",
+      category: "ITR",
+      step: currentStep,
       stepIndex: currentStep,
-      category: formData.category || "salaried",
-      categoryTitle: formData.determinedForm?.formTitle || "ITR Filing",
-      formType: formData.determinedForm?.form || "ITR-1",
-      assessmentYear: formData.personalInfo?.assessmentYear || "",
-      incomeAmount: String(formData.calculation?.grossTotalIncome || "0"),
-      regime: formData.regime || "new",
-      bankDetails: {
-        bankName: formData.bankDetails?.bankName || "",
-        accountNumber: formData.bankDetails?.accountNumber || "",
-        ifscCode: formData.bankDetails?.ifscCode || "",
-        accountType: formData.bankDetails?.accountType || "Savings",
-      },
-      deductions: {
-        sec80c: String(formData.calculation?.totalDeductions || "0"),
-        sec80d: formData.deductions?.sec80d?.selfSpouseChildren || "0",
-        homeLoan24b: formData.deductions?.sec24b || "0",
-        educationLoan80e: formData.deductions?.sec80e || "0",
-        otherDeductions: "0",
-      },
-      previousFilingOption: formData.priorItrNotice?.hasPreviousItr ? "yes" : "no",
-      previousAckNumber: formData.priorItrNotice?.previousAckNumber || "",
-      documents: (formData.documents || []) as any,
-      filingData: formData as any,
+      maxStepReached,
+      formData,
+      documents: formData.documents,
       updatedAt: draft.updatedAt,
-    } as any);
-    AsyncStorage.setItem(
-      `@taxedge_draft_${clean}_itr-filing`,
-      JSON.stringify({
-        serviceKey: "itr-filing",
-        serviceName: "ITR Filing",
-        category: "ITR",
-        step: currentStep,
-        stepIndex: currentStep,
-        formData,
-        documents: formData.documents,
-        updatedAt: draft.updatedAt,
-      })
-    ).catch(() => {});
-  },
-  restoreItrDraft: async () => {
+    };
+    await AsyncStorage.setItem(`@finsolz_draft_${clean}_itr-filing`, JSON.stringify(storagePayload));
+
     try {
-      const authState = useAuthStore.getState();
-      const mobile =
-        authState.customer?.mobile ||
-        authState.authenticatedUser?.mobileNumber ||
-        authState.mobileNumber ||
-        "user";
-      const clean = String(mobile).replace(/\D/g, "") || "user";
-      const raw = await AsyncStorage.getItem(`@taxedge_draft_${clean}_itr-filing`);
+      await addDraftToIndex(clean, "itr-filing");
+    } catch (indexErr) {
+      logger.warn("[ITRStore] Failed to update draft index", {
+        error: indexErr instanceof Error ? indexErr.message : String(indexErr),
+      });
+    }
+
+    try {
+      useApplicationStore.getState().saveItrDraft(
+        buildApplicationDraftPayload(draft.id, currentStep, formData, draft.updatedAt) as any
+      );
+    } catch (appStoreErr) {
+      logger.warn("[ITRStore] Failed to sync applicationStore draft", {
+        error: appStoreErr instanceof Error ? appStoreErr.message : String(appStoreErr),
+      });
+    }
+  },
+  restoreItrDraft: async (): Promise<boolean> => {
+    // If the draft was cleared in this session (e.g. after submit), skip restoration.
+    // This prevents a stale AsyncStorage entry from being read before the async removal finishes.
+    if (get()._draftCleared) return false;
+    try {
+      const clean = getCleanMobile();
+      const raw = await AsyncStorage.getItem(`@finsolz_draft_${clean}_itr-filing`);
       let draftData: any = null;
       if (raw) {
         draftData = JSON.parse(raw);
@@ -433,18 +398,26 @@ export const useITRStore = create<ITRState>((set, get) => ({
           : typeof draftData.step === "number"
             ? draftData.step
             : 0;
+
+      const parsedMaxStep =
+        typeof draftData.maxStepReached === "number"
+          ? draftData.maxStepReached
+          : (restoredStep >= 3 ? 3 : restoredStep);
+      const restoredMaxStep = Math.max(restoredStep, parsedMaxStep);
+
       const restoredFormData = draftData.formData || draftData.filingData;
       if (restoredFormData) {
+        const merged = deepMergeItrFormData(getInitialFormData(), restoredFormData);
+        const recalculated = recalculateItrForm(merged);
         set({
           currentStep: restoredStep,
-          formData: {
-            ...getInitialFormData(),
-            ...restoredFormData,
-          },
+          maxStepReached: restoredMaxStep,
+          formData: recalculated,
           itrDraft: {
             id: draftData.id || `itr-draft-${Date.now()}`,
             stepIndex: restoredStep,
-            formData: restoredFormData,
+            maxStepReached: restoredMaxStep,
+            formData: recalculated,
             updatedAt: draftData.updatedAt || new Date().toISOString(),
           },
         });
@@ -455,45 +428,58 @@ export const useITRStore = create<ITRState>((set, get) => ({
       return false;
     }
   },
-  clearItrDraft: () => {
-    set({ itrDraft: null });
-    const auth = useAuthStore.getState();
-    const rawMobile = auth.customer?.mobile || auth.authenticatedUser?.mobileNumber || auth.mobileNumber || "user";
-    const clean = String(rawMobile).replace(/\D/g, "") || "user";
-    removeDraftFromIndex(clean, "itr-filing");
+  clearItrDraft: async (): Promise<void> => {
+    // Set the flag synchronously so restoreItrDraft() sees it immediately,
+    // even before the async storage operations below complete.
+    set({ itrDraft: null, _draftCleared: true, _storageCleanFailed: false });
+    const clean = getCleanMobile();
     useApplicationStore.getState().clearItrDraft();
-    AsyncStorage.removeItem(`@taxedge_draft_${clean}_itr-filing`).catch(() => {});
+    const results = await Promise.allSettled([
+      removeDraftFromIndex(clean, "itr-filing"),
+      AsyncStorage.removeItem(`@finsolz_draft_${clean}_itr-filing`),
+    ]);
+    if (results[1].status === "rejected") {
+      set({ _storageCleanFailed: true });
+      logger.warn("[ITRStore] Draft AsyncStorage removal failed; restoration guard stays active", {
+        reason: results[1].reason instanceof Error ? results[1].reason.message : String(results[1].reason),
+      });
+    }
   },
   resetForm: () =>
-    set({
+    set((state) => ({
       currentStep: 0,
-  maxStepReached: 0,
+      maxStepReached: 0,
       formData: getInitialFormData(),
       itrDraft: null,
-    }),
+      // Keep the guard active if storage removal failed — cleared only when saveItrDraft overwrites the key.
+      _draftCleared: state._storageCleanFailed,
+    })),
   fetchAndPopulateUserProfile: async () => {
     try {
       const p = authStorage.getUser() as any;
       if (!p) return;
-      set((prev) => ({
-        formData: {
-          ...prev.formData,
-          personalInfo: {
-            ...prev.formData.personalInfo,
-            pan: p.pan || p.panNumber || prev.formData.personalInfo.pan,
-            aadhaar: p.aadhaar || p.aadhaarNumber || prev.formData.personalInfo.aadhaar,
-            name: p.name || p.fullName || prev.formData.personalInfo.name,
-            dob: p.dob || p.dateOfBirth || prev.formData.personalInfo.dob,
-            mobile: p.mobileNumber || p.mobile || prev.formData.personalInfo.mobile,
-            email: p.email || prev.formData.personalInfo.email,
-            address: p.address || p.addressLine1 || prev.formData.personalInfo.address,
-            city: p.city || prev.formData.personalInfo.city,
-            state: p.state || prev.formData.personalInfo.state,
-            pincode: p.pincode || p.pinCode || prev.formData.personalInfo.pincode,
-            isAutoVerified: Boolean(p.pan || p.panNumber || prev.formData.personalInfo.pan),
+      set((prev) => {
+        const cur = prev.formData.personalInfo;
+        return {
+          formData: {
+            ...prev.formData,
+            personalInfo: {
+              ...cur,
+              pan: cur.pan || p.pan || p.panNumber || "",
+              aadhaar: cur.aadhaar || p.aadhaar || p.aadhaarNumber || "",
+              name: cur.name || p.name || p.fullName || "",
+              dob: cur.dob || p.dob || p.dateOfBirth || "",
+              mobile: cur.mobile || p.mobileNumber || p.mobile || "",
+              email: cur.email || p.email || "",
+              address: cur.address || p.address || p.addressLine1 || "",
+              city: cur.city || p.city || "",
+              state: cur.state || p.state || "",
+              pincode: cur.pincode || p.pincode || p.pinCode || "",
+              isAutoVerified: Boolean(cur.pan || p.pan || p.panNumber),
+            },
           },
-        },
-      }));
-    } catch {}
+        };
+      });
+    } catch { }
   },
 }));

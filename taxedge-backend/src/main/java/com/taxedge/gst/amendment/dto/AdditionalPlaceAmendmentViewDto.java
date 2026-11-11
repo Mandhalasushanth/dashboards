@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AdditionalPlaceAmendmentViewDto {
-    private Long id;
+    private String id;
     private String address;
     private String city;
     private String pinCode;

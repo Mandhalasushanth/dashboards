@@ -112,7 +112,7 @@ export const authService = {
         customerId: existing?.customerId || "",
         mobileNumber: clean,
         name: existing?.name || "",
-        email: existing?.email || `${clean}@taxedge.in`,
+        email: existing?.email || `${clean}@finsolz.in`,
         customerType: existing?.customerType || "Individual",
         registrationCompleted: profileCompleted || Boolean(existing?.registrationCompleted),
       };
@@ -190,7 +190,7 @@ export const authService = {
       mobileNumber: mobile,
       passcode,
       name: params.name.trim(),
-      email: params.email?.trim() || `${mobile}@taxedge.in`,
+      email: params.email?.trim() || `${mobile}@finsolz.in`,
       customerType: params.customerType || "Individual",
       dob: params.dob?.trim() || "",
       gender: params.gender?.trim() || "",
@@ -265,7 +265,7 @@ export const authService = {
         customerId: `CUST-2026-${clean.slice(-5)}`,
         mobileNumber: clean,
         name: "Valued Client",
-        email: `${clean}@taxedge.in`,
+        email: `${clean}@finsolz.in`,
         customerType: "Individual",
       };
     }

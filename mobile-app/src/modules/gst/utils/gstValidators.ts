@@ -18,8 +18,8 @@ import { validateGstinFull } from "./gstValidation";
 export const parseAnyDate = (value?: string | null): Date | null => {
   if (!value) return null;
   const clean = value.trim();
-  const m1 = /^(\d{2})[-/](\d{2})[-/](\d{4})$/.exec(clean);
-  const m2 = /^(\d{4})[-/](\d{2})[-/](\d{2})$/.exec(clean);
+  const m1 = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/.exec(clean);
+  const m2 = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:T.*)?$/.exec(clean);
   const [y, m, d] = m1 ? [Number(m1[3]), Number(m1[2]) - 1, Number(m1[1])] : m2 ? [Number(m2[1]), Number(m2[2]) - 1, Number(m2[3])] : [];
   if (y === undefined || m === undefined || d === undefined) return null;
   const dt = new Date(y, m, d);
@@ -140,10 +140,6 @@ const validateSignatoryDob = (value?: string | null): string => {
   const selected = new Date(dob.getFullYear(), dob.getMonth(), dob.getDate());
   if (selected.getTime() > today.getTime()) return "Date of birth cannot be in the future.";
   if (selected.getTime() === today.getTime()) return "Date of birth must be earlier than today.";
-  const maxDobDate = getEighteenYearsAgo();
-  if (selected.getTime() > maxDobDate.getTime()) {
-    return "Authorized Signatory must be at least 18 years of age";
-  }
   if (dob.getFullYear() < today.getFullYear() - 120) return "Enter a valid date of birth";
   return "";
 };

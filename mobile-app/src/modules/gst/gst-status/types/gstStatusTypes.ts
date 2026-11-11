@@ -11,6 +11,7 @@ export interface GstApplicationStatusStepProps {
   businessName?: string;
   serviceName?: string;
   estCompletion?: string;
+  statusText?: string;
   isFilingWorkflow?: boolean;
   onReuploadDocuments?: () => void;
   showTimeline?: boolean;

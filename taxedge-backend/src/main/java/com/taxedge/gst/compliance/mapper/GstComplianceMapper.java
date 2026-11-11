@@ -1,5 +1,7 @@
 package com.taxedge.gst.compliance.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,4 +16,6 @@ public interface GstComplianceMapper {
     @Mapping(target = "reconciliationFile2", source = "reconciliationFile2")
     @Mapping(target = "noticeFile", source = "noticeFile")
     GstComplianceDto toDto(GstCompliance compliance);
+
+    List<GstComplianceDto> toDtoList(List<GstCompliance> compliances);
 }

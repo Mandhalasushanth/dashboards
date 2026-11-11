@@ -17,7 +17,7 @@ export const RefundProgressTracker: React.FC<RefundProgressTrackerProps> = ({
     },
     {
       title: "Payment Completed",
-      description: "TaxEdge assistance fee confirmed and assigned to CA team.",
+      description: "Finsolz assistance fee confirmed and assigned to CA team.",
     },
     {
       title: "Under Verification",

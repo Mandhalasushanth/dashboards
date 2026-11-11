@@ -16,6 +16,7 @@ public interface LegalNameAmendmentMapper {
     LegalNameAmendmentViewDto toDto(LegalNameAmendmentEntity entity);
 
     @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "submittedAt", ignore = true)
@@ -24,6 +25,7 @@ public interface LegalNameAmendmentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "submittedAt", ignore = true)

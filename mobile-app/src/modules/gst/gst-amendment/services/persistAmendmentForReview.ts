@@ -5,7 +5,7 @@ import type { AmendmentFormData, SupportingDoc } from "../types/gstAmendmentType
 interface PersistAmendmentParams {
   /** True when the user came back from Review to edit an existing amendment. */
   isEditMode: boolean;
-  amendmentId: number | null;
+  amendmentId: number | string | null;
   sectionId: string;
   targetGstId: string;
   formData: AmendmentFormData;
@@ -14,7 +14,7 @@ interface PersistAmendmentParams {
 
 interface PersistAmendmentCallbacks {
   /** Called right after a new record is saved, before it is re-fetched. */
-  onSaved: (amendmentId: number | null) => void;
+  onSaved: (amendmentId: number | string | null) => void;
   /** Called with the record to show on the Review step. */
   onReviewData: (data: unknown) => void;
 }
@@ -52,7 +52,7 @@ export const persistAmendmentForReview = async (
           if (isNotFound) {
             logger.warn("[Review] Stale amendment ID not found (404). Auto-recovering by creating fresh record", { amendmentId });
             const saved = await gstAmendmentApi.saveAmendmentRecord(sectionId, targetGstId, formData, supportingDoc);
-            const newId: number | null = saved?.id ?? null;
+            const newId: number | string | null = saved?.id ?? null;
             onSaved(newId);
             onReviewData(stripBinaryPayload(saved));
             return;
@@ -62,7 +62,7 @@ export const persistAmendmentForReview = async (
       }
 
       const saved = await gstAmendmentApi.saveAmendmentRecord(sectionId, targetGstId, formData, supportingDoc);
-      const newId: number | null = saved?.id ?? null;
+      const newId: number | string | null = saved?.id ?? null;
       onSaved(newId);
       logger.debug("[Review] Saved new record in DB, ID:", { newId });
       onReviewData(stripBinaryPayload(saved));
@@ -71,12 +71,13 @@ export const persistAmendmentForReview = async (
 
     // Review Changes: POST fetch to save data in database
     const saved = await gstAmendmentApi.saveAmendmentRecord(sectionId, targetGstId, formData, supportingDoc);
-    const newId: number | null = saved?.id ?? null;
+    const newId: number | string | null = saved?.id ?? null;
     onSaved(newId);
     logger.debug("[Review] Saved amendment in DB, ID:", { newId });
     onReviewData(stripBinaryPayload(saved));
   } catch (err) {
-    logger.warn("[persistAmendmentForReview] Network preview call failed, proceeding with local review data:", { error: err });
-    onReviewData({ id: amendmentId, ...formData });
+    logger.error("[persistAmendmentForReview] Network save call failed:", { error: err });
+    throw err;
+
   }
 };

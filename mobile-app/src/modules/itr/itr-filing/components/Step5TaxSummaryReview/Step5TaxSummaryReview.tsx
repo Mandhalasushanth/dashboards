@@ -18,7 +18,7 @@ import { styles } from "./Step5TaxSummaryReview.styles";
 interface Step5TaxSummaryReviewProps {
   formData: ItrFilingFormData;
   isSubmitting: boolean;
-  onEditStep: (stepIndex: number) => void;
+  onEditStep: (stepIndex: number, section?: string) => void;
   onToggleDeclaration: (accepted: boolean) => void;
   onSubmit: () => void;
 }
@@ -40,13 +40,13 @@ export const Step5TaxSummaryReview: React.FC<Step5TaxSummaryReviewProps> = ({
   } = formData;
 
   const verifiedOrUploadedDocs = documents.filter(
-    (d) => d.fileUri || d.isProfileVerified
+    (d) => (d.fileUri || d.isProfileVerified) && d.tier !== "NOT_REQUIRED"
   );
 
   const missingItems: MissingInfoItem[] = [];
 
   const missingRequiredDocs = documents.filter(
-    (d) => d.required && !d.fileUri && !d.isProfileVerified
+    (d) => d.tier === "REQUIRED" && d.required && !d.fileUri && !d.isProfileVerified
   );
   if (missingRequiredDocs.length > 0) {
     missingItems.push({
@@ -59,6 +59,14 @@ export const Step5TaxSummaryReview: React.FC<Step5TaxSummaryReviewProps> = ({
   }
 
   const handleSubmitPress = () => {
+    if (missingRequiredDocs.length > 0) {
+      const missingNames = missingRequiredDocs.map((d) => `• ${d.name}`).join("\n");
+      Alert.alert(
+        "Required Documents Missing",
+        `Please upload the following required documents before submitting:\n\n${missingNames}`
+      );
+      return;
+    }
     if (!declarationAccepted) {
       Alert.alert(
         "Declaration Required",
@@ -285,7 +293,7 @@ export const Step5TaxSummaryReview: React.FC<Step5TaxSummaryReviewProps> = ({
             <Ionicons name="card-outline" size={18} color="#083B75" />
             <Text style={styles.cardHeaderTitle}>Refund Bank Account</Text>
           </View>
-          <TouchableOpacity activeOpacity={0.7} onPress={() => onEditStep(0)}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => onEditStep(0, "bank")}>
             <Text style={styles.editLink}>Edit</Text>
           </TouchableOpacity>
         </View>

@@ -100,7 +100,7 @@ const placeholderUser = {
   customerId: "",
   mobileNumber: MOBILE,
   name: "",
-  email: `${MOBILE}@taxedge.in`,
+  email: `${MOBILE}@finsolz.in`,
   customerType: "Individual",
   registrationCompleted: false,
 };
@@ -315,7 +315,7 @@ test("expired registration progress is not resumed and is cleared", async () => 
 
   assert.deepEqual(decision, { kind: "RESTART" });
   assert.equal(await registration.get(), null);
-  assert.equal(harness.secureStore.has("taxedge_secure_registration_progress"), false);
+  assert.equal(harness.secureStore.has("finsolz_secure_registration_progress"), false);
 });
 
 test("progress just inside the window is still resumed", async () => {
@@ -331,7 +331,7 @@ test("progress just inside the window is still resumed", async () => {
 });
 
 test("invalid or tampered progress is ignored", async () => {
-  const key = "taxedge_secure_registration_progress";
+  const key = "finsolz_secure_registration_progress";
   const bad: string[] = [
     "not json",
     JSON.stringify({ mobile: MOBILE, stage: "PROFILE_DONE", verifiedAt: START }),

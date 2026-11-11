@@ -1,7 +1,6 @@
-import { useThemeStore } from "@/design-system/theme/themeStore";
-
+/** The app has one light theme and ignores the phone's dark mode, so this is always "light". */
 export function useColorScheme(): "light" | "dark" {
-  return useThemeStore((state) => state.theme);
+  return "light";
 }
 
 export default useColorScheme;

@@ -92,8 +92,7 @@ public class DocumentsServiceImpl implements DocumentsService {
     @Transactional(readOnly = true)
     public DocumentsDto getDocuments(String documentId) {
 
-        Documents documents = documentsRepository.findById(documentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+        Documents documents = documentsRepository.findById(documentId).or(() -> documentsRepository.findByBusiness_GstId(documentId)).orElseThrow(() -> new ResourceNotFoundException(
                         "Documents not found with ID: " + documentId));
 
         return documentsMapper.toDto(documents);
@@ -105,8 +104,7 @@ public class DocumentsServiceImpl implements DocumentsService {
             MultipartFile principalPlaceAddressProof, MultipartFile bankPassbookOrCancelledCheque,
             MultipartFile passportSizePhotograph) throws IOException {
 
-        Documents documents = documentsRepository.findById(documentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+        Documents documents = documentsRepository.findById(documentId).or(() -> documentsRepository.findByBusiness_GstId(documentId)).orElseThrow(() -> new ResourceNotFoundException(
                         "Documents not found with ID: " + documentId));
 
         validateAtLeastOneDocument(
@@ -144,8 +142,7 @@ public class DocumentsServiceImpl implements DocumentsService {
     @Override
     public String deleteFile(String documentId) {
 
-        Documents documents = documentsRepository.findById(documentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+        Documents documents = documentsRepository.findById(documentId).or(() -> documentsRepository.findByBusiness_GstId(documentId)).orElseThrow(() -> new ResourceNotFoundException(
                         "Documents not found with ID: " + documentId));
 
         documentsRepository.delete(documents);
@@ -217,4 +214,5 @@ public class DocumentsServiceImpl implements DocumentsService {
         return "DOC" + UUID.randomUUID().toString().replace("-", "");
     }
 }
+
 

@@ -186,7 +186,7 @@ The assessee has reviewed the particulars stated in the notice. The reconciliati
 Supporting documents and explanations are attached herewith for your kind perusal. We request that the assessment/intimation be finalized taking these records into account.
 
 Yours faithfully,
-For TaxEdge Finsolz
+For Finsolz Finsolz
 Tax Compliance Division`;
 };
 

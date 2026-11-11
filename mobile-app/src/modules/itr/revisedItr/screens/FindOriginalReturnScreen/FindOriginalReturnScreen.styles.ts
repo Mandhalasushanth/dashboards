@@ -13,11 +13,12 @@ export const styles = StyleSheet.create({
     backgroundColor: BrandColors.BACKGROUND,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
   },
   titleSection: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   pageTitle: {
     fontSize: Typography.fontSize.lg + 4,
@@ -32,8 +33,58 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: Typography.fontWeight.regular,
   },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: Spacing.base,
+    borderWidth: BorderWidth.thin,
+    borderColor: "#E2E8F0",
+    marginBottom: Spacing.md,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0B1F3A",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      },
+      default: {},
+    }),
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  cardHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  cardTitle: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.bold,
+    color: "#083B75",
+  },
+  cardDescription: {
+    fontSize: Typography.fontSize.xs,
+    color: "#64748B",
+    marginBottom: Spacing.md,
+    lineHeight: 18,
+  },
   inputGroup: {
-    marginBottom: Spacing.base,
+    marginBottom: 4,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  infoIconSpacing: {
+    marginLeft: 6,
   },
   inputLabel: {
     fontSize: Typography.fontSize.sm + 1,
@@ -41,12 +92,18 @@ export const styles = StyleSheet.create({
     color: "#0B1F3A",
     marginBottom: 6,
   },
+  inputLabelInline: {
+    fontSize: Typography.fontSize.sm + 1,
+    fontWeight: Typography.fontWeight.bold,
+    color: "#0B1F3A",
+    marginBottom: 0,
+  },
   requiredStar: {
     color: "#DC2626",
   },
   textInput: {
     height: 48,
-    backgroundColor: BrandColors.WHITE,
+    backgroundColor: "#F8FAFC",
     borderRadius: BorderRadius.md,
     borderWidth: BorderWidth.thin,
     borderColor: "#E2E8F0",
@@ -57,6 +114,7 @@ export const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#DC2626",
+    backgroundColor: "#FEF2F2",
   },
   errorText: {
     fontSize: Typography.fontSize.xs + 1.5,
@@ -66,7 +124,7 @@ export const styles = StyleSheet.create({
   },
   dropdownSelector: {
     height: 48,
-    backgroundColor: BrandColors.WHITE,
+    backgroundColor: "#F8FAFC",
     borderRadius: BorderRadius.md,
     borderWidth: BorderWidth.thin,
     borderColor: "#E2E8F0",
@@ -79,6 +137,11 @@ export const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     color: "#0B1F3A",
     fontWeight: Typography.fontWeight.semiBold,
+  },
+  dropdownPlaceholder: {
+    fontSize: Typography.fontSize.base,
+    color: "#94A3B8",
+    fontWeight: Typography.fontWeight.regular,
   },
   dropdownMenu: {
     backgroundColor: BrandColors.WHITE,
@@ -118,55 +181,13 @@ export const styles = StyleSheet.create({
     color: BrandColors.PRIMARY_ORANGE,
     fontWeight: Typography.fontWeight.bold,
   },
-  infoCard: {
-    backgroundColor: "#EFF6FF",
-    borderRadius: BorderRadius.base - 2,
-    borderWidth: BorderWidth.thin,
-    borderColor: "#DBEAFE",
-    padding: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 2,
-    marginBottom: Spacing.sm,
+  fieldSpacer: {
+    height: 16,
   },
-  infoIconCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: "#2563EB",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: Typography.fontSize.xs + 1.5,
-    color: "#475569",
-    lineHeight: 16,
-    fontWeight: Typography.fontWeight.regular,
-  },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: BrandColors.WHITE,
-    paddingHorizontal: Spacing.base,
-    paddingTop: 10,
-    borderTopWidth: BorderWidth.thin,
-    borderTopColor: "#F1F5F9",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0B1F3A",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.04,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 6,
-      },
-      default: {},
-    }),
+  buttonWrapper: {
+    marginTop: "auto",
+    paddingTop: 24,
+    marginBottom: 20,
   },
   ctaButton: {
     height: 52,
@@ -189,11 +210,26 @@ export const styles = StyleSheet.create({
       default: {},
     }),
   },
+  ctaButtonDisabled: {
+    backgroundColor: "#CBD5E1",
+    ...Platform.select({
+      ios: {
+        shadowOpacity: 0,
+      },
+      android: {
+        elevation: 0,
+      },
+      default: {},
+    }),
+  },
   ctaButtonText: {
     color: BrandColors.WHITE,
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
     letterSpacing: 0.2,
+  },
+  ctaButtonTextDisabled: {
+    color: "#64748B",
   },
 });
 
@@ -202,9 +238,5 @@ export const getContainerInsetsStyle = (top: number): ViewStyle => ({
 });
 
 export const getScrollContentInsetsStyle = (bottom: number): ViewStyle => ({
-  paddingBottom: bottom + 90,
-});
-
-export const getBottomBarInsetsStyle = (bottom: number): ViewStyle => ({
-  paddingBottom: Math.max(bottom, 12),
+  paddingBottom: Math.max(bottom, 24) + 16,
 });

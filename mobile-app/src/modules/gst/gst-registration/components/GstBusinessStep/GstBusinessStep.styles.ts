@@ -21,6 +21,15 @@ export const styles = StyleSheet.create({
     marginBottom: 6,
     fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
   },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+  star: {
+    color: "#EF4444",
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",

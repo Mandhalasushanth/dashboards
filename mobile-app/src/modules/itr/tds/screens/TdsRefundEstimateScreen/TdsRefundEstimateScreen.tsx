@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 import { UniversalDraftModal } from "@/shared/components/UniversalDraftModal";
 import { useUniversalDraftGuard } from "@/shared/hooks/useUniversalDraftGuard";
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
@@ -20,10 +20,9 @@ import { TdsChecklistItem } from "../../types/checklist.types";
 import { TaxCalculationBreakdown } from "../../types/estimate.types";
 import { formatCurrency } from "../../utils/tdsValidation";
 import { tdsDraftService, INITIAL_TDS_FORM_DATA } from "../../services/tdsDraftService";
-import { tdsCalculationService } from "../../services/tdsCalculationService";
 import { tdsApiService } from "../../services/tdsApiService";
-import { TaxCalculationBreakdownCard } from "../../components/estimate/TaxCalculationBreakdownCard";
 import { useTdsProgressStore } from "../../store/tdsProgressStore";
+import { loadTdsReviewData } from "./tdsEstimateHelpers";
 import { styles } from "./TdsRefundEstimateScreen.styles";
 
 export const TdsRefundEstimateScreen: React.FC = () => {
@@ -37,15 +36,16 @@ export const TdsRefundEstimateScreen: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentAppId, setCurrentAppId] = useState<string | null>((routeId || routeAppId) as string | null);
+  const loadCountRef = useRef(0);
   const {
     showDraftModal,
-    openDraftModal,
     markSubmitted,
     handleSaveAndExit,
     handleDiscardAndExit,
     handleCancel,
   } = useUniversalDraftGuard({
-    isDirty: () => true,
+    // BUG_B24_003: estimate screen is a read-only calculation view — never dirty so back is always free
+    isDirty: () => false,
     onSaveDraft: async () => {
       await useApplicationStore.getState().saveTdsDraft({ step: "ESTIMATE" });
     },
@@ -53,168 +53,73 @@ export const TdsRefundEstimateScreen: React.FC = () => {
       await tdsDraftService.clearDraft();
       await useApplicationStore.getState().clearTdsDraft();
     },
-    isSubmitted: () => isSubmitting,
+    isSubmitted: () => isSubmitting || useTdsProgressStore.getState().isSubmitted,
   });
 
-  useEffect(() => {
-    useTdsProgressStore.getState().setMaxStepReached(3);
-
-    let isMounted = true;
-    (async () => {
-      try {
-        setIsLoading(true);
-        const savedForm = await tdsDraftService.getFormDraft();
-        const savedDocs = await tdsDraftService.getDocumentsDraft();
-        const existingAppId = routeId || routeAppId || (await tdsDraftService.getApplicationId()) || undefined;
-
-        if (existingAppId && isMounted) {
-          setCurrentAppId(existingAppId);
-        }
-
-        const custId = savedForm.personal?.mobileNumber
-          ? savedForm.personal.mobileNumber.replace(/\D/g, "")
-          : "CUST-DEFAULT";
-
-        let finalForm = {
-          ...savedForm,
-          business: { ...(savedForm.business || { legalName: "", pan: "", aadhaar: "", mobileNumber: "" }) },
-          bank: { ...savedForm.bank },
-          personal: { ...savedForm.personal },
-          income: { ...savedForm.income },
-        };
-        let finalDocs = savedDocs && savedDocs.length > 0 ? [...savedDocs] : [];
-
-        // 1. Directly fetch saved details from database @GetMapping("/get/{id}")
-        let dbDetails: any = null;
-        if (existingAppId) {
-          try {
-            console.log(`🌐 [TDS Review] Calling GET /tds-refund/get/${existingAppId}`);
-            dbDetails = await tdsApiService.getTdsRefund(existingAppId);
-            if (dbDetails) {
-              console.log("✅ [TDS Review] Successfully loaded database details from /tds-refund/get/{id}:", dbDetails);
-            }
-          } catch (getErr) {
-            console.warn(`[TDS Review] Warning calling GET /tds-refund/get/${existingAppId}:`, getErr);
-          }
-        }
-
-        // Fallback: If not found by ID, attempt lookup by customer ID
-        if (!dbDetails && custId && custId !== "CUST-DEFAULT") {
-          try {
-            dbDetails = await tdsApiService.getBankAccountByCustId(custId);
-          } catch (custErr) {
-            console.warn("[TDS Review] Fallback custId fetch warning:", custErr);
-          }
-        }
-
-        if (dbDetails) {
-          if (dbDetails.id && isMounted) {
-            setCurrentAppId(dbDetails.id);
-            await tdsDraftService.saveApplicationId(dbDetails.id);
-          }
-          // Populate Business Details from database
-          finalForm.business = {
-            legalName: dbDetails.legalBusinessName || finalForm.business?.legalName || "",
-            pan: dbDetails.businessPan || finalForm.business?.pan || "",
-            aadhaar: dbDetails.aadhaarNumber || finalForm.business?.aadhaar || "",
-            mobileNumber: dbDetails.mobileNumber || finalForm.business?.mobileNumber || "",
-          };
-
-          // Populate Bank Details from database
-          finalForm.bank = {
-            accountHolderName: dbDetails.accountHolderName || finalForm.bank?.accountHolderName || "",
-            accountNumber: dbDetails.accountNumber || finalForm.bank?.accountNumber || "",
-            confirmAccountNumber: dbDetails.confirmAccountNumber || dbDetails.accountNumber || finalForm.bank?.confirmAccountNumber || "",
-            ifscCode: dbDetails.ifscCode || finalForm.bank?.ifscCode || "",
-            bankName: dbDetails.bankName || finalForm.bank?.bankName || "",
-            branchName: dbDetails.branchName || finalForm.bank?.branchName || "",
-            accountType: (dbDetails.accountType?.toLowerCase() === "current" ? "current" : "savings") as any,
-            isIfscVerified: Boolean(dbDetails.bankName),
-          };
-
-          // Populate / align Personal Details
-          finalForm.personal = {
-            ...finalForm.personal,
-            fullName: finalForm.personal?.fullName || dbDetails.accountHolderName || dbDetails.legalBusinessName || "",
-            pan: finalForm.personal?.pan || dbDetails.businessPan || "",
-            mobileNumber: finalForm.personal?.mobileNumber || dbDetails.mobileNumber || "",
-            aadhaar: finalForm.personal?.aadhaar || dbDetails.aadhaarNumber || "",
-          };
-
-          // Populate Documents from database
-          if (dbDetails.businessPanDocument) {
-            const existingPan = finalDocs.find((d: any) => d.id === "pan");
-            if (existingPan) {
-              existingPan.status = "uploaded";
-              existingPan.fileName = existingPan.fileName || "Business_PAN.pdf";
-            } else {
-              finalDocs.push({
-                id: "pan",
-                title: "Business PAN",
-                subtitle: "Stored in Database",
-                status: "uploaded",
-                fileName: "Business_PAN.pdf",
-                isMandatory: true,
-              } as any);
-            }
-          }
-
-          if (dbDetails.aadhaarDocument) {
-            const existingAadhaar = finalDocs.find((d: any) => d.id === "aadhaar");
-            if (existingAadhaar) {
-              existingAadhaar.status = "uploaded";
-              existingAadhaar.fileName = existingAadhaar.fileName || "Aadhaar_Card.pdf";
-            } else {
-              finalDocs.push({
-                id: "aadhaar",
-                title: "Aadhaar Card",
-                subtitle: "Stored in Database",
-                status: "uploaded",
-                fileName: "Aadhaar_Card.pdf",
-                isMandatory: true,
-              } as any);
-            }
-          }
-        }
-
-        // 2. Fetch auxiliary application details (income / taxes)
-        try {
-          const backendApp = await tdsApiService.fetchFullTdsApplication(custId, existingAppId);
-          if (backendApp) {
-            if (backendApp.income) finalForm.income = { ...finalForm.income, ...backendApp.income };
-          }
-        } catch (err) {
-          console.warn("[TDS Estimate Screen] Backend fetch warning:", err);
-        }
-
-        if (isMounted) {
-          setFormData(finalForm);
-          setDocuments(finalDocs);
-
-          const calcResult = tdsCalculationService.calculate(finalForm);
-          setCalculation(calcResult);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+  const loadReviewData = useCallback(async () => {
+    const loadId = ++loadCountRef.current;
+    setIsLoading(true);
+    try {
+      const data = await loadTdsReviewData(routeId, routeAppId);
+      if (loadId !== loadCountRef.current) return;
+      if (data.appId) {
+        setCurrentAppId(data.appId);
       }
-    })();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      setFormData(data.formData);
+      setDocuments(data.documents);
+      setCalculation(data.calculation);
+    } catch (err) {
+      console.error("[TDS Estimate] Error loading review data:", err);
+    } finally {
+      if (loadId === loadCountRef.current) {
+        setIsLoading(false);
+      }
+    }
+  }, [routeId, routeAppId]);
 
-  const handleEditPersonalOrIncome = () => {
+  useFocusEffect(
+    useCallback(() => {
+      useTdsProgressStore.getState().setMaxStepReached(3);
+      loadReviewData();
+    }, [loadReviewData])
+  );
+
+  const handleEditSection = async (section: "personal" | "business" | "bank" | "income") => {
+    try {
+      await tdsDraftService.saveFormDraft(formData, "REVIEW");
+      useApplicationStore.getState().saveTdsDraft({
+        formData,
+        step: "ESTIMATE",
+        updatedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      });
+    } catch (e) {
+      console.warn("[TDS Review] Error saving draft before edit navigation:", e);
+    }
     router.push({
       pathname: "/service/tds-form" as any,
-      params: { isEditing: "true", id: currentAppId || routeId || routeAppId || "" },
+      params: {
+        isEditing: "true",
+        id: currentAppId || routeId || routeAppId || "",
+        section,
+      },
     });
   };
 
-  const handleEditDocuments = () => {
+  const handleEditDocuments = async () => {
+    try {
+      await tdsDraftService.saveFormDraft(formData, "REVIEW");
+      await tdsDraftService.saveDocumentsDraft(documents as any);
+      useApplicationStore.getState().saveTdsDraft({
+        formData,
+        documents: documents as any,
+        step: "ESTIMATE",
+        updatedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      });
+    } catch (e) {
+      console.warn("[TDS Review] Error saving docs draft before edit navigation:", e);
+    }
     router.push({
-      pathname: "/service/tds-form" as any,
+      pathname: "/service/tds-checklist" as any,
       params: { isEditing: "true", id: currentAppId || routeId || routeAppId || "" },
     });
   };
@@ -285,8 +190,10 @@ export const TdsRefundEstimateScreen: React.FC = () => {
         console.warn("[TDS Review] Notification dispatch warning:", notifErr);
       }
 
-      // 5. Clear draft
+      // 5. Clear draft & mark submitted in progress store
       await tdsDraftService.clearDraft();
+      useApplicationStore.getState().clearTdsDraft();
+      useTdsProgressStore.getState().setIsSubmitted(true);
 
       // Disable draft prevention upon successful submission
       markSubmitted();
@@ -338,6 +245,13 @@ export const TdsRefundEstimateScreen: React.FC = () => {
         <View style={styles.progressFill} />
       </View>
 
+      {/* Loading overlay while data fetches */}
+      {isLoading && (
+        <View style={{ position: "absolute", top: 80, left: 0, right: 0, bottom: 80, justifyContent: "center", alignItems: "center", zIndex: 10 }}>
+          <ActivityIndicator size="large" color={BrandColors.PRIMARY_BLUE} />
+        </View>
+      )}
+
       {/* Main Scroll Content */}
       <ScrollView
         contentContainerStyle={[
@@ -357,7 +271,7 @@ export const TdsRefundEstimateScreen: React.FC = () => {
             </View>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={handleEditPersonalOrIncome}
+              onPress={() => handleEditSection("personal")}
               style={styles.editButton}
             >
               <Ionicons name="pencil" size={12} color={BrandColors.PRIMARY_ORANGE_DARK} />
@@ -368,24 +282,24 @@ export const TdsRefundEstimateScreen: React.FC = () => {
           <View style={styles.infoGrid}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Full Name</Text>
-              <Text style={styles.infoValue}>{formData.personal.fullName || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.personal.fullName || "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>PAN</Text>
-              <Text style={styles.infoValue}>{formData.personal.pan || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.personal.pan || "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Mobile Number</Text>
-              <Text style={styles.infoValue}>+91 {formData.personal.mobileNumber || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.personal.mobileNumber ? `+91 ${formData.personal.mobileNumber}` : "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{formData.personal.email || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.personal.email || "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Address</Text>
               <Text style={styles.infoValue} numberOfLines={1}>
-                {formData.personal.city}, {formData.personal.state} - {formData.personal.pinCode}
+                {[formData.personal.city, formData.personal.state, formData.personal.pinCode].filter(Boolean).join(", ") || "—"}
               </Text>
             </View>
           </View>
@@ -401,7 +315,7 @@ export const TdsRefundEstimateScreen: React.FC = () => {
             </View>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={handleEditPersonalOrIncome}
+              onPress={() => handleEditSection("business")}
               style={styles.editButton}
             >
               <Ionicons name="pencil" size={12} color={BrandColors.PRIMARY_ORANGE_DARK} />
@@ -412,19 +326,19 @@ export const TdsRefundEstimateScreen: React.FC = () => {
           <View style={styles.infoGrid}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Legal Name</Text>
-              <Text style={styles.infoValue}>{formData.business?.legalName || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.business?.legalName || "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>PAN</Text>
-              <Text style={styles.infoValue}>{formData.business?.pan || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.business?.pan || "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Aadhaar</Text>
-              <Text style={styles.infoValue}>{formData.business?.aadhaar || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.business?.aadhaar || "—"}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Mobile Number</Text>
-              <Text style={styles.infoValue}>+91 {formData.business?.mobileNumber || "�"}</Text>
+              <Text style={styles.infoValue}>{formData.business?.mobileNumber ? `+91 ${formData.business.mobileNumber}` : "—"}</Text>
             </View>
           </View>
         </View>
@@ -439,7 +353,7 @@ export const TdsRefundEstimateScreen: React.FC = () => {
             </View>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={handleEditPersonalOrIncome}
+              onPress={() => handleEditSection("bank")}
               style={styles.editButton}
             >
               <Ionicons name="pencil" size={12} color={BrandColors.PRIMARY_ORANGE_DARK} />
@@ -504,10 +418,6 @@ export const TdsRefundEstimateScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* ========================================================
-            SECTION 7: TAX CALCULATION
-        ======================================================== */}
-        {calculation && <TaxCalculationBreakdownCard breakdown={calculation} />}
       </ScrollView>
 
       {/* Sticky Bottom CTA */}

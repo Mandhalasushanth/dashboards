@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareFormLa
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { GstSelectModal } from "@/modules/gst/components/common";
+import { GstSelectModal, GstinInfoIcon } from "@/modules/gst/components/common";
 import { UniversalDraftModal } from "@/shared/components/UniversalDraftModal";
 
 import { useGstCertificateFlow } from "../../hooks/useGstCertificateFlow";
@@ -87,9 +87,12 @@ export function GstCertificateScreen() {
               <View style={st.cardIconBox}>
                 <Ionicons name="barcode-outline" size={18} color="#1E5EFF" />
               </View>
-              <Text style={st.cardLabel}>
-                GSTIN Number <Text style={st.star}>*</Text>
-              </Text>
+              <View style={st.labelWithIcon}>
+                <Text style={st.cardLabel}>
+                  GSTIN Number <Text style={st.star}>*</Text>
+                </Text>
+                <GstinInfoIcon />
+              </View>
             </View>
             <TextInput
               style={[
@@ -228,11 +231,12 @@ export function GstCertificateScreen() {
             )}
 
             <TouchableOpacity
-              style={st.textOnlyBtn}
+              style={st.blueOutlineBtn}
               activeOpacity={0.8}
               onPress={() => flow.router.replace("/(main)/applications")}
             >
-              <Text style={st.textOnlyBtnText}>Go to My Applications</Text>
+              <Ionicons name="folder-outline" size={18} color="#1E5EFF" style={st.iconMarginRight8} />
+              <Text style={st.blueOutlineBtnText}>Go to My Applications</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

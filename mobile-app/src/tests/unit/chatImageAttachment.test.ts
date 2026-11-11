@@ -92,8 +92,8 @@ describe("Chat with CA Manager Image Upload and Display Suite", () => {
       text: "Invoice proof",
       caption: "Invoice proof",
       timestamp: "10:32 AM",
-      imageUrl: "https://api.taxedge.com/files/invoice_123.jpg",
-      attachmentUrl: "https://api.taxedge.com/files/invoice_123.jpg",
+      imageUrl: "https://api.finsolz.com/files/invoice_123.jpg",
+      attachmentUrl: "https://api.finsolz.com/files/invoice_123.jpg",
       attachmentName: "invoice_123.jpg",
     };
     assert.equal(isImageAttachment(imageMsg), true);

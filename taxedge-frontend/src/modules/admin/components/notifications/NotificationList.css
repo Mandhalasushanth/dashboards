@@ -1,0 +1,40 @@
+.tx-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tx-notif-list__group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tx-notif-list__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-secondary-text);
+}
+
+.tx-notif-list__label-count {
+  padding: 1px 8px;
+  border-radius: var(--tx-radius-full);
+  background-color: var(--tx-border);
+  font-size: 11px;
+  letter-spacing: 0;
+  color: var(--tx-primary-text);
+}
+
+.tx-notif-list__card {
+  overflow: hidden;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}

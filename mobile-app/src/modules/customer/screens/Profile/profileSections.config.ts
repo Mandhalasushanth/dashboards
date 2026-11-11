@@ -93,8 +93,8 @@ export const SECTIONS: MenuSection[] = [
     title: "Preferences",
     rows: [
       {
-        label: "Appearance & Settings",
-        icon: "color-palette",
+        label: "Settings",
+        icon: "settings-outline",
         tint: "#FF7A00",
         tintBg: "#FEF0E6",
         action: { kind: "route", href: "/settings" },
@@ -145,7 +145,7 @@ export const SECTIONS: MenuSection[] = [
         action: { kind: "route", href: "/chat/support" },
       },
       {
-        label: "Rate TaxEdge",
+        label: "Rate Finsolz",
         icon: "star",
         tint: "#D97706",
         tintBg: "#FDF2E3",

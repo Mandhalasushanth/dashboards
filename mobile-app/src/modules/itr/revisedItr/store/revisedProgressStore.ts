@@ -4,7 +4,7 @@ import { RevisedFormFields, RevisedDocumentItem } from "../types/revisedItr.type
 interface RevisedProgressStore {
   maxStepReached: number;
   setMaxStepReached: (step: number) => void;
-  
+
   // Backend IDs
   revisedItrId?: string;
   revisionReasonId?: string;
@@ -18,6 +18,8 @@ interface RevisedProgressStore {
   setDocuments: (docs: RevisedDocumentItem[] | null) => void;
   revisionReason: string | null;
   setRevisionReason: (reason: string) => void;
+  isSubmitted: boolean;
+  setIsSubmitted: (isSubmitted: boolean) => void;
   reset: () => void;
 }
 
@@ -25,7 +27,7 @@ export const useRevisedProgressStore = create<RevisedProgressStore>((set) => ({
   maxStepReached: 1,
   setMaxStepReached: (step) =>
     set((state) => ({ maxStepReached: Math.max(state.maxStepReached, step) })),
-  
+
   // Backend IDs
   setBackendIds: (ids) => set((state) => ({ ...state, ...ids })),
 
@@ -36,14 +38,17 @@ export const useRevisedProgressStore = create<RevisedProgressStore>((set) => ({
   setDocuments: (docs) => set({ documents: docs }),
   revisionReason: null,
   setRevisionReason: (reason) => set({ revisionReason: reason }),
-  reset: () => set({ 
-    maxStepReached: 1, 
-    formData: null, 
-    documents: null, 
+  isSubmitted: false,
+  setIsSubmitted: (isSubmitted) => set({ isSubmitted }),
+  reset: () => set({
+    maxStepReached: 1,
+    formData: null,
+    documents: null,
     revisionReason: null,
     revisedItrId: undefined,
     revisionReasonId: undefined,
     detailsId: undefined,
-    documentId: undefined
+    documentId: undefined,
+    isSubmitted: false,
   }),
 }));

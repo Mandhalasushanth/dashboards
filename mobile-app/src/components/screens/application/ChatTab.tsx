@@ -35,6 +35,14 @@ interface ChatTabProps {
   formatDisplayDate: (dateStr?: string) => string;
   bottomInset?: number;
   onViewApplication?: () => void;
+  /** The manager who took the application, once there is one; named in the empty state and the input hint. */
+  managerName?: string | null;
+  /**
+   * Where the backend chat stands: "ready" (default) lets the customer write; "loading" and "no-manager" show a
+   * note and keep the composer off; "error" shows `chatError` above the composer.
+   */
+  chatStatus?: "ready" | "loading" | "no-manager" | "error";
+  chatError?: string | null;
 }
 
 export function ChatTab({
@@ -49,6 +57,9 @@ export function ChatTab({
   formatDisplayDate,
   bottomInset = 0,
   onViewApplication,
+  managerName,
+  chatStatus = "ready",
+  chatError,
 }: ChatTabProps) {
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
   const [selectedImage, setSelectedImage] = useState<SelectedImageAttachment | null>(null);
@@ -56,11 +67,19 @@ export function ChatTab({
   const [previewUri, setPreviewUri] = useState<string | undefined>(undefined);
   const [previewFileName, setPreviewFileName] = useState<string | undefined>(undefined);
 
-  const canSend = (Boolean(chatInput.trim()) || Boolean(selectedImage)) && !isSendingChat;
+  const chatOpen = chatStatus === "ready" || chatStatus === "error";
+  const canSend = chatOpen && (Boolean(chatInput.trim()) || Boolean(selectedImage)) && !isSendingChat;
   const caInitials = isLoans ? "LO" : "CA";
   const roleName = isLoans ? "Loan Officer" : "CA Manager";
-  const emptyTitle = isLoans ? "Chat with your Loan Officer" : "Chat with your CA Manager";
-  const placeholderText = `Ask your ${roleName} anything...`;
+  const who = managerName?.trim() || `your ${roleName}`;
+  const emptyTitle = managerName?.trim() ? `Chat with ${managerName.trim()}` : isLoans ? "Chat with your Loan Officer" : "Chat with your CA Manager";
+  const placeholderText = chatOpen ? `Ask ${who} anything...` : "Chat opens when a manager takes your application";
+  const emptyText =
+    chatStatus === "loading"
+      ? "Loading your conversation..."
+      : chatStatus === "no-manager"
+        ? "A manager hasn't taken your application yet. You can chat here as soon as one does."
+        : `Have questions or need updates about your application? Send a message below to connect directly with ${who}.`;
 
   const storeApp = useApplicationStore((s) => {
     if (propApp) return propApp;
@@ -260,9 +279,7 @@ export function ChatTab({
             <Ionicons name="chatbubbles-outline" size={28} color="#0284C7" />
           </View>
           <Text style={chatStyles.chatEmptyTitle}>{emptyTitle}</Text>
-          <Text style={chatStyles.chatEmptySubtitle}>
-            Have questions or need updates about your application? Send a message below to connect directly with your assigned {roleName}.
-          </Text>
+          <Text style={chatStyles.chatEmptySubtitle}>{emptyText}</Text>
         </ScrollView>
       )}
 
@@ -325,6 +342,8 @@ export function ChatTab({
           </View>
         )}
 
+        {chatStatus === "error" && chatError ? <Text style={chatStyles.chatSecurityNoteText}>{chatError}</Text> : null}
+
         <View style={chatStyles.chatInputRow}>
           <TouchableOpacity
             style={chatStyles.chatAttachBtn}
@@ -343,7 +362,7 @@ export function ChatTab({
             onChangeText={setChatInput}
             multiline
             maxLength={1000}
-            editable={!isSendingChat}
+            editable={chatOpen && !isSendingChat}
           />
 
           <TouchableOpacity

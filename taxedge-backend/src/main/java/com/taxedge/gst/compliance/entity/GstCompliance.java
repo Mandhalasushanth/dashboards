@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 import com.taxedge.gst.compliance.enums.ComplianceRequestType;
 import com.taxedge.gst.registration.enums.RegisterationStatus;
 
@@ -73,6 +74,10 @@ public class GstCompliance {
 
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_agent_id")
+    private AgentLogin assignedAgent;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

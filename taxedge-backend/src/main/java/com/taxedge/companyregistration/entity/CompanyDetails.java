@@ -1,6 +1,12 @@
 package com.taxedge.companyregistration.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,4 +62,18 @@ public class CompanyDetails {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "cust_id", nullable = false)
 	private Customer customer;
+
+	// The agent the CA manager assigned this registration to; null until assigned (same as GST and ITR).
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assigned_agent_id")
+	private AgentLogin assignedAgent;
+
+	// Nullable so rows saved before these columns existed still load.
+	@CreationTimestamp
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime createdAt;
+
+	@UpdateTimestamp
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 }

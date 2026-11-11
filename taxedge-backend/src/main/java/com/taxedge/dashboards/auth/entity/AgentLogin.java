@@ -61,6 +61,13 @@ public class AgentLogin {
     @JoinColumn(name = "manager_id", nullable = false)
     private ManagerLogin manager;
 
+    /** SHA-256 hash of the current refresh token; the token itself is never stored. */
+    @Column(name = "refresh_token_hash", length = 255)
+    private String refreshTokenHash;
+
+    @Column(name = "refresh_token_expires_at")
+    private LocalDateTime refreshTokenExpiresAt;
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 

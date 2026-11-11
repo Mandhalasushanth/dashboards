@@ -104,7 +104,7 @@ export const mapDraftToOfficeDto = (
     state: cleanStr(company?.registeredState, "Karnataka"),
     pinCode: /^[0-9]{6}$/.test(company?.registeredPincode || "") ? company.registeredPincode : "560001",
     premisesOwnership: cleanStr(company?.premisesOwnership, "Rented"),
-    companyEmail: cleanStr(company?.companyEmail, "company@taxedge.in"),
+    companyEmail: cleanStr(company?.companyEmail, "company@finsolz.in"),
     mobileNumber: /^[0-9]{10}$/.test(company?.companyMobile || "") ? company.companyMobile : "9876543210",
   };
 };
@@ -153,7 +153,7 @@ export const mapDraftToPromotersDto = (
           : "ABCDE1234F",
         dateOfBirth: formatToIsoDate(nominee.dob || "1990-01-01"),
         designation: "Nominee Director",
-        emailAddress: cleanStr(nominee.email, "nominee@taxedge.in"),
+        emailAddress: cleanStr(nominee.email, "nominee@finsolz.in"),
         mobileNumber: /^[0-9]{10}$/.test(nominee.phone || "")
           ? nominee.phone
           : "9876543210",
@@ -170,7 +170,7 @@ export const mapDraftToPromotersDto = (
         id: "dir-1",
         name: "Director One",
         pan: "ABCDE1234F",
-        email: "director@taxedge.in",
+        email: "director@finsolz.in",
         phone: "9876543210",
         dob: "1990-01-01",
         designation: "Director",
@@ -186,7 +186,7 @@ export const mapDraftToPromotersDto = (
       : "ABCDE1234F",
     dateOfBirth: formatToIsoDate(d.dob || d.dateOfBirth),
     designation: cleanStr(d.designation, "Director"),
-    emailAddress: cleanStr(d.email || d.emailAddress, "director@taxedge.in"),
+    emailAddress: cleanStr(d.email || d.emailAddress, "director@finsolz.in"),
     mobileNumber: /^[0-9]{10}$/.test(d.phone || d.mobileNumber || "")
       ? d.phone || d.mobileNumber
       : "9876543210",

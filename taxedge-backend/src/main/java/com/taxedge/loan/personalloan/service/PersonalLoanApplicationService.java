@@ -13,4 +13,6 @@ public interface PersonalLoanApplicationService {
     PersonalLoanApplicationDto getApplication(String id);
 
     List<PersonalLoanApplicationDto> getMyApplications();
+
+    void deleteApplication(String id);
 }

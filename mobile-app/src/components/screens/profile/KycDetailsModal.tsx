@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { SecondaryButton } from "@/shared/components/Button/SecondaryButton";
 import { styles } from "@/styles/app/(main)/profile.styles";
+import { ProfileModalHeader } from "./ProfileModalHeader";
 
 interface KycDetailsModalProps {
   visible: boolean;
@@ -41,7 +41,8 @@ export function KycDetailsModal({
 
   const statusColor = kycVerified ? colors.success : colors.orange;
   const statusIcon = kycVerified ? "checkmark-circle" : "time";
-  const statusLabel = kycVerified ? "VERIFIED ✓" : "PENDING";
+  // The icon already shows the tick, so the label does not repeat it.
+  const statusLabel = kycVerified ? "Verified" : "Pending";
 
   return (
     <Modal
@@ -57,9 +58,14 @@ export function KycDetailsModal({
             { backgroundColor: colors.backgroundElement },
           ]}
         >
-          <Text style={[styles.modalTitle, { color: colors.text }]}>
-            KYC Details
-          </Text>
+          <ProfileModalHeader
+            title="KYC Details"
+            icon="shield-checkmark-outline"
+            iconColor={colors.success}
+            iconBg="#E6F5F0"
+            onClose={onClose}
+            colors={colors}
+          />
 
           {!hasKycDetails ? (
             <View style={styles.incompleteModalBox}>
@@ -70,7 +76,7 @@ export function KycDetailsModal({
                 Identity Verification (KYC)
               </Text>
               <Text style={[styles.incompleteSubtitle, { color: colors.textSecondary }]}>
-                Identity verification becomes available during profile setup. Complete your profile to verify your PAN & Aadhaar details and unlock all TaxEdge services.
+                Identity verification becomes available during profile setup. Complete your profile to verify your PAN & Aadhaar details and unlock all Finsolz services.
               </Text>
 
               <View
@@ -103,11 +109,6 @@ export function KycDetailsModal({
               </View>
 
               <View style={styles.personalActions}>
-                <SecondaryButton
-                  title="Close"
-                  onPress={onClose}
-                  style={styles.modalActionBtn}
-                />
                 <TouchableOpacity
                   style={[
                     styles.completeActionBtn,
@@ -141,7 +142,7 @@ export function KycDetailsModal({
                   </Text>
                 </View>
 
-                <View style={styles.infoRow}>
+                <View style={[styles.infoRow, styles.infoRowLast]}>
                   <Text style={[styles.infoKey, { color: colors.textSecondary }]}>
                     Verification Status
                   </Text>
@@ -163,8 +164,6 @@ export function KycDetailsModal({
                 Status reflects the PAN and Aadhaar documents uploaded against your
                 applications.
               </Text>
-
-              <SecondaryButton title="Close" onPress={onClose} />
             </>
           )}
         </View>

@@ -1,87 +1,109 @@
-import React, { useEffect } from "react";
-import { View, ScrollView, BackHandler } from "react-native";
-import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import React from "react";
+import { useLocalSearchParams } from "expo-router";
 import { useApplicationStore } from "@/store/applicationStore";
+import { useAuthStore } from "@/modules/authentication/store/authStore";
 import {
-  TdsStatusTopNav,
-  TdsApplicationHeaderCard,
-  TdsTimelineTrackerCard,
-  TdsContactSupportFooter,
-} from "../../components/status";
-import {
-  DEFAULT_TDS_TIMELINE_STEPS,
-  createApplicationSummary,
-} from "../../constants/tdsStatus.constants";
+  CommonPostSubmissionScreen,
+  TdsRefundPostSubmissionConfig,
+} from "@/modules/itr/components/submission/CommonPostSubmissionScreen";
 import { TdsRefundStatusScreenParams } from "../../types/tdsStatus.types";
-import {
-  styles,
-  getContainerInsetsStyle,
-  getScrollContentInsetsStyle,
-  getBottomBarInsetsStyle,
-} from "./TdsRefundStatusScreen.styles";
 
-export const TdsRefundStatusScreen: React.FC = () => {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams() as unknown as TdsRefundStatusScreenParams;
+export interface TdsRefundStatusScreenProps {
+  config?: TdsRefundPostSubmissionConfig;
+  onTrackStatus?: () => void;
+  onDownloadAcknowledgement?: () => void;
+  onGoHome?: () => void;
+  onContactSupport?: () => void;
+}
+
+export const TdsRefundStatusScreen: React.FC<TdsRefundStatusScreenProps> = ({
+  config: providedConfig,
+  onTrackStatus,
+  onDownloadAcknowledgement,
+  onGoHome,
+  onContactSupport,
+}) => {
+  const params = useLocalSearchParams() as unknown as TdsRefundStatusScreenParams & {
+    customerName?: string;
+    businessName?: string;
+  };
   const tdsDraft = useApplicationStore((state) => state.tdsDraft);
+  const authCustomer = useAuthStore((state) => state.customer);
+  const authUser = useAuthStore((state) => state.authenticatedUser);
 
-  // Dynamic application summary built functionally - zero loops
-  const applicationSummary = createApplicationSummary(
-    {
-      applicationId: params.applicationId,
-      serviceName: params.serviceName,
-      assessmentYear: params.assessmentYear,
-      appliedDate: params.appliedDate,
+  const draftForm = (tdsDraft?.formData || {}) as Record<string, any>;
+
+  const bankName =
+    draftForm?.bankDetails?.bankName ||
+    draftForm?.bankName ||
+    "Verified Primary Bank";
+
+  const refundEstimate =
+    draftForm?.estimatedRefund ||
+    draftForm?.refundAmount ||
+    (params as any)?.refundEstimate ||
+    (params as any)?.refundAmount;
+
+  const resolvedCustomerName =
+    params.customerName ||
+    params.businessName ||
+    draftForm?.personalInfo?.fullName ||
+    draftForm?.fullName ||
+    draftForm?.name ||
+    authCustomer?.name ||
+    authUser?.name ||
+    (authCustomer as any)?.fullName ||
+    (authUser as any)?.fullName ||
+    "Valued Client";
+
+  const resolvedConfig: TdsRefundPostSubmissionConfig = providedConfig || {
+    moduleType: "tds-refund",
+    referenceId: params.applicationId || "",
+    customerName: resolvedCustomerName,
+    serviceName: params.serviceName || "TDS Refund",
+    headerTitle: "TDS Refund",
+    headerSubtitle: "Application Status",
+    title: "Application Submitted!",
+    description: "Your TDS Refund application has been successfully filed with Finsolz.",
+    assessmentYear: params.assessmentYear || "AY 2025–26",
+    appliedDate:
+      params.appliedDate ||
+      new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+    submissionDate:
+      params.appliedDate ||
+      new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+    estCompletion: "1-2 Business Days",
+    estimatedRefund: refundEstimate,
+    refundBank: bankName,
+    uploadedDocsCount: Array.isArray(draftForm?.documents) ? draftForm.documents.length : 0,
+    totalDocsCount: Array.isArray(draftForm?.documents) ? draftForm.documents.length : 0,
+    status: "Under Verification",
+    primaryCta: {
+      label: "Track My Claim",
+      destination: "/(main)/applications",
     },
-    tdsDraft?.formData
-  );
-
-  const handleBack = () => {
-    router.replace("/(main)/home");
+    secondaryCta: {
+      label: "Go Home",
+      destination: "/(main)/home",
+    },
   };
 
-  useEffect(() => {
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      handleBack();
-      return true;
-    });
-    return () => sub.remove();
-  }, []);
-
-  const containerInsetsStyle = getContainerInsetsStyle(insets.top);
-  const scrollContentInsetsStyle = getScrollContentInsetsStyle(insets.bottom);
-  const bottomBarInsetsStyle = getBottomBarInsetsStyle(insets.bottom);
-
   return (
-    <View style={[styles.container, containerInsetsStyle]}>
-      <FocusAwareStatusBar barStyle="light-content" backgroundColor="#4338CA" />
-
-      {/* Top Banner Navigation */}
-      <TdsStatusTopNav
-        topInset={insets.top}
-        title="Application Status"
-        subtitle={applicationSummary.applicationId}
-        onBack={handleBack}
-      />
-
-      {/* Scrollable Main Content */}
-      <ScrollView
-        contentContainerStyle={[styles.scrollContent, scrollContentInsetsStyle]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Top Rounded Application Summary Card */}
-        <TdsApplicationHeaderCard data={applicationSummary} />
-
-        {/* 9-Step Timeline Status Tracker Card */}
-        <TdsTimelineTrackerCard steps={DEFAULT_TDS_TIMELINE_STEPS} />
-      </ScrollView>
-
-      {/* Bottom Sticky Contact Support Card */}
-      <TdsContactSupportFooter style={bottomBarInsetsStyle} />
-    </View>
+    <CommonPostSubmissionScreen
+      config={resolvedConfig}
+      onTrackStatus={onTrackStatus}
+      onDownloadAcknowledgement={onDownloadAcknowledgement}
+      onGoHome={onGoHome}
+      onContactSupport={onContactSupport}
+    />
   );
 };
 

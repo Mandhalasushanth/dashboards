@@ -5,7 +5,7 @@ import { uploadAmendmentWithFile, formatFile } from "./gstAmendmentTransport";
 /** Contact Details amendment endpoints. */
 export const contactAmendmentApi = {
   getExistingContact: (gstId: string) => {
-    return apiClient.get<ExistingContactDto>(`/api/v1/gst/amendments/contact/${gstId}/existing`);
+    return apiClient.get<ExistingContactDto>(`/api/v1/gst/amendment/contact/${gstId}/existing`);
   },
   submitContactAmendment: (
     gstId: string,
@@ -28,7 +28,7 @@ export const contactAmendmentApi = {
     });
   },
   getContactAmendmentById: (id: number | string) => {
-    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendments/contact/record/${id}`);
+    return apiClient.get<AmendmentRecord>(`/api/v1/gst/amendment/contact/record/${id}`);
   },
   updateContactAmendment: (
     id: number | string,
@@ -60,7 +60,7 @@ export const contactAmendmentApi = {
     if (id !== undefined && id !== null) params.append("id", String(id));
     if (pushToken) params.append("pushToken", pushToken);
     const query = params.toString();
-    const url = `/api/v1/gst/amendments/contact/submit${query ? `?${query}` : ""}`;
+    const url = `/api/v1/gst/amendment/contact/submit${query ? `?${query}` : ""}`;
     return apiClient.post<string>(url);
   },
 };

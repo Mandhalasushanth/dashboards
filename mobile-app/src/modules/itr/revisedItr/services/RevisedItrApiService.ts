@@ -1,7 +1,15 @@
-import { useAuthStore } from "@/modules/authentication/store/authStore";
 import { tokenManager } from "@/core/authentication/tokenManager";
 import { getDefaultBaseUrl, getActiveBaseUrl } from "@/core/api/apiConfig";
 import { apiClient } from "@/core/api/apiClient";
+import { useApplicationStore } from "@/store/applicationStore";
+import { applicationService } from "@/modules/applications/services/applicationService";
+import { OriginalReturnDetails } from "../types/revisedItr.types";
+import {
+  REVISED_DOCUMENT_FIELD_MAP,
+  resolveMimeType,
+  prepareLocalFileForUpload,
+  createBlobFromFileUri,
+} from "../utils/revisedDocumentUploadHelper";
 
 let activeBaseUrlCache = "";
 const getBaseUrl = async () => {
@@ -174,135 +182,238 @@ export const RevisedItrApiService = {
   // Step 4: Documents
   saveRevisedDocuments: async (revisedItrId: string, documents: any[]) => {
     try {
+      const cleanId = String(revisedItrId || "").trim();
+      if (!cleanId) {
+        throw new Error("Missing Revised ITR ID for document upload.");
+      }
+
       const formData = new FormData();
-      const fieldMapping: Record<string, string> = {
-        "doc-1": "panCard",
-        "doc-2": "aadhaarCard",
-        "doc-3": "form16Form16A",
-        "doc-4": "aisTisStatement",
-        "doc-5": "bankStatements",
-        "doc-6": "investmentProofs"
-      };
-
       let hasUploadedAny = false;
+
       for (const doc of documents) {
-        if (doc.fileUri && fieldMapping[doc.id]) {
-          const paramName = fieldMapping[doc.id];
-          try {
-            const response = await fetch(doc.fileUri);
-            const rawBlob = await response.blob();
-            
-            let mimeType = doc.mimeType;
-            let extension = "pdf";
+        if (doc.fileUri && REVISED_DOCUMENT_FIELD_MAP[doc.id]) {
+          const paramName = REVISED_DOCUMENT_FIELD_MAP[doc.id];
+          const fileName = doc.fileName || `${doc.id}.pdf`;
+          const mimeType = resolveMimeType(fileName, doc.mimeType);
 
-            const lowerName = (doc.fileName || "").toLowerCase();
-            if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-              mimeType = "image/jpeg";
-              extension = "jpg";
-            } else if (lowerName.endsWith(".png")) {
-              mimeType = "image/png";
-              extension = "png";
-            } else {
-              mimeType = mimeType || "application/pdf";
-            }
+          const { localUri } = await prepareLocalFileForUpload(doc.fileUri, fileName);
+          const fileBlob = await createBlobFromFileUri(localUri, fileName, mimeType);
 
-            const fileBlob = new Blob([rawBlob], { type: mimeType });
-            const finalFileName = doc.fileName || `${doc.id}.${extension}`;
-            
-            formData.append(paramName, fileBlob, finalFileName);
-            hasUploadedAny = true;
-          } catch (err) {
-            console.error(`Failed to read file ${doc.id} at ${doc.fileUri}`, err);
-          }
+          formData.append(paramName, fileBlob, fileName);
+
+          hasUploadedAny = true;
         }
       }
 
       if (!hasUploadedAny) {
-        const dummyBlob = new Blob(['%PDF-1.4 dummy content'], { type: 'application/pdf' });
-        formData.append("panCard", dummyBlob, "dummy.pdf");
+        throw new Error("At least one document is required before proceeding.");
       }
-      
-      const token = await tokenManager.getAccessToken();
-      const targetUrl = await getApiUrl(`/${revisedItrId}/document/register`);
-      const response = await fetch(targetUrl, {
+
+      let token = await tokenManager.getAccessToken();
+      const targetUrl = await getApiUrl(`/${cleanId}/document/register`);
+      let response = await fetch(targetUrl, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: formData,
       });
-      if (!response.ok) throw new Error("Document upload failed");
-      const result = await response.text();
-      return { documentId: extractId(result) };
+
+      if (response.status === 401) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { tokenRefreshManager } = require("@/core/authentication/tokenRefreshManager");
+          const refreshed = await tokenRefreshManager.attemptRefresh();
+          if (refreshed) {
+            token = await tokenManager.getAccessToken();
+            response = await fetch(targetUrl, {
+              method: "POST",
+              headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: formData,
+            });
+          }
+        } catch {
+          // Silent refresh failed; proceed to evaluate response
+        }
+      }
+
+      const responseText = await response.text();
+      if (!response.ok) {
+        throw new Error(responseText || `Document upload failed with status ${response.status}`);
+      }
+
+      return { documentId: extractId(responseText) };
     } catch (error) {
       console.error("Error saving Revised Documents:", error);
       throw error;
     }
   },
+
   updateRevisedDocuments: async (documentId: string, documents: any[]) => {
     try {
+      const cleanId = String(documentId || "").trim();
+      if (!cleanId) {
+        throw new Error("Missing document ID for update.");
+      }
+
       const formData = new FormData();
-      const fieldMapping: Record<string, string> = {
-        "doc-1": "panCard",
-        "doc-2": "aadhaarCard",
-        "doc-3": "form16Form16A",
-        "doc-4": "aisTisStatement",
-        "doc-5": "bankStatements",
-        "doc-6": "investmentProofs"
-      };
-
       let hasUploadedAny = false;
+
       for (const doc of documents) {
-        if (doc.fileUri && fieldMapping[doc.id]) {
-          const paramName = fieldMapping[doc.id];
-          try {
-            const response = await fetch(doc.fileUri);
-            const rawBlob = await response.blob();
-            
-            let mimeType = doc.mimeType;
-            let extension = "pdf";
+        if (doc.fileUri && REVISED_DOCUMENT_FIELD_MAP[doc.id]) {
+          const paramName = REVISED_DOCUMENT_FIELD_MAP[doc.id];
+          const fileName = doc.fileName || `${doc.id}.pdf`;
+          const mimeType = resolveMimeType(fileName, doc.mimeType);
 
-            const lowerName = (doc.fileName || "").toLowerCase();
-            if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-              mimeType = "image/jpeg";
-              extension = "jpg";
-            } else if (lowerName.endsWith(".png")) {
-              mimeType = "image/png";
-              extension = "png";
-            } else {
-              mimeType = mimeType || "application/pdf";
-            }
+          const { localUri } = await prepareLocalFileForUpload(doc.fileUri, fileName);
+          const fileBlob = await createBlobFromFileUri(localUri, fileName, mimeType);
 
-            const fileBlob = new Blob([rawBlob], { type: mimeType });
-            const finalFileName = doc.fileName || `${doc.id}.${extension}`;
-            
-            formData.append(paramName, fileBlob, finalFileName);
-            hasUploadedAny = true;
-          } catch (err) {
-            console.error(`Failed to read file ${doc.id} at ${doc.fileUri}`, err);
-          }
+          formData.append(paramName, fileBlob, fileName);
+
+          hasUploadedAny = true;
         }
       }
 
       if (!hasUploadedAny) {
-        const dummyBlob = new Blob(['%PDF-1.4 dummy content'], { type: 'application/pdf' });
-        formData.append("panCard", dummyBlob, "dummy.pdf");
+        throw new Error("At least one document is required before proceeding.");
       }
-      
-      const token = await tokenManager.getAccessToken();
-      const targetUrl = await getApiUrl(`/document/update/${documentId}`);
-      const response = await fetch(targetUrl, {
+
+      let token = await tokenManager.getAccessToken();
+      const targetUrl = await getApiUrl(`/document/update/${cleanId}`);
+      let response = await fetch(targetUrl, {
         method: "PUT",
         headers: {
-          "Authorization": `Bearer ${token}`
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: formData,
       });
-      if (!response.ok) throw new Error("Document update failed");
-      return await response.text();
+
+      if (response.status === 401) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { tokenRefreshManager } = require("@/core/authentication/tokenRefreshManager");
+          const refreshed = await tokenRefreshManager.attemptRefresh();
+          if (refreshed) {
+            token = await tokenManager.getAccessToken();
+            response = await fetch(targetUrl, {
+              method: "PUT",
+              headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: formData,
+            });
+          }
+        } catch {
+          // Silent refresh failed; proceed to evaluate response
+        }
+      }
+
+      const responseText = await response.text();
+      if (!response.ok) {
+        throw new Error(responseText || `Document update failed with status ${response.status}`);
+      }
+
+      return responseText;
     } catch (error) {
       console.error("Error updating Revised Documents:", error);
       throw error;
     }
-  }
+  },
+
+  // Lookup Genuine Original Return by Acknowledgement Number
+  lookupOriginalReturn: async (
+    ackNumber: string,
+    assessmentYear?: string
+  ): Promise<OriginalReturnDetails | null> => {
+    const cleanAck = String(ackNumber || "").trim();
+    if (!cleanAck || cleanAck.length !== 15) return null;
+
+    // 1. Search confirmed applications in client application store
+    const applications = useApplicationStore.getState().applications || [];
+    let matched = applications.find(
+      (a) =>
+        (a.formData as any)?.previousAckNumber === cleanAck ||
+        (a.formData as any)?.acknowledgementNumber === cleanAck ||
+        (a.formData as any)?.ackNumber === cleanAck ||
+        (a.formData as any)?.arn === cleanAck ||
+        a.id === cleanAck
+    );
+
+    // 2. Fetch specific application by ID from backend if not in memory
+    if (!matched) {
+      try {
+        const fetched = await applicationService.getApplicationById(cleanAck);
+        if (fetched) {
+          matched = fetched;
+        }
+      } catch {
+        // Continue to API check
+      }
+    }
+
+    // 3. Check backend ITR filing service directly
+    if (!matched) {
+      try {
+        const token = await tokenManager.getAccessToken();
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+        const activeHost = await getActiveBaseUrl();
+        const res = await fetch(`${activeHost}/api/v1/itr/filing/${encodeURIComponent(cleanAck)}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...headers,
+          },
+        });
+        if (res.ok) {
+          const itrData = await res.json();
+          if (itrData && (itrData.itrId || itrData.id)) {
+            const rawIncome = itrData.salaryIncome?.totalIncome ?? itrData.salaryIncome?.grossSalary;
+            const ayVal = itrData.assessmentYear
+              ? (itrData.assessmentYear.startsWith("AY") ? itrData.assessmentYear : `AY ${itrData.assessmentYear}`)
+              : (assessmentYear || "Current AY");
+            return {
+              acknowledgementNumber: cleanAck,
+              assessmentYear: ayVal,
+              filingDate: itrData.submittedAt
+                ? new Date(itrData.submittedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                : "Filed via Finsolz",
+              itrForm: itrData.filingType || "ITR-1 (Sahaj)",
+              filingStatus: itrData.status || "Successfully Filed",
+              grossTotalIncome: rawIncome !== undefined && rawIncome !== null
+                ? `₹${Number(rawIncome).toLocaleString("en-IN")}`
+                : "—",
+            };
+          }
+        }
+      } catch {
+        // Backend lookup not found
+      }
+    }
+
+    if (matched) {
+      const fd = (matched.formData || {}) as any;
+      const rawAy = fd.assessmentYear || (matched as any).assessmentYear || assessmentYear;
+      const formattedAy = rawAy ? (rawAy.startsWith("AY") ? rawAy : `AY ${rawAy}`) : "Current AY";
+      const rawIncome = fd.grossTotalIncome ?? fd.totalIncome ?? fd.taxSummary?.totalIncome;
+      const submittedDate = (matched as any).submittedAt || matched.createdAt;
+      return {
+        acknowledgementNumber: cleanAck,
+        assessmentYear: formattedAy,
+        filingDate: submittedDate
+          ? new Date(submittedDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+          : "Filed via Finsolz",
+        itrForm: fd.formTitle || fd.formType || matched.serviceName || "ITR-1 (Sahaj)",
+        filingStatus: matched.status || "Successfully Filed",
+        grossTotalIncome: rawIncome !== undefined && rawIncome !== null && rawIncome !== ""
+          ? (String(rawIncome).startsWith("₹") ? String(rawIncome) : `₹${Number(rawIncome).toLocaleString("en-IN")}`)
+          : "—",
+      };
+    }
+
+    // Return null strictly on failure — never fabricate mock data
+    return null;
+  },
 };

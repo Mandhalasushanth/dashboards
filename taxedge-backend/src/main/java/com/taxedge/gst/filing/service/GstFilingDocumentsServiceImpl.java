@@ -80,10 +80,9 @@ public class GstFilingDocumentsServiceImpl implements GstFilingDocumentsService 
 	@Transactional(readOnly = true)
 	public GstFilingDocumentsDto getDocuments(String gstfilingId) {
 
-		getFiling(gstfilingId);
-
-		GstFilingDocuments documents = documentsRepository.findByGstFiling_GstfilingId(gstfilingId).orElseThrow(
-				() -> new ResourceNotFoundException("GST filing documents not found for filing ID: " + gstfilingId));
+		GstFilingDocuments documents = documentsRepository.findByGstFiling_GstfilingId(gstfilingId)
+				.or(() -> documentsRepository.findById(gstfilingId))
+				.orElseThrow(() -> new ResourceNotFoundException("GST filing documents not found for ID: " + gstfilingId));
 
 		return documentsMapper.toDto(documents);
 	}

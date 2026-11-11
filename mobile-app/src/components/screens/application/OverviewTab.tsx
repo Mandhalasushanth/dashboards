@@ -37,7 +37,7 @@ export function OverviewTab({
   const resolvedServiceName =
     (isGstAmendment && formData.section
       ? `GST Amendment — ${formData.section}`
-      : app.serviceName) || "TaxEdge Service";
+      : app.serviceName) || "Finsolz Service";
 
   const resolvedAppliedDate =
     appliedDate ||
@@ -51,12 +51,47 @@ export function OverviewTab({
       value: resolvedServiceName,
       icon: "document-text-outline" as const,
     },
-    {
-      label: "Application ID",
-      value: resolvedDisplayId,
-      icon: "person-outline" as const,
-      isAppId: true,
-    },
+    ...(formData.tradeName
+      ? [
+        {
+          label: "Trade Name",
+          value: String(formData.tradeName),
+          icon: "business-outline" as const,
+        },
+      ]
+      : formData.gstin
+        ? [
+          {
+            label: "GSTIN",
+            value: String(formData.gstin),
+            icon: "receipt-outline" as const,
+          },
+        ]
+        : formData.itrAcknowledgementNumber
+          ? [
+            {
+              label: "ITR Acknowledgement Number",
+              value: String(formData.itrAcknowledgementNumber),
+              icon: "receipt-outline" as const,
+            },
+          ]
+          : formData.assessmentYear
+            ? [
+              {
+                label: "Assessment Year",
+                value: String(formData.assessmentYear),
+                icon: "calendar-outline" as const,
+              },
+            ]
+            : formData.pan || formData.businessPan
+              ? [
+                {
+                  label: "PAN",
+                  value: String(formData.pan || formData.businessPan),
+                  icon: "card-outline" as const,
+                },
+              ]
+              : []),
     {
       label: "Submission Date",
       value: resolvedAppliedDate,
@@ -102,7 +137,7 @@ export function OverviewTab({
                   style={[
                     styles.itemRowValue,
                     row.isStatus ? { color: statusBadge.text } : null,
-                    row.isAppId ? styles.appIdRowValue : null,
+                    (row as any).isAppId ? styles.appIdRowValue : null,
                   ]}
                 >
                   {row.value}

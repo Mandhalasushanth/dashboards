@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.taxedge.customer.entity.Customer;
+import com.taxedge.dashboards.auth.entity.AgentLogin;
 import com.taxedge.gst.registration.enums.AccountType;
 import com.taxedge.gst.registration.enums.CompositionScheme;
 import com.taxedge.gst.registration.enums.ConstitutionOfBusiness;
@@ -20,6 +21,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -138,6 +140,10 @@ public class Business {
 
 	@OneToOne(mappedBy = "business", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Documents documents;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assigned_agent_id")
+	private AgentLogin assignedAgent;
 	
 	@Builder.Default
 	@Enumerated(EnumType.STRING)

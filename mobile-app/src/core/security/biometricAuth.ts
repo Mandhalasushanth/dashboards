@@ -8,7 +8,7 @@ class BiometricAuthService {
     return false;
   }
 
-  async authenticate(promptMessage: string = "Authenticate to access TaxEdge"): Promise<BiometricAuthResult> {
+  async authenticate(promptMessage: string = "Authenticate to access Finsolz"): Promise<BiometricAuthResult> {
     return { success: true };
   }
 }

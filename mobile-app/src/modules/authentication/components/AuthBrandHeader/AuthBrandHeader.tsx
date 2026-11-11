@@ -10,7 +10,7 @@ interface AuthBrandHeaderProps {
   subtitleStyle?: StyleProp<TextStyle>;
 }
 
-/** TaxEdge logo and wordmark at the top of the authentication screen. */
+/** Finsolz logo and wordmark at the top of the authentication screen. */
 export function AuthBrandHeader({ onLongPress, titleStyle, subtitleStyle }: AuthBrandHeaderProps) {
   return (
     <TouchableOpacity
@@ -24,7 +24,7 @@ export function AuthBrandHeader({ onLongPress, titleStyle, subtitleStyle }: Auth
         style={styles.logo}
         resizeMode="contain"
       />
-      <Text style={[styles.brandTitle, titleStyle]}>TAXEDGE</Text>
+      <Text style={[styles.brandTitle, titleStyle]}>FINSOLZ</Text>
       <Text style={[styles.brandSub, subtitleStyle]}>FIN SOLUTIONS</Text>
     </TouchableOpacity>
   );

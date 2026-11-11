@@ -1,0 +1,175 @@
+.tx-staff-table {
+  overflow-x: auto;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-staff-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tx-staff-table th {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--tx-border);
+  background: var(--tx-light-blue);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tx-staff-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+  color: var(--tx-primary-text);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.tx-staff-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tx-staff-table tbody tr:hover {
+  background-color: var(--tx-background);
+}
+
+.tx-staff-table__row--inactive td {
+  color: var(--tx-secondary-text);
+}
+
+.tx-staff-table__name {
+  display: block;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+}
+
+.tx-staff-table__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--tx-secondary-text);
+}
+
+.tx-staff-table__num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-staff-table__actions {
+  text-align: right;
+}
+
+.tx-staff-table__actions .tx-staff-table__toggle + .tx-staff-table__toggle {
+  margin-left: 6px;
+}
+
+.tx-staff-table__toggle {
+  padding: 6px 12px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-primary-blue);
+  transition: background-color var(--tx-transition-fast);
+}
+
+.tx-staff-table__toggle:hover:not(:disabled) {
+  background-color: var(--tx-light-blue);
+}
+
+.tx-staff-table__toggle--danger {
+  color: var(--tx-error);
+}
+
+.tx-staff-table__toggle--danger:hover:not(:disabled) {
+  background-color: var(--tx-error-light);
+}
+
+.tx-staff-table__toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--tx-focus-ring);
+}
+
+.tx-staff-table__toggle:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+/* Small screens: each member becomes a card; labels come from data-label. */
+@media (max-width: 768px) {
+  .tx-staff-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .tx-staff-table table,
+  .tx-staff-table tbody,
+  .tx-staff-table tr,
+  .tx-staff-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .tx-staff-table tr {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--tx-border);
+  }
+
+  .tx-staff-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .tx-staff-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: none;
+    white-space: normal;
+    text-align: right;
+  }
+
+  .tx-staff-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--tx-muted-text);
+    text-align: left;
+  }
+
+  .tx-staff-table td.tx-staff-table__actions {
+    justify-content: flex-end;
+    padding-top: 10px;
+  }
+
+  .tx-staff-table td.tx-staff-table__actions::before {
+    content: none;
+  }
+
+  /* The name cell is the card title: name above email, no label. */
+  .tx-staff-table td[data-label='Name'] {
+    display: block;
+    padding-bottom: 8px;
+    text-align: left;
+  }
+
+  .tx-staff-table td[data-label='Name']::before {
+    content: none;
+  }
+
+  .tx-staff-table__meta {
+    overflow-wrap: anywhere;
+  }
+}

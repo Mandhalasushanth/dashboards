@@ -21,8 +21,8 @@ export const formStyles = {
   profileScroll: {
     flexGrow: 1,
   },
+  /* Height is set on the screen from the status-bar inset, so the curve fits every device. */
   waveHeaderWrapper: {
-    height: 150,
     width: "100%" as const,
     position: "relative" as const,
   },
@@ -45,6 +45,8 @@ export const formStyles = {
     justifyContent: "center" as const,
   },
   headerTitleWhite: {
+    // Keeps to one line even with large system text sizes (common on iPhones), instead of running into the curve.
+    maxWidth: "80%" as const,
     fontSize: Typography.fontSize.hero,
     fontWeight: Typography.fontWeight.extraBold,
     color: BrandColors.WHITE,
@@ -54,7 +56,7 @@ export const formStyles = {
   formSection: {
     gap: 2,
     paddingHorizontal: Spacing.lg,
-    marginTop: Spacing.base,
+    marginTop: 0,
   },
   fieldContainer: {
     marginBottom: Spacing.base - 2,
@@ -70,9 +72,11 @@ export const formStyles = {
     fontWeight: Typography.fontWeight.bold,
   },
   requiredLegend: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
     color: BrandColors.TEXT_SECONDARY,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.sm + 2,
+    lineHeight: 20,
   },
   inputBox: {
     height: 52,
@@ -215,7 +219,14 @@ export const formStyles = {
   customerTypeContainer: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.base,
-    marginTop: Spacing.base,
+    marginTop: Spacing.xs,
+  },
+  customerTypeHeaderTitle: {
+    fontSize: Typography.fontSize.xl,
+    fontWeight: Typography.fontWeight.bold,
+    color: BrandColors.PRIMARY_BLUE_DARK,
+    marginBottom: Spacing.base,
+    letterSpacing: -0.2,
   },
   customerTypeCard: {
     backgroundColor: BrandColors.WHITE,

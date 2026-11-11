@@ -136,7 +136,7 @@ test("Home Service Cards — Existing DASHBOARD_SERVICES navigation remains unch
 test("Home Screen Code Inspection — Banner carousel handler directly calls accessService", () => {
   const homeSource = read("src/app/(main)/home.tsx");
 
-  // Test 7: Verify generic TaxEdge Services screen is no longer reached through Home banner CTAs
+  // Test 7: Verify generic Finsolz Services screen is no longer reached through Home banner CTAs
   assert.equal(
     homeSource.includes("onSelect={handleExploreCategory}"),
     false,
@@ -168,7 +168,7 @@ test("Carousel Component Inspection — Passes banner object with route to onSel
   );
 });
 
-test("Permanent Deletion — Generic TaxEdge Services screen and styles are permanently deleted", () => {
+test("Permanent Deletion — Generic Finsolz Services screen and styles are permanently deleted", () => {
   assert.equal(
     fs.existsSync(path.join(baseDir, "src/app/services.tsx")),
     false,

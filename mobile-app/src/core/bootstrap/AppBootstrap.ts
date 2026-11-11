@@ -5,6 +5,7 @@ import { tokenManager, JwtUtils } from "@/core/authentication/tokenManager";
 import { tokenRefreshManager } from "@/core/authentication/tokenRefreshManager";
 import { sessionManager } from "@/core/authentication/sessionManager";
 import { logger } from "@/core/logging/logger";
+import { runStorageMigration } from "@/core/storage/storageMigration";
 
 export class AppBootstrap {
   private static isInitialized = false;
@@ -12,7 +13,8 @@ export class AppBootstrap {
   static async init(): Promise<void> {
     if (this.isInitialized) return;
 
-    logger.info("Starting TaxEdge App Bootstrap...");
+    logger.info("Starting Finsolz App Bootstrap...");
+    await runStorageMigration();
 
     // Register core dependencies
     container.register("apiClient", apiClient);
@@ -52,7 +54,7 @@ export class AppBootstrap {
     await moduleRegistry.initializeAll();
 
     this.isInitialized = true;
-    logger.info("TaxEdge App Bootstrap completed successfully.");
+    logger.info("Finsolz App Bootstrap completed successfully.");
   }
 }
 

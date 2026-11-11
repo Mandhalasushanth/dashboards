@@ -15,6 +15,8 @@ public interface TdsRefundMapper {
 	
 	@Mapping(target = "id", ignore = true)
     @Mapping(target = "custId", ignore = true)
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -26,6 +28,8 @@ public interface TdsRefundMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "custId", ignore = true)
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "assignedAgent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

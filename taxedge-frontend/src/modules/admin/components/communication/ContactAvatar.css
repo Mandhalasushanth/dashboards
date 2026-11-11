@@ -1,0 +1,42 @@
+.tx-contact-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--tx-radius-full);
+  font-weight: 700;
+  color: var(--tx-on-dark-text);
+}
+
+.tx-contact-avatar--md {
+  width: 42px;
+  height: 42px;
+  font-size: 14px;
+}
+
+.tx-contact-avatar--lg {
+  width: 44px;
+  height: 44px;
+  font-size: 15px;
+}
+
+.tx-contact-avatar--navy {
+  background-color: var(--tx-primary-navy);
+}
+
+.tx-contact-avatar--blue {
+  background-color: var(--tx-primary-blue);
+}
+
+.tx-contact-avatar--orange {
+  background-color: var(--tx-primary-orange);
+}
+
+.tx-contact-avatar--green {
+  background-color: var(--tx-success);
+}
+
+/* The administrator, as seen from manager and agent workspaces. */
+.tx-contact-avatar--purple {
+  background-color: var(--tx-accent-purple);
+}

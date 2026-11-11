@@ -2,6 +2,12 @@ import { Platform, Alert } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import { logger } from "@/core/logging/logger";
+import {
+  DRIVE_EXTENSION_MIME_MAP,
+  resolveDriveDocumentMimeType,
+} from "./driveDocumentMime";
+
+export { DRIVE_EXTENSION_MIME_MAP, resolveDriveDocumentMimeType };
 
 export interface PickedDocumentResult {
   uri: string;
@@ -153,11 +159,13 @@ export async function pickDocumentFromDrive(
     }
 
     // 6. Determine standard MIME type
-    let mimeType = asset.mimeType;
-    if (!mimeType || mimeType === "application/octet-stream" || mimeType === "*/*") {
-      if (extension === "pdf") mimeType = "application/pdf";
-      else if (extension === "png") mimeType = "image/png";
-      else mimeType = "image/jpeg";
+    const mimeType = resolveDriveDocumentMimeType(extension, asset.mimeType);
+    if (!mimeType) {
+      Alert.alert(
+        "Unsupported File Format",
+        `The file (.${extension || "unknown"}) has an unsupported or invalid format.`
+      );
+      return null;
     }
 
     const formattedSize = sizeBytes > 0

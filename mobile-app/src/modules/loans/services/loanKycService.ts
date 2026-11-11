@@ -13,7 +13,7 @@ export interface KycProviderStatusResult {
 }
 
 /**
- * Service handling KYC verification integration for TaxEdge Loans.
+ * Service handling KYC verification integration for Finsolz Loans.
  * 
  * Safe Frontend Operation:
  * - Does not inspect, reference, or call unconfigured backend KYC endpoints.

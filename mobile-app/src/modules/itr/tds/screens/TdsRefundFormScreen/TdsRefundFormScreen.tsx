@@ -3,10 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  ScrollView,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
 } from "react-native";
 import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
@@ -15,40 +12,28 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BrandColors } from "@/shared/theme";
-import { tdsCalculationService } from "../../services/tdsCalculationService";
 import { UniversalDraftModal } from "@/shared/components/UniversalDraftModal";
-import { formatCurrency } from "../../utils/tdsValidation";
 import {
-  PersonalInfoSection,
   BusinessDetailsSection,
   RefundBankAccountSection,
   TdsFormInputRefs,
-  SectionHeader,
 } from "./TdsRefundFormSections";
-import { TdsDocumentCard } from "../../components/documents";
-import { useTdsProgressStore } from "../../store/tdsProgressStore";
 import { styles } from "./TdsRefundFormScreen.styles";
 import { useTdsRefundForm } from "./useTdsRefundForm";
 
 export const TdsRefundFormScreen: React.FC = () => {
   const router = useRouter();
-  const maxStepReached = useTdsProgressStore((s) => s.maxStepReached);
   const insets = useSafeAreaInsets();
 
   const {
     formData,
     errors,
-    isIfscLoading,
-    ifscError,
-    isProfileLoading,
-    profileFetchError,
-    fetchAndPopulateProfile,
-    handleSaveProfile,
     updateBusiness,
     updateBank,
-    updateIncome,
     handleIfscChange,
+    handleBlurField,
     handleContinue,
+    handleBack,
     draftGuard,
     documents,
     handleUploadSuccess,
@@ -60,39 +45,24 @@ export const TdsRefundFormScreen: React.FC = () => {
 
   const {
     showDraftModal,
+    openDraftModal: _openDraftModal,
     handleSaveAndExit,
     handleDiscardAndExit,
     handleCancel,
   } = draftGuard;
 
-  // Bank & Income Input refs
+  // Bank Input refs
   const accHolderRef = useRef<TextInput>(null);
   const accNumRef = useRef<TextInput>(null);
   const confirmAccNumRef = useRef<TextInput>(null);
   const ifscRef = useRef<TextInput>(null);
-  const salaryRef = useRef<TextInput>(null);
-  const otherIncomeRef = useRef<TextInput>(null);
-  const interestRef = useRef<TextInput>(null);
-  const tdsRef = useRef<TextInput>(null);
-  const tcsRef = useRef<TextInput>(null);
-  const advanceTaxRef = useRef<TextInput>(null);
-  const selfTaxRef = useRef<TextInput>(null);
-  
+
   const inputRefs: TdsFormInputRefs = {
     accHolderRef,
     accNumRef,
     confirmAccNumRef,
     ifscRef,
-    salaryRef,
-    otherIncomeRef,
-    interestRef,
-    tdsRef,
-    tcsRef,
-    advanceTaxRef,
-    selfTaxRef,
   };
-
-  const liveCalculation = tdsCalculationService.calculate(formData);
 
   return (
     <View
@@ -107,7 +77,7 @@ export const TdsRefundFormScreen: React.FC = () => {
         {!isEditing ? (
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => router.back()}
+            onPress={handleBack}
             style={styles.backButton}
           >
             <Ionicons name="chevron-back" size={20} color={BrandColors.PRIMARY_BLUE_DARK} />
@@ -138,33 +108,6 @@ export const TdsRefundFormScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Dynamic Preliminary Estimate Pill */}
-        <View style={styles.previewEstimateBanner}>
-          <View style={styles.previewLeft}>
-            <Text style={styles.previewLabel}>
-              {liveCalculation.isAdditionalTaxPayable
-                ? "Preliminary Tax Payable"
-                : "Preliminary Estimated Refund"}
-            </Text>
-            <Text style={styles.previewAmount}>
-              {liveCalculation.isAdditionalTaxPayable
-                ? formatCurrency(liveCalculation.estimatedTaxPayable)
-                : formatCurrency(liveCalculation.estimatedRefund)}
-            </Text>
-          </View>
-          <View style={styles.previewRight}>
-            <Text style={styles.previewTag}>AY 2025-26</Text>
-          </View>
-        </View>
-
-        <PersonalInfoSection
-          personal={formData.personal}
-          isLoading={isProfileLoading}
-          errorMessage={profileFetchError}
-          onRetry={fetchAndPopulateProfile}
-          onSaveProfile={handleSaveProfile}
-        />
-
         <BusinessDetailsSection
           business={formData.business}
           errors={errors}
@@ -173,21 +116,17 @@ export const TdsRefundFormScreen: React.FC = () => {
           onUploadSuccess={handleUploadSuccess}
           onUploadError={handleUploadError}
           onRemove={handleRemove}
+          onBlurField={handleBlurField}
         />
 
         <RefundBankAccountSection
           bank={formData.bank}
           errors={errors}
           inputs={inputRefs}
-          isIfscLoading={isIfscLoading}
-          ifscError={ifscError}
           updateBank={updateBank}
           onIfscChange={handleIfscChange}
+          onBlurField={handleBlurField}
         />
-
-        
-
-
 
       </KeyboardAwareScrollView>
 

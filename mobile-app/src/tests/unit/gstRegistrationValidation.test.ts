@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { GstValidators, isValidGstEmail } from "../../modules/gst/utils/gstValidators";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Email Validation Regression Tests
+// Finsolz GST Registration — Email Validation Regression Tests
 // ===============================================================================================
 
 test("common and standard TLDs are accepted", () => {
@@ -33,7 +33,7 @@ test("common and standard TLDs are accepted", () => {
 
 test("multi-part domain TLDs (ccTLDs + SLDs) are accepted", () => {
   const multiPartCases = [
-    "contact@taxedge.co.in",
+    "contact@finsolz.in",
     "officer@gst.gov.in",
     "info@sub.domain.co.uk",
     "support@bank.com.au",
@@ -231,7 +231,7 @@ test("whole-form validation blocks progression when signatoryEmail is invalid an
 });
 
 // ===============================================================================================
-// TaxEdge GST Registration — BUG-GST-REG-001 (Legal Name) & BUG-GST-REG-002 (Trade Name) Tests
+// Finsolz GST Registration — BUG-GST-REG-001 (Legal Name) & BUG-GST-REG-002 (Trade Name) Tests
 // ===============================================================================================
 
 test("Legal Name and Trade Name reject empty and whitespace-only input", () => {

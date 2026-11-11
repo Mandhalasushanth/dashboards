@@ -6,74 +6,75 @@ import { styles } from "./RevisedItrHeader.styles";
 
 interface RevisedItrHeaderProps {
   subtitle: string;
+  currentStep?: number;
+  totalSteps?: number;
   onBack?: () => void;
   hideBackButton?: boolean;
-  onSaveDraft?: () => void;
-  showDraftIcon?: boolean;
 }
 
 export const RevisedItrHeader: React.FC<RevisedItrHeaderProps> = ({
   subtitle,
+  currentStep,
+  totalSteps = 5,
   onBack,
   hideBackButton = false,
-  onSaveDraft,
-  showDraftIcon = false,
 }) => {
   const router = useRouter();
 
   const handleBack = () => {
     if (onBack) {
       onBack();
+      return;
+    }
+    if (router.canGoBack()) {
+      router.back();
     } else {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/");
-      }
+      router.replace("/");
     }
   };
 
-  return (
-    <View style={styles.header}>
-      {!hideBackButton ? (
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={handleBack}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={20} color="#0B1F3A" />
-        </TouchableOpacity>
-      ) : (
-        <View style={{ width: 38, height: 38 }} />
-      )}
+  const progressPercent = currentStep
+    ? Math.min(100, Math.max(0, (currentStep / totalSteps) * 100))
+    : 0;
 
-      <View style={styles.titleGroup} pointerEvents="none">
-        <Text style={styles.title}>Revised ITR</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+  const stepSubtitle = currentStep
+    ? `Step ${currentStep} of ${totalSteps} • ${subtitle}`
+    : subtitle;
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        {!hideBackButton ? (
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleBack}
+            style={styles.backButton}
+            accessibilityLabel="Back"
+          >
+            <Ionicons name="chevron-back" size={20} color="#0B1F3A" />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.rightSpacer} />
+        )}
+
+        <View style={styles.titleGroup} pointerEvents="none">
+          <Text style={styles.title}>Revised ITR</Text>
+          <Text style={styles.subtitle}>{stepSubtitle}</Text>
+        </View>
+
+        <View style={styles.rightSpacer} />
       </View>
 
-      {showDraftIcon ? (
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={onSaveDraft}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            paddingHorizontal: 14,
-            paddingVertical: 6,
-            borderRadius: 20,
-            backgroundColor: "#FFFFFF",
-            borderWidth: 1,
-            borderColor: "#E2E8F0",
-          }}
-          accessibilityLabel="Save Draft"
-        >
-          <Ionicons name="bookmark-outline" size={16} color="#64748B" style={{ marginRight: 6 }} />
-          <Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>Draft</Text>
-        </TouchableOpacity>
-      ) : (
-        <View style={{ width: 80, height: 38 }} />
-      )}
+      {currentStep ? (
+        <View style={styles.progressBarTrack}>
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${progressPercent}%` },
+            ]}
+          />
+        </View>
+      ) : null}
     </View>
   );
 };

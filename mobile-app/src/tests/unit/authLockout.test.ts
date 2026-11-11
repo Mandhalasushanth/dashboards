@@ -289,7 +289,7 @@ test("after the lockout expires the app talks to the server again", async () => 
 });
 
 test("a stored lockout far in the future (changed device clock) is ignored and the server decides", async () => {
-  harness.secureStore.set(`taxedge_secure_otp_lockout_until_${MOBILE}`, String(START + 3 * 24 * 3600 * 1000));
+  harness.secureStore.set(`finsolz_secure_otp_lockout_until_${MOBILE}`, String(START + 3 * 24 * 3600 * 1000));
   otpVerified();
 
   const res = await authService.verifyOtp(MOBILE, "123456");
@@ -304,7 +304,7 @@ test("a successful verification clears the stored lockout", async () => {
   otpVerified();
   await authService.verifyOtp(MOBILE, "123456");
 
-  assert.equal(harness.secureStore.has(`taxedge_secure_otp_lockout_until_${MOBILE}`), false);
+  assert.equal(harness.secureStore.has(`finsolz_secure_otp_lockout_until_${MOBILE}`), false);
 });
 
 // ===============================================================================================
@@ -321,7 +321,7 @@ test("a resend refused by the server's rate limit reports the wait without locki
   assert.equal(res.retryAfterSeconds, 20);
   assert.equal(res.message, "Too many OTP requests. Try again in 0:20.");
   assert.equal(res.lockedUntil, undefined);
-  assert.equal(harness.secureStore.has(`taxedge_secure_otp_lockout_until_${MOBILE}`), false);
+  assert.equal(harness.secureStore.has(`finsolz_secure_otp_lockout_until_${MOBILE}`), false);
 });
 
 test("a long hourly resend limit is shown as a clock, not as seconds", async () => {
@@ -447,7 +447,7 @@ test("checkLockout reports the remaining time for the UI after a restart", async
 });
 
 test("a stored passcode lockout far in the future (changed device clock) is dropped", async () => {
-  harness.secureStore.set(`taxedge_secure_passcode_lockout_until_${MOBILE}`, String(START + 3 * 24 * 3600 * 1000));
+  harness.secureStore.set(`finsolz_secure_passcode_lockout_until_${MOBILE}`, String(START + 3 * 24 * 3600 * 1000));
 
   const lock = await passcodeService.checkLockout(MOBILE);
 
@@ -462,8 +462,8 @@ test("a correct passcode logs in and clears the failure state", async () => {
   const res = await passcodeService.verifyPasscode(MOBILE, "246810");
 
   assert.equal(res.success, true);
-  assert.equal(harness.secureStore.has(`taxedge_secure_passcode_failed_attempts_${MOBILE}`), false);
-  assert.equal(harness.secureStore.has(`taxedge_secure_passcode_lockout_until_${MOBILE}`), false);
+  assert.equal(harness.secureStore.has(`finsolz_secure_passcode_failed_attempts_${MOBILE}`), false);
+  assert.equal(harness.secureStore.has(`finsolz_secure_passcode_lockout_until_${MOBILE}`), false);
 });
 
 test("a network failure still counts as a failed attempt locally", async () => {

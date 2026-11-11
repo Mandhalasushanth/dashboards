@@ -31,7 +31,7 @@ export async function runScenarios1to6(record: RecordFunction): Promise<void> {
 
     const dummyProfile: CustomerProfile = {
       name: "New Test User",
-      email: "newuser@taxedge.in",
+      email: "newuser@finsolz.in",
       pan: "ABCDE1234F",
       aadhaar: "123456789012",
       dob: "1995-05-15",
@@ -87,7 +87,7 @@ export async function runScenarios1to6(record: RecordFunction): Promise<void> {
       customerId: "CUST_9876500002",
       mobileNumber: mobile,
       name: "Existing User",
-      email: "existing@taxedge.in",
+      email: "existing@finsolz.in",
       registrationCompleted: true,
       hasPasscode: true,
     });
@@ -127,7 +127,7 @@ export async function runScenarios1to6(record: RecordFunction): Promise<void> {
       customerId: "CUST_9876500003",
       mobileNumber: mobile,
       name: "Biometric User",
-      email: "bio@taxedge.in",
+      email: "bio@finsolz.in",
       registrationCompleted: true,
     });
 
@@ -163,7 +163,7 @@ export async function runScenarios1to6(record: RecordFunction): Promise<void> {
       customerId: "CUST_9876500004",
       mobileNumber: mobile,
       name: "Passcode Only User",
-      email: "pass@taxedge.in",
+      email: "pass@finsolz.in",
       registrationCompleted: true,
       hasPasscode: true,
     });

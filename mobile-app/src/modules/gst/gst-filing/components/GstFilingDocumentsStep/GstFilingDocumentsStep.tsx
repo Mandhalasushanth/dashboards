@@ -142,7 +142,7 @@ export const GstFilingDocumentsStep: React.FC<GstFilingDocumentsStepProps> = ({
           color={BrandColors.PRIMARY_BLUE}
         />
         <Text style={styles.infoCalloutText}>
-          TaxEdge uses end-to-end 256-bit encryption for filing proofs. Only
+          Finsolz uses end-to-end 256-bit encryption for filing proofs. Only
           certified Chartered Accountants review your books.
         </Text>
       </View>

@@ -39,6 +39,38 @@ export const GstViewDocumentModal: React.FC<GstViewDocumentModalProps> = ({
   const [isIframeError, setIsIframeError] = useState<boolean>(false);
   const [isImageError, setIsImageError] = useState<boolean>(false);
 
+  // Cache last active valid document on iOS during dismissal fade animation
+  const lastValidDocRef = React.useRef<{
+    fileUri?: string;
+    fileName?: string;
+    fileSize?: string;
+    fileTypeLabel?: string;
+    mimeType?: string;
+    title?: string;
+  }>({});
+
+  if (visible && fileUri) {
+    lastValidDocRef.current = {
+      fileUri,
+      fileName,
+      fileSize,
+      fileTypeLabel,
+      mimeType,
+      title,
+    };
+  }
+
+  // Synchronously reset error flags on prop change to eliminate 1-frame error icon flashes on iOS
+  const [prevUri, setPrevUri] = useState<string | undefined>(fileUri);
+  const [prevVisible, setPrevVisible] = useState<boolean>(visible);
+  if (fileUri !== prevUri || visible !== prevVisible) {
+    setPrevUri(fileUri);
+    setPrevVisible(visible);
+    if (isImageError) setIsImageError(false);
+    if (isIframeError) setIsIframeError(false);
+    if (actionError) setActionError(null);
+  }
+
   const handleClose = useCallback(() => {
     setActionError(null);
     setIsIframeError(false);
@@ -67,23 +99,34 @@ export const GstViewDocumentModal: React.FC<GstViewDocumentModalProps> = ({
     }
   }, [fileUri]);
 
+  const isIos = Platform.OS === "ios";
+  const activeFileUri =
+    fileUri || (isIos && !visible ? lastValidDocRef.current.fileUri : undefined);
+  const activeFileName =
+    fileName || (isIos && !visible ? lastValidDocRef.current.fileName : undefined);
+  const activeMimeType =
+    mimeType || (isIos && !visible ? lastValidDocRef.current.mimeType : undefined);
+  const activeFileTypeLabel =
+    fileTypeLabel ||
+    (isIos && !visible ? lastValidDocRef.current.fileTypeLabel : undefined);
+
   const docType = resolveDocType({
-    name: fileName,
-    uri: fileUri,
-    mimeType,
-    fileTypeLabel,
+    name: activeFileName,
+    uri: activeFileUri,
+    mimeType: activeMimeType,
+    fileTypeLabel: activeFileTypeLabel,
   });
 
   const isWebRenderableUri = Boolean(
     Platform.OS === "web" &&
-      fileUri &&
-      /^(blob:|https?:|data:)/i.test(fileUri)
+      activeFileUri &&
+      /^(blob:|https?:|data:)/i.test(activeFileUri)
   );
 
   const openWebDocument = useCallback(() => {
-    if (Platform.OS === "web" && typeof window !== "undefined" && fileUri) {
-      if (/^(blob:|https?:|data:)/i.test(fileUri)) {
-        const opened = window.open(fileUri, "_blank", "noopener,noreferrer");
+    if (Platform.OS === "web" && typeof window !== "undefined" && activeFileUri) {
+      if (/^(blob:|https?:|data:)/i.test(activeFileUri)) {
+        const opened = window.open(activeFileUri, "_blank", "noopener,noreferrer");
         if (!opened) {
           setActionError("Pop-up was blocked. Please allow pop-ups to open the document.");
         }
@@ -91,12 +134,15 @@ export const GstViewDocumentModal: React.FC<GstViewDocumentModalProps> = ({
         setActionError("Direct browser opening is not supported for this file scheme.");
       }
     }
-  }, [fileUri]);
+  }, [activeFileUri]);
 
   const handleOpenInNewTab = openWebDocument;
 
   const renderPreviewContent = () => {
-    if (!fileUri) {
+    if (!activeFileUri) {
+      if (isIos && !visible) {
+        return <View style={styles.fallbackBox} />;
+      }
       return (
         <View style={styles.fallbackBox}>
           <Ionicons name="alert-circle-outline" size={48} color="#DC2626" />
@@ -122,9 +168,10 @@ export const GstViewDocumentModal: React.FC<GstViewDocumentModalProps> = ({
       }
       return (
         <Image
-          source={{ uri: fileUri }}
+          source={{ uri: activeFileUri }}
           style={styles.previewImage}
           resizeMode="contain"
+          fadeDuration={Platform.OS === "android" ? 300 : 0}
           onError={() => setIsImageError(true)}
         />
       );
@@ -154,8 +201,8 @@ export const GstViewDocumentModal: React.FC<GstViewDocumentModalProps> = ({
       return (
         <View style={styles.webPdfBox}>
           {React.createElement("iframe", {
-            src: fileUri,
-            title: fileName || title,
+            src: activeFileUri,
+            title: activeFileName || title,
             onError: () => setIsIframeError(true),
             style: { width: "100%", height: 260, border: "none", borderRadius: 8 },
           })}
@@ -172,6 +219,7 @@ export const GstViewDocumentModal: React.FC<GstViewDocumentModalProps> = ({
         </View>
       );
     }
+
 
     return (
       <View style={styles.fallbackBox}>

@@ -78,7 +78,8 @@ export const st = StyleSheet.create({
   cardHeaderRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 },
   cardIconBox: { width: 32, height: 32, borderRadius: 8, backgroundColor: "#EFF6FF", justifyContent: "center", alignItems: "center" },
   cardLabel: { fontSize: 13.5, fontWeight: "700", color: "#0F172A" },
-  star: { color: "#FF7A00" },
+  labelWithIcon: { flexDirection: "row", alignItems: "center", gap: 6 },
+  star: { color: "#EF4444" },
   input: {
     height: 46,
     backgroundColor: "#FFFFFF",

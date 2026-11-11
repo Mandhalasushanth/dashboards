@@ -7,7 +7,7 @@ import path from "node:path";
 import { GstValidators } from "../../modules/gst/utils/gstValidators";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Bank Account Number & Confirm Account Number Validation Tests
+// Finsolz GST Registration — Bank Account Number & Confirm Account Number Validation Tests
 // Rules:
 // - Rule A: Required field (reject empty and whitespace-only)
 // - Rule B: Digits only (reject letters, punctuation, emojis, spaces; do not silently sanitize)

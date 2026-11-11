@@ -42,10 +42,18 @@ public class PersonalLoanExceptionHandler {
             MethodArgumentNotValidException.class,
             HttpMessageNotReadableException.class
     })
-    public ResponseEntity<ErrorResponse> handleInvalidRequest(Exception exception) {
-        String message = exception instanceof IllegalArgumentException
-                ? exception.getMessage()
-                : "Invalid personal loan request";
+        public ResponseEntity<ErrorResponse> handleInvalidRequest(Exception exception) {
+        String message = exception.getMessage();
+        if (exception instanceof MethodArgumentNotValidException manve && manve.getBindingResult().getFieldError() != null) {
+            message = manve.getBindingResult().getFieldError().getDefaultMessage();
+        } else if (exception instanceof HttpMessageNotReadableException notReadable) {
+            Throwable mostSpecific = notReadable.getMostSpecificCause();
+            message = (mostSpecific != null && mostSpecific.getMessage() != null) ? mostSpecific.getMessage() : notReadable.getMessage();
+        } else if (exception instanceof IllegalArgumentException || exception instanceof IllegalStateException) {
+            message = exception.getMessage();
+        } else {
+            message = "Invalid personal loan request";
+        }
         return response(HttpStatus.BAD_REQUEST, message);
     }
 

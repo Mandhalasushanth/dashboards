@@ -14,10 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * AdminLogin entity representing administrator login credentials and
- * authentication state for the Admin Dashboard sign-in.
- */
+
 @Entity
 @Table(name = "admin_logins")
 @Getter
@@ -40,6 +37,13 @@ public class AdminLogin {
 
     @Column(name = "full_name", length = 150)
     private String fullName;
+
+   
+    @Column(name = "refresh_token_hash", length = 255)
+    private String refreshTokenHash;
+
+    @Column(name = "refresh_token_expires_at")
+    private LocalDateTime refreshTokenExpiresAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

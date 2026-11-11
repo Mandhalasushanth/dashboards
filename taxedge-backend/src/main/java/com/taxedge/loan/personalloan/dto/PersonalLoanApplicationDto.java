@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import com.taxedge.loan.personalloan.enums.ExistingLoanStatus;
 import com.taxedge.loan.personalloan.enums.LoanApplicationStatus;
+import com.taxedge.loan.personalloan.enums.NatureOfBusiness;
+import com.taxedge.loan.personalloan.enums.PersonalLoanJobType;
 import com.taxedge.loan.personalloan.enums.PersonalLoanPurpose;
 
 import lombok.AllArgsConstructor;
@@ -41,8 +43,7 @@ public class PersonalLoanApplicationDto {
     @Size(max = 100)
     private String employerName;
 
-    @Size(max = 50)
-    private String jobType;
+    private PersonalLoanJobType jobType;
 
     @Size(max = 50)
     private String workExperience;
@@ -53,8 +54,7 @@ public class PersonalLoanApplicationDto {
     @Size(max = 150)
     private String businessOrProfessionName;
 
-    @Size(max = 50)
-    private String natureOfBusiness;
+    private NatureOfBusiness natureOfBusiness;
 
     @DecimalMin(value = "0.00")
     private BigDecimal averageMonthlyIncome;

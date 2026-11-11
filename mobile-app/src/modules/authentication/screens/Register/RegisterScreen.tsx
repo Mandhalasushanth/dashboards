@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  View, Text,
+  View, Text, TextInput,
   TouchableOpacity, BackHandler, StyleSheet, LayoutAnimation,
   Keyboard, Alert, ActivityIndicator,
+  type TextInputInstance,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -11,20 +12,27 @@ import { BrandColors, Colors, Spacing } from "@/shared/theme";
 import { BiometricPromptModal } from "@/shared/components/BiometricPromptModal";
 import { UniversalDatePicker } from "@/shared/components/UniversalDatePicker";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareFormLayout";
+import { FocusAwareStatusBar } from "@/shared/components/FocusAwareStatusBar";
 import { styles } from "./RegisterScreen.styles";
 import { useCreateProfile } from "@/components/screens/create-profile/useCreateProfile";
 import { FieldLabel, FormField, GenderPickerModal, StatePickerModal } from "@/components/screens/create-profile/CreateProfileModals";
 import { PROFILE_FIELD_LIMITS } from "@/shared/validators/profileValidators";
 import { CUSTOMER_TYPE_OPTIONS } from "@/components/screens/create-profile/types";
 
+/** Height of the title row, and of the curve below it that must stay clear of the title. */
+const HEADER_ROW_HEIGHT = 44;
+const HEADER_CURVE_DEPTH = 44;
+
 export function RegisterScreen() {
   const insets = useSafeAreaInsets();
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+  const otpInputRef = useRef<TextInputInstance>(null);
+  const [isOtpFocused, setIsOtpFocused] = useState(false);
 
   const {
     form, updateForm, handlePanChange, handleDobChange, handleBlur,
     profileErrors, profileLoading, handleProceedToRegistration, handleFinalRegistration,
-    handleBack, panKeyboardType, showPassword, setShowPassword,
+    handleBack, showPassword, setShowPassword,
     showConfirmPassword, setShowConfirmPassword, agreedToTerms, setAgreedToTerms,
     showAddressLine2, setShowAddressLine2, setFieldOffset,
     scrollRef, nameRef, emailRef, fatherSpouseRef,
@@ -33,7 +41,30 @@ export function RegisterScreen() {
     showGenderModal, setShowGenderModal, showStateModal, setShowStateModal,
     stateSearchQuery, setStateSearchQuery, showBiometricModal, biometricType,
     handleEnableBiometric, handleNotNowBiometric,
+    isPanValid,
+    isAadhaarValid,
+    isOtpButtonEnabled,
+    isAadhaarOtpSent,
+    isAadhaarVerified,
+    aadhaarOtp,
+    aadhaarOtpTimer,
+    aadhaarOtpError,
+    handleSendAadhaarOtp,
+    handleResendAadhaarOtp,
+    handleVerifyAadhaarOtp,
+    handleAadhaarOtpChange,
+    handleResetAadhaarVerification,
+    formatOtpTime,
   } = useCreateProfile(currentStep, setCurrentStep);
+
+  useEffect(() => {
+    if (isAadhaarOtpSent && !isAadhaarVerified) {
+      const t = setTimeout(() => {
+        otpInputRef.current?.focus();
+      }, 250);
+      return () => clearTimeout(t);
+    }
+  }, [isAadhaarOtpSent, isAadhaarVerified]);
 
   useEffect(() => {
     const onBack = () => {
@@ -51,22 +82,37 @@ export function RegisterScreen() {
   const yo = (key: string) => ({ onLayout: (e: any) => setFieldOffset(key, e.nativeEvent.layout.y) });
   const ff = (key: string) => ({ onBlur: () => handleBlur(key as any) });
 
+  const handleCustomerTypeSelect = (key: string) => {
+    updateForm("customerType", key);
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }, 120);
+  };
+
   // The keyboard gap is added by KeyboardAwareScrollView, measured from what the keyboard covers.
   const scrollBottomPadding = Math.max(insets.bottom + Spacing.xl, 40);
+  // The curved header grows with the phone's status bar (notch, Dynamic Island, Android cut-outs), so the
+  // title always sits on the dark band, above where the curve dips, on every device.
+  const headerTop = Math.max(insets.top + Spacing.xs, Spacing.lg);
+  const headerHeight = headerTop + HEADER_ROW_HEIGHT + HEADER_CURVE_DEPTH;
 
   return (
     <View style={[styles.container, { backgroundColor: BrandColors.BACKGROUND }]}>
-      <View style={styles.waveHeaderWrapper}>
-        <Svg height={150} width="100%" viewBox="0 0 375 150" style={StyleSheet.absoluteFill} preserveAspectRatio="none">
-          <Path d="M0,0 L375,0 L375,100 C310,140 230,135 140,115 C60,95 20,110 0,120 Z" fill={BrandColors.PRIMARY_BLUE_DARK} />
-          <Path d="M260,0 C295,35 335,55 375,58 L375,0 Z" fill={BrandColors.PRIMARY_ORANGE} />
+      {/* White clock and battery icons on the dark header, on iOS and Android alike. */}
+      <FocusAwareStatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <View style={[styles.waveHeaderWrapper, { height: headerHeight }]}>
+        <Svg height={headerHeight} width="100%" viewBox="0 0 375 125" style={StyleSheet.absoluteFill} preserveAspectRatio="none">
+          <Path d="M0,0 L375,0 L375,85 C310,120 230,115 140,95 C60,78 20,92 0,100 Z" fill={BrandColors.PRIMARY_BLUE_DARK} />
+          <Path d="M260,0 C295,30 335,46 375,48 L375,0 Z" fill={BrandColors.PRIMARY_ORANGE} />
         </Svg>
-        <View style={[styles.waveHeaderContent, { paddingTop: Math.max(insets.top + Spacing.sm, Spacing.xl) }]}>
+        <View style={[styles.waveHeaderContent, { paddingTop: headerTop }]}>
           <View style={styles.headerRow}>
-            <TouchableOpacity activeOpacity={0.7} onPress={handleBack} style={styles.backBtnWhite} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-              <Ionicons name="arrow-back" size={24} color={BrandColors.WHITE} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitleWhite}>{currentStep === 1 ? "Select Account Type" : "Create Account"}</Text>
+            {currentStep === 2 && (
+              <TouchableOpacity activeOpacity={0.7} onPress={handleBack} style={styles.backBtnWhite} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                <Ionicons name="arrow-back" size={24} color={BrandColors.WHITE} />
+              </TouchableOpacity>
+            )}
+            <Text style={styles.headerTitleWhite} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Create Account</Text>
           </View>
         </View>
       </View>
@@ -80,10 +126,11 @@ export function RegisterScreen() {
       >
         {currentStep === 1 ? (
           <View style={styles.customerTypeContainer}>
+            <Text style={styles.customerTypeHeaderTitle}>Select Account Type</Text>
             {CUSTOMER_TYPE_OPTIONS.map((opt) => {
               const sel = form.customerType === opt.key;
               return (
-                <TouchableOpacity key={opt.key} activeOpacity={0.8} onPress={() => updateForm("customerType", opt.key)}
+                <TouchableOpacity key={opt.key} activeOpacity={0.8} onPress={() => handleCustomerTypeSelect(opt.key)}
                   style={[styles.customerTypeCard, sel && styles.customerTypeCardSelected]}>
                   <View style={[styles.cardIconContainer, sel && styles.cardIconContainerSelected]}>
                     <Ionicons name={opt.icon} size={22} color={sel ? BrandColors.PRIMARY_ORANGE : BrandColors.PRIMARY_BLUE} />
@@ -98,14 +145,18 @@ export function RegisterScreen() {
                 </TouchableOpacity>
               );
             })}
-            <TouchableOpacity activeOpacity={0.85} onPress={handleProceedToRegistration} style={styles.submitBtnOrange}>
+            <TouchableOpacity
+              activeOpacity={form.customerType ? 0.85 : 0.6}
+              onPress={handleProceedToRegistration}
+              style={[styles.submitBtnOrange, !form.customerType && { opacity: 0.55 }]}
+            >
               <Text style={styles.submitBtnText}>Continue</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.formSection}>
             <Text style={styles.requiredLegend}>
-              Fields marked <Text style={styles.requiredStar}>*</Text> are required
+              Please provide the required details to create your Finsolz account.
             </Text>
 
             <FormField fieldRef={nameRef} {...yo("name")} label="Full Name" required leftIcon="person-outline"
@@ -143,7 +194,7 @@ export function RegisterScreen() {
                 valueFormat="DD-MM-YYYY"
                 placeholder="DD-MM-YYYY"
                 maximumDate={new Date()}
-                initialPickerDate={new Date(2000, 0, 1)}
+                initialPickerDate={new Date()}
                 iconColor={BrandColors.PRIMARY_ORANGE}
               />
             </View>
@@ -156,13 +207,147 @@ export function RegisterScreen() {
 
             <FormField fieldRef={panRef} {...yo("pan")} label="PAN Number" required leftIcon="card-outline"
               value={form.pan} onChange={handlePanChange} {...ff("pan")}
-              placeholder="PAN Number" autoCapitalize="characters" keyboardType={panKeyboardType} maxLength={10}
+              placeholder="PAN Number" autoCapitalize="characters" keyboardType="default" maxLength={10}
+              rightElement={
+                isPanValid ? (
+                  <View style={styles.validTickContainer}>
+                    <Ionicons name="checkmark-circle" size={22} color="#10B981" />
+                  </View>
+                ) : null
+              }
               error={profileErrors.pan} returnKeyType="next" onSubmit={() => aadhaarRef.current?.focus()} />
 
             <FormField fieldRef={aadhaarRef} {...yo("aadhaar")} label="Aadhaar Number" required leftIcon="newspaper-outline"
               value={form.aadhaar} onChange={(t) => updateForm("aadhaar", t.replace(/\D/g, "").slice(0, 12))} {...ff("aadhaar")}
               placeholder="Aadhaar Number" keyboardType="number-pad" maxLength={12}
+              editable={!isAadhaarVerified}
+              rightElement={
+                isAadhaarVerified ? (
+                  <View style={styles.aadhaarVerifiedInline}>
+                    <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                    <Text style={styles.aadhaarVerifiedInlineText}>Verified</Text>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    activeOpacity={isOtpButtonEnabled ? 0.8 : 1}
+                    onPress={isOtpButtonEnabled ? handleSendAadhaarOtp : undefined}
+                    disabled={!isOtpButtonEnabled}
+                    style={[
+                      styles.sendOtpBtn,
+                      !isOtpButtonEnabled && styles.sendOtpBtnDisabled,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sendOtpBtnText,
+                        !isOtpButtonEnabled && styles.sendOtpBtnTextDisabled,
+                      ]}
+                    >
+                      {isAadhaarOtpSent ? (aadhaarOtpTimer === 0 ? "Resend OTP" : "OTP Sent") : "Send OTP"}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              }
               error={profileErrors.aadhaar} returnKeyType="next" onSubmit={() => address1Ref.current?.focus()} />
+
+            {isAadhaarOtpSent && !isAadhaarVerified && (
+              <View style={styles.aadhaarOtpSection}>
+                <View style={styles.aadhaarOtpHeader}>
+                  <View style={styles.aadhaarOtpTitleRow}>
+                    <Ionicons name="shield-checkmark" size={18} color={BrandColors.PRIMARY_ORANGE} />
+                    <Text style={styles.aadhaarOtpTitle}>Verify Aadhaar OTP</Text>
+                  </View>
+                  <View style={styles.mockOtpPill}>
+                    <Text style={styles.mockOtpPillText}>Mock: 123456</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.aadhaarOtpSubtitle}>
+                  Enter the 6-digit verification code sent for Aadhaar authentication.
+                </Text>
+
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPress={() => otpInputRef.current?.focus()}
+                  style={styles.aadhaarOtpBoxesContainer}
+                >
+                  <TextInput
+                    ref={otpInputRef}
+                    style={styles.aadhaarOtpHiddenInput}
+                    value={aadhaarOtp}
+                    onChangeText={handleAadhaarOtpChange}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                    returnKeyType="done"
+                    onSubmitEditing={() => handleVerifyAadhaarOtp()}
+                    onFocus={() => setIsOtpFocused(true)}
+                    onBlur={() => setIsOtpFocused(false)}
+                  />
+                  {[0, 1, 2, 3, 4, 5].map((idx) => {
+                    const digit = aadhaarOtp[idx] || "";
+                    const isCurrent = isOtpFocused && (aadhaarOtp.length === idx || (idx === 5 && aadhaarOtp.length === 6));
+                    return (
+                      <View
+                        key={idx}
+                        style={[
+                          styles.aadhaarOtpBox,
+                          isCurrent && styles.aadhaarOtpBoxFocused,
+                          Boolean(digit) && styles.aadhaarOtpBoxFilled,
+                        ]}
+                      >
+                        <Text style={styles.aadhaarOtpDigitText}>{digit}</Text>
+                      </View>
+                    );
+                  })}
+                </TouchableOpacity>
+
+                {aadhaarOtpError ? (
+                  <Text style={styles.aadhaarOtpErrorText}>{aadhaarOtpError}</Text>
+                ) : null}
+
+                <View style={styles.aadhaarOtpTimerRow}>
+                  {aadhaarOtpTimer > 0 ? (
+                    <Text style={styles.aadhaarOtpTimerText}>
+                      Resend OTP in{" "}
+                      <Text style={styles.aadhaarOtpTimerHighlight}>
+                        {formatOtpTime(aadhaarOtpTimer)}
+                      </Text>
+                    </Text>
+                  ) : (
+                    <View style={styles.aadhaarOtpExpiredRow}>
+                      <Text style={styles.aadhaarOtpTimerText}>OTP expired.</Text>
+                      <TouchableOpacity activeOpacity={0.7} onPress={handleResendAadhaarOtp}>
+                        <Text style={styles.aadhaarOtpResendLink}>Resend OTP</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  onPress={() => handleVerifyAadhaarOtp()}
+                  disabled={aadhaarOtp.length !== 6}
+                  style={[
+                    styles.aadhaarOtpVerifyBtn,
+                    aadhaarOtp.length !== 6 && styles.aadhaarOtpVerifyBtnDisabled,
+                  ]}
+                >
+                  <Text style={styles.aadhaarOtpVerifyBtnText}>Verify OTP</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {isAadhaarVerified && (
+              <View style={styles.aadhaarVerifiedCard}>
+                <View style={styles.aadhaarVerifiedCardLeft}>
+                  <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                  <Text style={styles.aadhaarVerifiedCardText}>Aadhaar verified successfully</Text>
+                </View>
+                <TouchableOpacity activeOpacity={0.7} onPress={handleResetAadhaarVerification}>
+                  <Text style={styles.aadhaarChangeText}>Change</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <FormField fieldRef={address1Ref} {...yo("addressLine1")} label="Address Line 1" required
               labelRight={!showAddressLine2 ? (
@@ -207,7 +392,6 @@ export function RegisterScreen() {
               </TouchableOpacity>
               {profileErrors.state ? <Text style={styles.errorText}>{profileErrors.state}</Text> : null}
             </View>
-
             <FormField fieldRef={passcodeRef} {...yo("password")} label="Passcode" required leftIcon="lock-closed-outline"
               value={form.password} onChange={(t) => updateForm("password", t.replace(/\D/g, "").slice(0, 6))} {...ff("password")}
               placeholder="Passcode" keyboardType="number-pad" maxLength={6} secure={!showPassword}
@@ -227,10 +411,10 @@ export function RegisterScreen() {
               </TouchableOpacity>
               <Text style={styles.termsText}>
                 By creating an account, I agree to the{" "}
-                <Text style={styles.termsLink} onPress={() => Alert.alert("Terms of Service", "By using TaxEdge, you agree to statutory Indian tax filing and compliance guidelines, confidential credential management, and authorized tax representation.")}>
+                <Text style={styles.termsLink} onPress={() => Alert.alert("Terms of Service", "By using Finsolz, you agree to statutory Indian tax filing and compliance guidelines, confidential credential management, and authorized tax representation.")}>
                   Terms of Service
                 </Text>{" "}and{" "}
-                <Text style={styles.termsLink} onPress={() => Alert.alert("Privacy Policy", "TaxEdge uses bank-grade 256-bit encryption to safeguard your PAN, Aadhaar, and financial records. We do not sell your data to third parties.")}>
+                <Text style={styles.termsLink} onPress={() => Alert.alert("Privacy Policy", "Finsolz uses bank-grade 256-bit encryption to safeguard your PAN, Aadhaar, and financial records. We do not sell your data to third parties.")}>
                   Privacy Policy
                 </Text>.
               </Text>

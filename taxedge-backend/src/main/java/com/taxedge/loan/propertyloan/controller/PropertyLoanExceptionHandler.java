@@ -54,11 +54,13 @@ public class PropertyLoanExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidRequest(Exception exception) {
         log.warn("Invalid property loan request: {}", exception.getMessage());
         String message = exception.getMessage();
-        if (exception instanceof MethodArgumentNotValidException manve && manve.getBindingResult().getFieldError() != null) {
+        if (exception instanceof MethodArgumentNotValidException manve
+                && manve.getBindingResult().getFieldError() != null) {
             message = manve.getBindingResult().getFieldError().getDefaultMessage();
         } else if (exception instanceof HttpMessageNotReadableException notReadable) {
             Throwable mostSpecific = notReadable.getMostSpecificCause();
-            message = (mostSpecific != null && mostSpecific.getMessage() != null) ? mostSpecific.getMessage() : notReadable.getMessage();
+            message = (mostSpecific != null && mostSpecific.getMessage() != null) ? mostSpecific.getMessage()
+                    : notReadable.getMessage();
         }
         return response(HttpStatus.BAD_REQUEST, message);
     }

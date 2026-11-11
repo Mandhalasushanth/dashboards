@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { BrandColors, Typography } from "@/shared/theme";
 
 export const styles = StyleSheet.create({
@@ -72,6 +72,7 @@ export const styles = StyleSheet.create({
     padding: 16,
     gap: 8,
     width: "100%",
+    ...(Platform.OS === "ios" ? { minHeight: 240 } : {}),
   },
   fallbackTitle: {
     fontSize: Typography.fontSize.sm + 1.5,

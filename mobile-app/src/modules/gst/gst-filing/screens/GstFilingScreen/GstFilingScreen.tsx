@@ -9,6 +9,7 @@ import { GstFilingReviewStep } from "@/modules/gst/gst-filing/components/GstFili
 import { GstApplicationStatusStep } from "@/modules/gst/gst-status/components/GstApplicationStatusStep/GstApplicationStatusStep";
 import { UniversalDraftModal } from "@/shared/components/UniversalDraftModal";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareFormLayout";
+import { formatSubmissionDate } from "@/shared/formatters/dateFormatter";
 import { useApplicationStore } from "@/store/applicationStore";
 import { applicationService } from "@/modules/applications/services/applicationService";
 import { gstApi } from "@/modules/gst/services/gstApi";
@@ -56,6 +57,7 @@ export const GstFilingScreen: React.FC = () => {
     requiredDocs,
     missingDocsCount,
     uploadedDocsCount,
+    isEditMode,
     handleEditStep,
     isFetchingReview,
   } = useGstFiling();
@@ -114,6 +116,26 @@ export const GstFilingScreen: React.FC = () => {
   const businessDisplayName =
     periodData.tradeName || periodData.businessName || "Registered Business";
 
+  // Lookup application details from store if present to get stored submission date
+  const existingApp = useApplicationStore
+    .getState()
+    .applications.find(
+      (a) =>
+        a.id === createdAppId ||
+        a.id === filingId ||
+        a.formData?.filingId === filingId ||
+        a.formData?.filingId === createdAppId ||
+        a.formData?.applicationId === createdAppId,
+    );
+
+  const appliedDate =
+    formatSubmissionDate(
+      existingApp?.formData?.submissionDate ||
+        existingApp?.formData?.appliedDate ||
+        existingApp?.submittedAt ||
+        existingApp?.createdAt,
+    ) || formatSubmissionDate(new Date());
+
   return (
     <View style={styles.root}>
       {/* Top Header Bar with ITR-style step indicator */}
@@ -123,8 +145,8 @@ export const GstFilingScreen: React.FC = () => {
           currentStep={currentStep + 1}
           totalSteps={3}
           stepLabel={FILING_STEP_LABELS[currentStep] || "Filing"}
-          onBack={handleBack}
-          showBack={currentStep !== 2}
+          onBack={isEditMode ? undefined : handleBack}
+          showBack={!isEditMode && currentStep !== 2}
         />
       ) : (
         <View style={[styles.headerBar, getHeaderBarStyle(insets.top)]}>
@@ -230,7 +252,7 @@ export const GstFilingScreen: React.FC = () => {
                 : "Registered Business")
             }
             serviceName={`GST Filing (${periodLabel})`}
-            appliedDate="Today"
+            appliedDate={appliedDate}
             estCompletion="1-2 Business Days"
             isFilingWorkflow={true}
             onReuploadDocuments={() => setCurrentStep(1)}

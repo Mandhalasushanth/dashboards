@@ -108,7 +108,7 @@ export const LoansMainScreen: React.FC = () => {
     selectCategory,
   ]);
 
-  // Shared TaxEdge "Save as Draft & Exit / Discard & Exit / Keep Editing" prompt.
+  // Shared Finsolz "Save as Draft & Exit / Discard & Exit / Keep Editing" prompt.
   // The application lives in the loans store, so saving keeps it there for this session.
   const draftGuard = useUniversalDraftGuard({
     isDirty: () => IN_PROGRESS_STEPS.includes(useLoansStore.getState().activeStep),

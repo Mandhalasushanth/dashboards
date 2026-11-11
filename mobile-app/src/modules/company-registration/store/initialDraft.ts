@@ -73,7 +73,7 @@ export const initialDraft: CompanyRegistrationDraft = {
   trackingStages: [
     { id: 'stg-1', title: 'Draft Creation', description: 'Application initiated by user', status: 'pending' },
     { id: 'stg-2', title: 'KYC & Document Verification', description: 'Reviewing PAN, Aadhaar & Office Proofs', status: 'pending' },
-    { id: 'stg-3', title: 'Under Review', description: 'TaxEdge compliance expert validation', status: 'pending' },
+    { id: 'stg-3', title: 'Under Review', description: 'Finsolz compliance expert validation', status: 'pending' },
     { id: 'stg-4', title: 'Name Reservation (RUN / SPICe+ Part A)', description: 'Filing preferred names with MCA CRC', status: 'pending' },
     { id: 'stg-5', title: 'DSC & DIN Processing', description: 'Digital signature token generation', status: 'pending' },
     { id: 'stg-6', title: 'Ready for SPICe+ Part B Filing', description: 'Final incorporation payload compilation', status: 'pending' },

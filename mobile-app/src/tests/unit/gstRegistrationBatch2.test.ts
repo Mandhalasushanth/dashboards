@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { GstValidators } from "../../modules/gst/utils/gstValidators";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Batch 2 Unit & Regression Tests
+// Finsolz GST Registration — Batch 2 Unit & Regression Tests
 // BUG-GST-REG-003: Legal Name as per PAN
 // BUG-GST-REG-004: City Validation
 // BUG-GST-REG-005: District Validation

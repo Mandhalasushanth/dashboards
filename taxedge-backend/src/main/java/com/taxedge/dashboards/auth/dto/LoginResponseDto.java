@@ -31,6 +31,10 @@ public class LoginResponseDto {
 
     private Long managerId;
 
+    private String accessToken;
+
+    private String refreshToken;
+
     private LocalDateTime lastLoginAt;
 
     private LocalDateTime updatedAt;

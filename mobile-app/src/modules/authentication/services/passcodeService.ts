@@ -196,7 +196,7 @@ class PasscodeService {
           customerId: response.custId || "",
           mobileNumber: response.mobileNumber || cleanMobile,
           name: response.name || "",
-          email: `${cleanMobile}@taxedge.in`,
+          email: `${cleanMobile}@finsolz.in`,
           customerType: "Individual",
           registrationCompleted: true,
         };

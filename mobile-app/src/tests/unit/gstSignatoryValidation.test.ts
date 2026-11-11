@@ -7,7 +7,7 @@ import path from "node:path";
 import { GstValidators } from "../../modules/gst/utils/gstValidators";
 
 // ===============================================================================================
-// TaxEdge GST Registration — Authorised Signatory Strict Validation Tests
+// Finsolz GST Registration — Authorised Signatory Strict Validation Tests
 // Bug 1: Signatory Name strict spacing and character validation
 // Bug 2: Signatory PAN individual category (4th char 'P') validation
 // Bug 3: Date of Birth future date rejection

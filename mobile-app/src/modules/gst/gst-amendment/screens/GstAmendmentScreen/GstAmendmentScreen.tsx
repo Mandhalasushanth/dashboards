@@ -21,6 +21,10 @@ export function GstAmendmentScreen() {
   // Android BackHandler interceptor for unsaved drafts
   useEffect(() => {
     const onBackPress = () => {
+      if (workflow.currentStep === "SUCCESS") {
+        workflow.router.replace("/(main)/applications");
+        return true;
+      }
       if (workflow.currentStep === "EDIT" || workflow.currentStep === "REVIEW") {
         if (workflow.draftGuard.showDraftModal) {
           workflow.draftGuard.handleCancel();
@@ -133,13 +137,10 @@ export function GstAmendmentScreen() {
           submissionResult={workflow.submissionResult}
           insets={insets}
           onTrack={() => {
-            if (workflow.submissionResult) {
-              useApplicationStore.getState().setSelectedApplicationId(workflow.submissionResult.appId);
-              workflow.router.push(`/application/${workflow.submissionResult.appId}`);
-            }
+            workflow.router.replace("/(main)/applications");
           }}
           onGoHome={() => workflow.router.replace("/(main)/home")}
-          onOpenApplications={() => workflow.router.push("/(main)/applications")}
+          onOpenApplications={() => workflow.router.replace("/(main)/applications")}
         />
       )}
 

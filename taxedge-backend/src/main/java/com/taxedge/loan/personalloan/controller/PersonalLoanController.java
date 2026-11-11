@@ -3,6 +3,7 @@ package com.taxedge.loan.personalloan.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +52,12 @@ public class PersonalLoanController {
             @RequestPart(value = "itrAcknowledgmentFile", required = false) MultipartFile itrAcknowledgmentFile) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(submissionService.submit(dto, panCardFile, bankStatementsFile, itrAcknowledgmentFile));
+    }
+
+    @DeleteMapping("application/{id}")
+    public ResponseEntity<Void> deleteApplication(@PathVariable String id) {
+        service.deleteApplication(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("application/update/{id}")
@@ -113,6 +120,20 @@ public class PersonalLoanController {
      * fileType values: pancardfile | aadhaarcard | addressproof | photograph | bankstatements | salaryslips
      * Example: GET /loan/personal/documents/PLN-001/download/photograph
      */
+    @DeleteMapping("documents/{loanApplicationId}/{fileType}")
+    public ResponseEntity<Void> deleteDocument(
+            @PathVariable String loanApplicationId,
+            @PathVariable String fileType) {
+        documentService.deleteDocument(loanApplicationId, fileType);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("documents/{loanApplicationId}")
+    public ResponseEntity<Void> deleteAllDocuments(@PathVariable String loanApplicationId) {
+        documentService.deleteAllDocuments(loanApplicationId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("documents/{loanApplicationId}/download/{fileType}")
     public ResponseEntity<byte[]> downloadFile(
             @PathVariable String loanApplicationId,

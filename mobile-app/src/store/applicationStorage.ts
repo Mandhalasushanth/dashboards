@@ -28,7 +28,7 @@ export function getActiveCustomerMobile(): string {
 export async function getPersistedApplications(cleanMobile: string): Promise<Application[]> {
   if (!cleanMobile) return [];
   try {
-    const raw = await AsyncStorage.getItem(`@taxedge_apps_${cleanMobile}`);
+    const raw = await AsyncStorage.getItem(`@finsolz_apps_${cleanMobile}`);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -51,7 +51,7 @@ export async function savePersistedApplications(
       (a) => a.status !== "Draft" && !a.id.startsWith("DRAFT-")
     );
     await AsyncStorage.setItem(
-      `@taxedge_apps_${cleanMobile}`,
+      `@finsolz_apps_${cleanMobile}`,
       JSON.stringify(realApps)
     );
   } catch (err) {
@@ -71,7 +71,7 @@ export async function persistDraftRecord(
   try {
     addDraftToIndex(cleanMobile, serviceKey);
     await AsyncStorage.setItem(
-      `@taxedge_draft_${cleanMobile}_${serviceKey}`,
+      `@finsolz_draft_${cleanMobile}_${serviceKey}`,
       JSON.stringify(payload)
     );
   } catch (error) {
@@ -90,7 +90,7 @@ export async function removeDraftRecord(
   try {
     removeDraftFromIndex(cleanMobile, serviceKey);
     await AsyncStorage.removeItem(
-      `@taxedge_draft_${cleanMobile}_${serviceKey}`
+      `@finsolz_draft_${cleanMobile}_${serviceKey}`
     );
   } catch (error) {
     logger.warn("Failed to remove draft", { serviceKey, error: getErrorMessage(error) });

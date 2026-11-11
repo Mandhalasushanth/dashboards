@@ -1,5 +1,5 @@
 /**
- * Shared domain models for the TaxEdge mobile app.
+ * Shared domain models for the Finsolz mobile app.
  *
  * These describe the mock data in `src/data`, the Zustand store shapes in
  * `src/store`, and the props that screens and components pass around.

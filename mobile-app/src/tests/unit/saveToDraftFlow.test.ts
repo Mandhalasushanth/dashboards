@@ -19,8 +19,8 @@ const mockAsyncStorage = {
   removeItem: async (key: string) => { delete asyncStore[key]; },
 };
 
-function makeIndexKey(mobile: string) { return `@taxedge_draft_index_${mobile}`; }
-function makeDraftKey(mobile: string, serviceKey: string) { return `@taxedge_draft_${mobile}_${serviceKey}`; }
+function makeIndexKey(mobile: string) { return `@finsolz_draft_index_${mobile}`; }
+function makeDraftKey(mobile: string, serviceKey: string) { return `@finsolz_draft_${mobile}_${serviceKey}`; }
 
 async function persistDraft(mobile: string, serviceKey: string, serviceName: string, category: string, formData: Record<string, unknown>, step: number) {
   const payload = JSON.stringify({ serviceKey, serviceName, category, step, formData, documents: [], updatedAt: new Date().toISOString().split("T")[0] });

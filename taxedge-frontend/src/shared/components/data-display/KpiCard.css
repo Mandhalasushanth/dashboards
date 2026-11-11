@@ -1,0 +1,65 @@
+.tx-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.tx-kpi {
+  --kpi-accent: var(--tx-primary-blue);
+  --kpi-tint: var(--tx-light-blue);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--tx-border);
+  border-top: 3px solid var(--kpi-accent);
+  border-radius: var(--tx-radius-md);
+  /* A light wash of the card's colour, fading to white. */
+  background: linear-gradient(180deg, var(--kpi-tint) 0%, var(--tx-surface) 75%);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-kpi--success { --kpi-accent: var(--tx-success); --kpi-tint: var(--tx-success-light); }
+.tx-kpi--danger { --kpi-accent: var(--tx-error); --kpi-tint: var(--tx-error-light); }
+.tx-kpi--orange { --kpi-accent: var(--tx-primary-orange); --kpi-tint: var(--tx-light-orange); }
+
+.tx-kpi__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--tx-radius-md);
+  background-color: var(--tx-light-blue);
+  color: var(--tx-primary-blue);
+}
+
+.tx-kpi--success .tx-kpi__icon {
+  background-color: var(--tx-success-light, var(--tx-light-blue));
+  color: var(--tx-success);
+}
+
+.tx-kpi--danger .tx-kpi__icon {
+  background-color: var(--tx-error-light);
+  color: var(--tx-error);
+}
+
+.tx-kpi--orange .tx-kpi__icon {
+  background-color: var(--tx-light-orange);
+  color: var(--tx-primary-orange);
+}
+
+.tx-kpi__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+}
+
+.tx-kpi__value {
+  margin-top: 2px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+  font-variant-numeric: tabular-nums;
+}

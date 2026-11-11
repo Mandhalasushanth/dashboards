@@ -34,6 +34,8 @@ public class JwtService {
 
     public static final String CLAIM_MOBILE = "mobileNumber";
    
+    public static final String CLAIM_EMAIL  = "email";
+
     public static final String ROLE_CUSTOMER = "ROLE_CUSTOMER";
 
   
@@ -57,6 +59,18 @@ public class JwtService {
 
    
   
+    public String generateStaffToken(String subject, String name, String email, String role) {
+        return Jwts.builder()
+                .subject(subject)
+                .claim(CLAIM_NAME, name)
+                .claim(CLAIM_EMAIL, email)
+                .claim(CLAIM_ROLE, role)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
     public Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())

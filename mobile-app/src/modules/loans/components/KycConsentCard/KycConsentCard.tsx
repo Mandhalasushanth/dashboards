@@ -37,7 +37,7 @@ export const KycConsentCard: React.FC<KycConsentCardProps> = ({
         <View style={styles.consentTextWrapper}>
           <Text style={styles.consentTitle}>Consent & Authorization</Text>
           <Text style={styles.consentText}>
-            I hereby authorize TaxEdge and its RBI-regulated lending partners to verify my KYC details (PAN & Aadhaar) and fetch my credit records for loan evaluation in compliance with RBI norms and the Digital Personal Data Protection (DPDP) Act.
+            I hereby authorize Finsolz and its RBI-regulated lending partners to verify my KYC details (PAN & Aadhaar) and fetch my credit records for loan evaluation in compliance with RBI norms and the Digital Personal Data Protection (DPDP) Act.
           </Text>
         </View>
       </TouchableOpacity>

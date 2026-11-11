@@ -1,0 +1,10 @@
+.tx-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.tx-login-form .tx-button {
+  margin-top: 4px;
+}

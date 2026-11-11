@@ -4,7 +4,10 @@ import {
   UploadDocumentItem,
   executeXhrUpload,
   resolveApiBaseUrl,
+  resolveAsyncApiBaseUrl,
   mapFilingDocField,
+  normalizeDocumentUri,
+  resolveDocumentMimeType,
 } from "./gstUploadHelper";
 import { appendFilePart } from "@/shared/utils/formDataFile";
 import type { GstFilingPayload } from "@/modules/gst/gst-filing/types/gstFilingPayload.types";
@@ -96,19 +99,21 @@ export const gstFilingApi = {
       if (fieldName) {
         hasFiles = true;
         const name = doc.fileName || `${fieldName}.pdf`;
-        const isPdf = name.toLowerCase().endsWith(".pdf");
+        const mime = resolveDocumentMimeType(name, doc.mimeType || undefined);
+        const cleanUri = normalizeDocumentUri(doc.fileUri);
         appendFilePart(formData, fieldName, {
-          uri: doc.fileUri,
+          uri: cleanUri,
           name: name,
-          type: isPdf ? "application/pdf" : "image/jpeg",
+          type: mime,
         });
       }
     }
 
     if (!hasFiles) return "No documents selected for upload";
 
+    const baseUrl = await resolveAsyncApiBaseUrl();
     const cleanFilingId = String(filingId || "").trim();
-    const url = `${resolveApiBaseUrl()}/api/v1/gst/filing/documents/${cleanFilingId}/upload`;
+    const url = `${baseUrl}/api/v1/gst/filing/documents/${cleanFilingId}/upload`;
     return executeXhrUpload(url, "POST", formData, () =>
       gstFilingApi.updateAllFilingDocuments(cleanFilingId, documents)
     );
@@ -129,19 +134,21 @@ export const gstFilingApi = {
       if (fieldName) {
         hasFiles = true;
         const name = doc.fileName || `${fieldName}.pdf`;
-        const isPdf = name.toLowerCase().endsWith(".pdf");
+        const mime = resolveDocumentMimeType(name, doc.mimeType || undefined);
+        const cleanUri = normalizeDocumentUri(doc.fileUri);
         appendFilePart(formData, fieldName, {
-          uri: doc.fileUri,
+          uri: cleanUri,
           name: name,
-          type: isPdf ? "application/pdf" : "image/jpeg",
+          type: mime,
         });
       }
     }
 
     if (!hasFiles) return "No documents selected for upload";
 
+    const baseUrl = await resolveAsyncApiBaseUrl();
     const cleanFilingId = String(filingId || "").trim();
-    const url = `${resolveApiBaseUrl()}/api/v1/gst/filing/documents/${cleanFilingId}/update`;
+    const url = `${baseUrl}/api/v1/gst/filing/documents/${cleanFilingId}/update`;
 
     return executeXhrUpload(url, "PUT", formData, () =>
       gstFilingApi.uploadAllFilingDocuments(cleanFilingId, documents)
@@ -157,13 +164,19 @@ export const gstFilingApi = {
     const formData = new FormData();
     const fieldName = mapFilingDocField(documentType || "");
 
+    const name = fileName || `${fieldName}.pdf`;
+    const mime = resolveDocumentMimeType(name);
+    const cleanUri = normalizeDocumentUri(fileUri);
+
     appendFilePart(formData, fieldName, {
-      uri: fileUri,
-      name: fileName || `${fieldName}.pdf`,
-      type: fileName?.toLowerCase().endsWith(".pdf") ? "application/pdf" : "image/jpeg",
+      uri: cleanUri,
+      name: name,
+      type: mime,
     });
 
-    const url = `${resolveApiBaseUrl()}/api/v1/gst/filing/documents/${filingId}/upload`;
+    const baseUrl = await resolveAsyncApiBaseUrl();
+    const cleanFilingId = String(filingId || "").trim();
+    const url = `${baseUrl}/api/v1/gst/filing/documents/${cleanFilingId}/upload`;
     return executeXhrUpload(url, "POST", formData);
   },
 

@@ -1,0 +1,123 @@
+.tx-catalog-edit__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--tx-subtle-border);
+}
+
+.tx-catalog-edit__heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tx-secondary-text);
+}
+
+.tx-catalog-edit__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+/* An amount with its "₹ or %" choice, and a one-line explanation under both. */
+.tx-catalog-edit__pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 4px 12px;
+}
+
+.tx-catalog-edit__pair-hint {
+  grid-column: 1 / -1;
+}
+
+.tx-catalog-edit__toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-md);
+  font-size: 0.86rem;
+  color: var(--tx-primary-text);
+  cursor: pointer;
+}
+
+.tx-catalog-edit__toggle input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--tx-success);
+}
+
+.tx-catalog-edit__toggle > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tx-catalog-edit__hint {
+  font-size: 0.78rem;
+  color: var(--tx-secondary-text);
+}
+
+.tx-catalog-edit__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--tx-radius-md);
+  background: var(--tx-light-blue);
+}
+
+.tx-catalog-edit__bill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.86rem;
+}
+
+.tx-catalog-edit__bill > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--tx-primary-text);
+}
+
+.tx-catalog-edit__bill dd {
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-catalog-edit__total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--tx-border);
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-catalog-edit__earn {
+  font-size: 0.8rem;
+  color: var(--tx-secondary-text);
+}
+
+.tx-catalog-edit__docs summary {
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--tx-primary-navy);
+}
+
+.tx-catalog-edit__docs ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+  color: var(--tx-secondary-text);
+}
+
+@media (max-width: 600px) {
+  .tx-catalog-edit__grid,
+  .tx-catalog-edit__pair {
+    grid-template-columns: 1fr;
+  }
+}

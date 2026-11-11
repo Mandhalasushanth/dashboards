@@ -1,0 +1,124 @@
+.tx-fin-trend {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(14px, 2.5vw, 20px);
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-lg);
+  background-color: var(--tx-surface);
+  box-shadow: var(--tx-shadow-sm);
+}
+
+.tx-fin-trend__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+
+.tx-fin-trend__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tx-primary-navy);
+}
+
+.tx-fin-trend__readout {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx-secondary-text);
+}
+
+.tx-fin-trend__plot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  height: 220px;
+}
+
+.tx-fin-trend__axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  font-size: 11px;
+  color: var(--tx-muted-text);
+  text-align: right;
+}
+
+.tx-fin-trend__area {
+  position: relative;
+  min-width: 0;
+}
+
+/* Recessive gridlines, positioned from the same baseline as the bars (above the 22px label strip). */
+.tx-fin-trend__grid {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 0;
+  border-top: 1px dashed var(--tx-subtle-border);
+  transform: translateY(0.5px);
+}
+
+.tx-fin-trend__bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.tx-fin-trend__slot {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--tx-radius-sm);
+  background: none;
+  cursor: default;
+}
+
+.tx-fin-trend__slot:hover,
+.tx-fin-trend__slot--active {
+  background-color: var(--tx-light-blue);
+}
+
+.tx-fin-trend__bar {
+  align-self: center;
+  width: min(100%, 28px);
+  margin-bottom: 22px;
+  border-radius: 4px 4px 0 0;
+  background-color: var(--tx-primary-navy);
+}
+
+.tx-fin-trend__bars--dense .tx-fin-trend__bar {
+  width: min(100%, 12px);
+}
+
+.tx-fin-trend__slot--active .tx-fin-trend__bar {
+  background-color: var(--tx-primary-orange);
+}
+
+.tx-fin-trend__label {
+  position: relative;
+  height: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--tx-secondary-text);
+  white-space: nowrap;
+  transform: translateY(-16px);
+}
+
+@media (max-width: 640px) {
+  .tx-fin-trend__plot {
+    height: 180px;
+  }
+
+  .tx-fin-trend__label {
+    font-size: 10px;
+  }
+}

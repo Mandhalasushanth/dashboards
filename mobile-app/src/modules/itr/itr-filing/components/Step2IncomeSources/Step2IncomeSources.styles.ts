@@ -3,16 +3,6 @@ import { BrandColors, Typography, Spacing, BorderRadius } from "@/shared/theme";
 
 export const styles = StyleSheet.create({
   container: { paddingHorizontal: Spacing.base, paddingTop: Spacing.base, paddingBottom: Spacing.xxl },
-  determinationCard: { backgroundColor: "#EFF6FF", borderRadius: BorderRadius.md, padding: Spacing.base, borderWidth: 1.5, borderColor: "#3B82F6", marginBottom: Spacing.md },
-  determinationHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: Spacing.xs },
-  determinationTitleCol: { flexDirection: "row", alignItems: "center", gap: Spacing.xs },
-  determinationTitle: { fontSize: Typography.fontSize.sm, fontWeight: Typography.fontWeight.bold, color: "#1E40AF" },
-  formBadge: { backgroundColor: "#1D4ED8", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 6 },
-  formBadgeText: { fontSize: Typography.fontSize.xs, fontWeight: Typography.fontWeight.bold, color: "#FFFFFF" },
-  determinationRationale: { fontSize: Typography.fontSize.xs, color: "#1E3A8A", lineHeight: 18, marginTop: 4, marginBottom: Spacing.xs },
-  determinationCriteriaList: { gap: 4, marginTop: Spacing.xs, paddingTop: Spacing.xs, borderTopWidth: 1, borderTopColor: "#DBEAFE" },
-  determinationCriteriaRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  determinationCriteriaText: { fontSize: 11, color: "#1E40AF", fontWeight: Typography.fontWeight.medium },
   sectionTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.bold,

@@ -1,4 +1,5 @@
 import { SharedItrDocumentCard } from "@/modules/itr/components/documents/SharedItrDocumentCard/SharedItrDocumentCard";
+import { ITR_ALLOWED_EXTENSIONS } from "@/modules/itr/utils/itrDocumentUploadHelper";
 import React, { useState } from "react";
 import {
   View,
@@ -8,7 +9,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { BrandColors } from "@/shared/theme";
 import { ItrDocumentItem } from "../../types/itrFiling.types";
 import {
   DocumentUploadModal,
@@ -43,57 +43,46 @@ export const Step4DocumentChecklist: React.FC<Step4DocumentChecklistProps> = ({
     (d) => d.tier === "ONLY_IF_APPLICABLE" || (!["REQUIRED", "RECOMMENDED"].includes(d.tier) && d.tier !== "NOT_REQUIRED")
   );
 
-  const uploadedCount = documents.reduce(
-    (count, doc) => (Boolean(doc.fileUri) ? count + 1 : count),
-    0
-  );
-  const totalCount = documents.length;
-  const progressPercent = totalCount > 0 ? Math.round((uploadedCount / totalCount) * 100) : 0;
-
-  const handleUploadClick = (doc: ItrDocumentItem) => {
-    setActiveUploadDoc(doc);
-  };
-
   const handleFilePicked = (file: UploadedFileInfo) => {
     if (!activeUploadDoc) return;
     onUpdateDocument(activeUploadDoc.id, file);
     setActiveUploadDoc(null);
   };
 
-  const handleRemoveDoc = (docId: string) => {
-    Alert.alert(
-      "Remove Document",
-      "Are you sure you want to remove this uploaded file?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: () => onUpdateDocument(docId, null),
-        },
-      ]
-    );
+  const checkMandatoryDocuments = (): boolean => {
+    const missingRequired = requiredDocs.filter((doc) => !doc.fileUri);
+    if (missingRequired.length > 0) {
+      const missingNames = missingRequired.map((d) => `• ${d.name}`).join("\n");
+      Alert.alert(
+        "Required Documents Missing",
+        `Please upload the following mandatory documents before proceeding:\n\n${missingNames}`
+      );
+      return false;
+    }
+    return true;
   };
 
   const handleContinuePress = () => {
-    const missingRequired = requiredDocs.filter((doc) => !doc.fileUri);
-
-    if (missingRequired.length > 0) {
-      const missingNames = missingRequired.map((d) => `• ${d.name} *`).join("\n");
-      Alert.alert(
-        "Required Documents Missing",
-        `Please upload the following required documents before proceeding:\n\n${missingNames}`
-      );
-      return;
+    if (checkMandatoryDocuments()) {
+      onContinue();
     }
+  };
 
-    onContinue();
+  const handleUpdateAndContinuePress = () => {
+    if (checkMandatoryDocuments()) {
+      if (onUpdateAndContinue) {
+        onUpdateAndContinue();
+      } else {
+        onContinue();
+      }
+    }
   };
 
   const renderDocCard = (doc: ItrDocumentItem) => {
     return (
       <SharedItrDocumentCard
         key={doc.id}
+        allowedExtensions={[...ITR_ALLOWED_EXTENSIONS]}
         item={{
           id: doc.id,
           title: doc.name,
@@ -109,7 +98,7 @@ export const Step4DocumentChecklist: React.FC<Step4DocumentChecklistProps> = ({
           onUpdateDocument(id, fileInfo);
         }}
         onRemove={(id: string) => {
-          onUpdateDocument(id, { uri: "", name: "", size: "" });
+          onUpdateDocument(id, null);
         }}
       />
     );
@@ -162,7 +151,7 @@ export const Step4DocumentChecklist: React.FC<Step4DocumentChecklistProps> = ({
         <TouchableOpacity
           activeOpacity={0.85}
           style={styles.continueButton}
-          onPress={onUpdateAndContinue || handleContinuePress}
+          onPress={handleUpdateAndContinuePress}
           disabled={isLoading}
         >
           {isLoading ? (

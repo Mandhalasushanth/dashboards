@@ -8,7 +8,7 @@ import { GstValidators } from "../../modules/gst/utils/gstValidators";
 import { hsnSacPolicy } from "../../modules/gst/utils/hsnSacPolicy";
 
 // ===============================================================================================
-// TaxEdge GST Registration — HSN/SAC Validation Unit Tests
+// Finsolz GST Registration — HSN/SAC Validation Unit Tests
 // - Reject all-zero HSN codes (e.g. 0000, 000000, 00000000).
 // - Reject invalid HSN lengths of 5 and 7 digits (HSN must be 4, 6, or 8 digits).
 // - Enforce exactly 6 digits for SAC codes beginning with 99.

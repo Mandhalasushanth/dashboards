@@ -59,7 +59,7 @@ export function PaymentSecurityNote({
     <View style={[styles.secureNote, { backgroundColor: "#FFF4EC" }]}>
       <Ionicons name="shield-checkmark" size={16} color={colors.orange} />
       <Text style={[styles.secureText, { color: colors.textSecondary }]}>
-        Payments are processed over an encrypted connection. TaxEdge never
+        Payments are processed over an encrypted connection. Finsolz never
         stores your card or UPI credentials.
       </Text>
     </View>
